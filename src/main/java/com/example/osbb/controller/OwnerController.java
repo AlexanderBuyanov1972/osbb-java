@@ -63,9 +63,4 @@ public class OwnerController {
         return response.returnResponse(service.deleteAllOwner());
     }
 
-    @PostMapping(ApiConstants.BYIDS)
-    public ResponseEntity<?> getListOwnerByListId(@RequestBody List<Long> list) {
-        return response.returnResponse(service.getListOwnerByListId(list));
-    }
-
 }

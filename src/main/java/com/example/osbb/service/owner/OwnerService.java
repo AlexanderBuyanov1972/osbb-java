@@ -130,23 +130,6 @@ public class OwnerService implements IOwnerService {
         }
     }
 
-    @Override
-    public Object getListOwnerByListId(List<Long> list) {
-        try {
-            List<Owner> result = new ArrayList<>();
-            list.forEach(el -> {
-                if(ownerDAO.existsById(el)){
-                    Owner owner =ownerDAO.findById(el).get();
-                    result.add(owner);
-                }
-            });
-            return result.isEmpty() ? new ResponseMessages(List.of("Лист собственников по листу id пустой"))
-                    : returnListSorted(result);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
-        }
-    }
-
     private List<Owner> returnListSorted(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }

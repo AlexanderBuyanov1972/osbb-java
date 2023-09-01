@@ -1,8 +1,11 @@
 package com.example.osbb.service.ownership;
 
+import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dto.OneOwnershipAndListOwner;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.consts.*;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +22,8 @@ public class OwnershipService implements IOwnershipService {
 
     @Autowired
     private OwnershipDAO ownershipDAO;
+    @Autowired
+    private OwnerDAO ownerDAO;
 
     // ------------- one --------------------
 
@@ -67,6 +73,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
 
     @Override
     public Object deleteOwnership(Long id) {
@@ -215,7 +222,56 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     private List<Ownership> returnListSorted(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
+    }
+
+    private List<Owner> returnListSortedOwner(List<Owner> list) {
+        return list.stream().sorted(Comparator.comparing(Owner::getLastName)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Object getOwnershipWithListOwner(Long id) {
+        try {
+            if (ownershipDAO.existsById(id)) {
+                return List.of(OneOwnershipAndListOwner
+                        .builder()
+                        .ownership(ownershipDAO.findById(id).get())
+                        .owners(getListOwnerByOwnershipId(id))
+                        .build()
+                );
+            }
+            return new ErrorResponseMessages(List.of(ObjectMessages.withSuchIdNotExists("Ownership")));
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+
+    }
+
+    private List<Owner> getListOwnerByOwnershipId(Long id) {
+        List<Owner> owners = new ArrayList<>();
+        ownerDAO.findAll().forEach(el -> {
+            for (Ownership one : el.getOwnerships()) {
+                if (one.getId() == id) {
+                    owners.add(createOwner(el));
+                }
+            }
+        });
+        return returnListSortedOwner(owners);
+    }
+
+    private Owner createOwner(Owner one) {
+        return Owner
+                .builder()
+                .id(one.getId())
+                .firstName(one.getFirstName())
+                .secondName(one.getSecondName())
+                .lastName(one.getLastName())
+                .gender(one.getGender())
+                .email(one.getEmail())
+                .phoneNumber(one.getPhoneNumber())
+                .password(one.getPassword())
+                .build();
     }
 }

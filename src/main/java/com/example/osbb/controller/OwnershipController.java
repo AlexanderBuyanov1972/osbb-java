@@ -100,6 +100,11 @@ public class OwnershipController {
     public ResponseEntity<?> countNonResidentialRoom() {
         return response.returnResponse(service.countNonResidentialRoom());
     }
+    // -------------- specific-------------------
+    @GetMapping(ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.ID)
+    public ResponseEntity<?> getOwnershipWithListOwner(@PathVariable Long id){
+        return response.returnResponse(service.getOwnershipWithListOwner(id));
+    }
 
 
 }

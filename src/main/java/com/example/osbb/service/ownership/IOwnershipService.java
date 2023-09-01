@@ -47,5 +47,8 @@ public interface IOwnershipService {
     // Количество нежилых помещений
     public Object countNonResidentialRoom();
 
+    // ---------- Specific -----------
+    public Object getOwnershipWithListOwner(Long id);
+
 
 }

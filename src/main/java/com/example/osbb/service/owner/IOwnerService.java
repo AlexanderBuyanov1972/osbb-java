@@ -26,7 +26,4 @@ public interface IOwnerService {
 
     public Object deleteAllOwner();
 
-    public Object getListOwnerByListId(List<Long> ids);
-
-
 }
