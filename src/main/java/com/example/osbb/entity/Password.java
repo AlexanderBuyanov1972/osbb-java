@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -27,7 +28,7 @@ public class Password {
     @Column(name = "number_entry", nullable = false)
     private String numberEntry;
     @Column(name = "date_issue", nullable = false)
-    private LocalDateTime dateIssue;
+    private LocalDate dateIssue;
     @Column(name = "issuing_authority", nullable = false)
     private String issuingAuthority;
     @Column(name = "registration_number_card_payer_taxes", nullable = false, unique = true)

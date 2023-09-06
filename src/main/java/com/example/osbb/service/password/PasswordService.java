@@ -4,7 +4,6 @@ import com.example.osbb.dao.PasswordDAO;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Password;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.consts.ObjectMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +23,9 @@ public class PasswordService implements IPasswordService {
         List<String> list = new ArrayList<>();
         try {
             if (passwordDAO.existsById(password.getId()))
-                list.add(ObjectMessages.withSuchIdAlreadyExists("Password"));
+                list.add("Паспорт с таким ID уже существует.");
             if (passwordDAO.existsByRegistrationNumberCardPayerTaxes(password.getRegistrationNumberCardPayerTaxes()))
-                list.add(ObjectMessages.passwordWithSuchRegistrationNumberCardPayerTaxesAlreadyExists());
+                list.add("Паспорт с таким ИНН уже существует.");
             return list.isEmpty() ? List.of(passwordDAO.save(password)) : new ErrorResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -39,10 +38,10 @@ public class PasswordService implements IPasswordService {
         List<String> list = new ArrayList<>();
         try {
             if (!passwordDAO.existsById(password.getId()))
-                list.add(ObjectMessages.withSuchIdNotExists("Password"));
+                list.add("Паспорт с таким ID не существует.");
             if (!passwordDAO.existsByRegistrationNumberCardPayerTaxes(password.getRegistrationNumberCardPayerTaxes()
             ))
-                list.add(ObjectMessages.passwordWithSuchRegistrationNumberCardPayerTaxesNotExists());
+                list.add("Паспорт с таким ИНН не существует.");
             return list.isEmpty() ? List.of(passwordDAO.save(password)) : new ErrorResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -56,7 +55,7 @@ public class PasswordService implements IPasswordService {
         List<String> list = new ArrayList<>();
         try {
             if (!passwordDAO.existsById(id)) {
-                list.add(ObjectMessages.withSuchIdNotExists("Password"));
+                list.add("Паспорт с таким ID не существует.");
             }
             return list.isEmpty() ? List.of(passwordDAO.findById(id).get()) : new ErrorResponseMessages(list);
         } catch (Exception exception) {
@@ -70,9 +69,9 @@ public class PasswordService implements IPasswordService {
         try {
             if (passwordDAO.existsById(id)) {
                 passwordDAO.deleteById(id);
-                return new ResponseMessages(List.of(ObjectMessages.deletionCompleted()));
+                return new ResponseMessages(List.of("Паспорт удалён успешно."));
             }
-            return new ErrorResponseMessages(List.of(ObjectMessages.withSuchIdNotExists("Password")));
+            return new ErrorResponseMessages(List.of("Паспорт с таким ID не существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -93,7 +92,8 @@ public class PasswordService implements IPasswordService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List.of(ObjectMessages.noObjectCreated("Password")))
+            return result.isEmpty() ? new ErrorResponseMessages(List
+                    .of("Ни один из паспортов создан не был. Паспорта с такими ID уже существуют."))
                     : returnListSorted(result);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -111,7 +111,8 @@ public class PasswordService implements IPasswordService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List.of(ObjectMessages.noObjectUpdated("Password")))
+            return result.isEmpty() ? new ErrorResponseMessages(List
+                    .of("Ни один из паспортов обновлён не был. Паспорта с такими ID не существуют."))
                     : returnListSorted(result);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -123,7 +124,7 @@ public class PasswordService implements IPasswordService {
     public Object getAllPassword() {
         try {
             List<Password> result = passwordDAO.findAll();
-            return result.isEmpty() ? new ResponseMessages(List.of(ObjectMessages.listEmpty()))
+            return result.isEmpty() ? new ResponseMessages(List.of("В базе данных паспортов не существует."))
                     : returnListSorted(result);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -135,7 +136,7 @@ public class PasswordService implements IPasswordService {
     public Object deleteAllPassword() {
         try {
             passwordDAO.deleteAll();
-            return new ResponseMessages(List.of(ObjectMessages.deletionCompleted()));
+            return new ResponseMessages(List.of("Паспорта удалены успешно."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -147,7 +148,8 @@ public class PasswordService implements IPasswordService {
     public Object findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes) {
         try {
             if (!passwordDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
-                return new ErrorResponseMessages(List.of(ObjectMessages.passwordWithSuchRegistrationNumberCardPayerTaxesNotExists()));
+                return new ErrorResponseMessages(List
+                        .of("Паспорт с таким ИНН не существует."));
             return passwordDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));

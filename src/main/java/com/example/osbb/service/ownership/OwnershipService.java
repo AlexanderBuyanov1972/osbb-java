@@ -2,7 +2,6 @@ package com.example.osbb.service.ownership;
 
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
-import com.example.osbb.dto.OneOwnershipAndListOwner;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Owner;
@@ -28,20 +27,19 @@ public class OwnershipService implements IOwnershipService {
     // ------------- one --------------------
 
     @Override
-    public Object createOwnership(Ownership one) {
+    public Object createOwnership(Ownership ownership) {
         try {
             List<String> list = new ArrayList<>();
-            if (ownershipDAO.existsById(one.getId()))
-                list.add(ObjectMessages.withSuchIdAlreadyExists("Ownership"));
+            if (ownershipDAO.existsById(ownership.getId()))
+                list.add("Недвижимость с таким ID уже существует.");
             return list.isEmpty() ?
-                    List.of(ownershipDAO.save(one))
+                    List.of(ownershipDAO.save(ownership))
                     :
                     new ErrorResponseMessages(list);
 
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
-
     }
 
     @Override
@@ -49,7 +47,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<String> list = new ArrayList<>();
             if (!ownershipDAO.existsById(one.getId()))
-                list.add(ObjectMessages.withSuchIdNotExists("Ownership"));
+                list.add("Недвижимость с таким ID не существует.");
             return list.isEmpty() ?
                     List.of(ownershipDAO.save(one))
                     :
@@ -67,7 +65,7 @@ public class OwnershipService implements IOwnershipService {
             return ownershipDAO.existsById(id) ?
                     List.of(ownershipDAO.findById(id).get())
                     :
-                    new ErrorResponseMessages(List.of(ObjectMessages.withSuchIdNotExists("Ownership")));
+                    new ErrorResponseMessages(List.of("Недвижимость с таким ID не существует."));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -80,13 +78,12 @@ public class OwnershipService implements IOwnershipService {
         try {
             if (ownershipDAO.existsById(id)) {
                 ownershipDAO.deleteById(id);
-                return new ResponseMessages(List.of(ObjectMessages.deletionCompleted()));
+                return new ResponseMessages(List.of("Недвижимость удаленна успешно."));
             }
-            return new ErrorResponseMessages(List.of(ObjectMessages.withSuchIdNotExists("Ownership")));
+            return new ErrorResponseMessages(List.of("Недвижимость с таким ID не существует."));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
-
     }
 
     // ------------------ all -------------------
@@ -102,7 +99,8 @@ public class OwnershipService implements IOwnershipService {
                 }
             }
             return result.isEmpty() ? new ErrorResponseMessages(List.of(
-                    ObjectMessages.noObjectCreated("Ownership"))) : returnListSorted(result);
+                    "Ни один из объектов недвижимости создан не был. Недвижимость с такими ID уже существует."))
+                    : returnListSorted(result);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -119,7 +117,8 @@ public class OwnershipService implements IOwnershipService {
                 }
             }
             return result.isEmpty() ? new ErrorResponseMessages(List.of(
-                    ObjectMessages.noObjectUpdated("Ownership"))) : returnListSorted(result);
+                    "Ни один из объектов недвижимости обновлён не был. Недвижимость с такими ID не существует."))
+                    : returnListSorted(result);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -129,19 +128,18 @@ public class OwnershipService implements IOwnershipService {
     public Object getAllOwnership() {
         try {
             List<Ownership> result = ownershipDAO.findAll();
-            return result.isEmpty() ? new ResponseMessages(List.of(ObjectMessages.listEmpty()))
+            return result.isEmpty() ? new ResponseMessages(List.of("В базе данных объектов недвижимости не существует."))
                     : returnListSorted(result);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
-
     }
 
     @Override
     public Object deleteAllOwnership() {
         try {
             ownershipDAO.deleteAll();
-            return new ResponseMessages(List.of(ObjectMessages.deletionCompleted()));
+            return new ResponseMessages(List.of("Объекты недвижимости удалены успешно."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -154,7 +152,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Ownership> list = ownershipDAO.findAll();
             return list.isEmpty() ? 0 : list.stream()
-                    .mapToDouble(Ownership::getAreaRoomThatIsInProperty)
+                    .mapToDouble(Ownership::getTotalArea)
                     .sum();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -168,7 +166,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             return list.isEmpty() ? 0 : list.stream()
                     .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                    .mapToDouble(Ownership::getAreaRoomThatIsInProperty)
+                    .mapToDouble(Ownership::getTotalArea)
                     .sum();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -182,7 +180,7 @@ public class OwnershipService implements IOwnershipService {
             List<Ownership> list = ownershipDAO.findAll();
             return list.isEmpty() ? 0 : list.stream()
                     .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                    .mapToDouble(Ownership::getAreaRoomThatIsInProperty)
+                    .mapToDouble(Ownership::getTotalArea)
                     .sum();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -229,36 +227,6 @@ public class OwnershipService implements IOwnershipService {
 
     private List<Owner> returnListSortedOwner(List<Owner> list) {
         return list.stream().sorted(Comparator.comparing(Owner::getLastName)).collect(Collectors.toList());
-    }
-
-    @Override
-    public Object getOwnershipWithListOwner(Long id) {
-        try {
-            if (ownershipDAO.existsById(id)) {
-                return List.of(OneOwnershipAndListOwner
-                        .builder()
-                        .ownership(ownershipDAO.findById(id).get())
-                        .owners(getListOwnerByOwnershipId(id))
-                        .build()
-                );
-            }
-            return new ErrorResponseMessages(List.of(ObjectMessages.withSuchIdNotExists("Ownership")));
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
-        }
-
-    }
-
-    private List<Owner> getListOwnerByOwnershipId(Long id) {
-        List<Owner> owners = new ArrayList<>();
-        ownerDAO.findAll().forEach(el -> {
-            for (Ownership one : el.getOwnerships()) {
-                if (one.getId() == id) {
-                    owners.add(createOwner(el));
-                }
-            }
-        });
-        return returnListSortedOwner(owners);
     }
 
     private Owner createOwner(Owner one) {

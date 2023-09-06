@@ -1,10 +1,12 @@
 package com.example.osbb.entity;
 
+import com.example.osbb.enums.FamilyStatus;
 import com.example.osbb.enums.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +34,15 @@ public class Owner {
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender;
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email", unique = true)
     private String email;
-    @Column(name = "phone_number", unique = true, nullable = false)
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+    @Column(name = "date_birth")
+    private LocalDate dateBirth;
+    @Column(name = "family_status")
+    @Enumerated(EnumType.STRING)
+    private FamilyStatus familyStatus;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "password_id", referencedColumnName = "id")
@@ -46,6 +53,7 @@ public class Owner {
             name = "owner_ownership",
             joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+    @JsonIgnore
     private List<Ownership> ownerships = new ArrayList<>();
 
 }

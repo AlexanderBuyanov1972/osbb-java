@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 public interface OwnerDAO extends JpaRepository<Owner, Long> {
 
-   boolean existsById(long id);
+    boolean existsById(long id);
+
+    long count();
 
 }

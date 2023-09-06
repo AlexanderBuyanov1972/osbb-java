@@ -63,4 +63,12 @@ public class OwnerController {
         return response.returnResponse(service.deleteAllOwner());
     }
 
+    // ----------- count ---------------
+    @GetMapping(ApiConstants.COUNT)
+    public ResponseEntity<?> countOwners() {
+        return response.returnResponse(service.countOwners());
+    }
+
+
+
 }

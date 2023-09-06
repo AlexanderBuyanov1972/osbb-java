@@ -2,7 +2,6 @@ package com.example.osbb.entity;
 
 import com.example.osbb.enums.DocumentConfirmsRightOwn;
 import com.example.osbb.enums.TypeOfRoom;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,9 +26,13 @@ public class Ownership {
     @Enumerated(EnumType.STRING)
     private TypeOfRoom typeRoom;
 
-    // площадь квартиры или нежилого помещения
-    @Column(name = "area_room")
-    private double areaRoomThatIsInProperty;
+    // общая площадь квартиры или нежилого помещения
+    @Column(name = "total_area")
+    private double totalArea;
+
+    // жилая площадь квартиры или нежилого помещения
+    @Column(name = "living_area")
+    private double livingArea;
 
     // документ о праве собственности
     @Column(name = "document_confirms_right_own", nullable = false)
@@ -55,7 +58,7 @@ public class Ownership {
             name = "owner_ownership",
             joinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"))
-    @JsonIgnore
+    //@JsonIgnore
     private List<Owner> owners = new ArrayList<>();
 }
 

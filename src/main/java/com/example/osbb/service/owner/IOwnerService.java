@@ -26,4 +26,7 @@ public interface IOwnerService {
 
     public Object deleteAllOwner();
 
+    // ----------- count ---------------
+    public Object countOwners();
+
 }

@@ -20,7 +20,7 @@ public class ApiConstants {
     public static final String LOGIN = "/login";
     public static final String LOGOUT = "/logout";
     public static final String ALL = "/all";
-    public static final String ONE_OWNERSHIP_LIST_OWNER = "/one_ownership_list_owner";
+    public static final String COUNT = "/count";
 
     // ------------------ {} -----------------------
     public static final String ID = "/{id}";
