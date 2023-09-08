@@ -2,9 +2,11 @@ package com.example.osbb.service.owner;
 
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
+import com.example.osbb.entity.Ownership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +40,14 @@ public class OwnerService implements IOwnerService {
     @Override
     public Object updateOwner(Owner owner) {
         try {
-            return !ownerDAO.existsById(owner.getId()) ?
-                    new ErrorResponseMessages(List.of("Собственник с таким ID не существует."))
-                    :
-                    List.of(ownerDAO.save(owner));
+            if (!ownerDAO.existsById(owner.getId())) {
+                return new ErrorResponseMessages(List.of("Собственник с таким ID не существует."));
+            }
+            return List.of(Response
+                    .builder()
+                    .data(List.of(ownerDAO.save(owner)))
+                    .messages(List.of("Собственник обновлён успешно.", "Удачного дня!"))
+                    .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -51,7 +57,11 @@ public class OwnerService implements IOwnerService {
     public Object getOwner(Long id) {
         try {
             return ownerDAO.existsById(id) ?
-                    List.of(ownerDAO.findById(id).get())
+                    List.of(Response
+                            .builder()
+                            .data(List.of(ownerDAO.findById(id).get()))
+                            .messages(List.of("Собственник отправлен успешно.", "Удачного дня!"))
+                            .build())
                     :
                     new ErrorResponseMessages(List.of("Собственник с таким ID не существует."));
         } catch (Exception exception) {
@@ -119,11 +129,14 @@ public class OwnerService implements IOwnerService {
         try {
             List<Owner> result = ownerDAO.findAll();
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных собственников не существует."))
-                    : returnListSorted(result);
+                    : List.of(Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Список собственников отправлен успешно.", "Удачного дня!"))
+                    .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
-
     }
 
     @Override
@@ -150,6 +163,19 @@ public class OwnerService implements IOwnerService {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }
 
-    // ---------------- count ----------------
+    // ---------------- addition functions ----------------
+
+    private List<Ownership> getListOwnershipByOwnerId(long id) {
+        List<Ownership> result = new ArrayList<>();
+        ownershipDAO.findAll().forEach(el -> {
+            el.getOwners().forEach(one -> {
+                if (one.getId() == id)
+                    result.add(el);
+            });
+        });
+        System.out.println(result);
+        return result;
+    }
+
 
 }

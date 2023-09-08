@@ -14,6 +14,7 @@ public class BuildingCharacteristics {
     private String countNonResidentialRoom;
     private String summaAreaRooms;
     private String summaAreaApartment;
+    private String summaAreaLivingApartment;
     private String summaAreaNonResidentialRoom;
     private AddressDto addressDto;
 

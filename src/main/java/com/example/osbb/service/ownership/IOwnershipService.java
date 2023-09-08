@@ -34,6 +34,9 @@ public interface IOwnershipService {
     // Площадь квартир
     public Object summaAreaApartment();
 
+    // Площадь жилая квартир
+    public Object summaAreaLivingApartment();
+
     // Площадь нежилых помещений
     public Object summaAreaNonResidentialRoom();
 

@@ -29,11 +29,16 @@ public class RegistryService implements IRegistryService {
     @Override
     public Object getRegistryOwners() {
         try {
-            return RegistryOwners
+            return Response
                     .builder()
-                    .setFullNameOwnerAndListOwnership(getListFullNameOwnerAndListOwnership())
-                    .buildingCharacteristics(getBuildingCharacteristics())
+                    .data(RegistryOwners
+                            .builder()
+                            .setFullNameOwnerAndListOwnership(getListFullNameOwnerAndListOwnership())
+                            .buildingCharacteristics(getBuildingCharacteristics())
+                            .build())
+                    .messages(List.of("Реестр собственников отправлен успешно.", "Удачного дня!"))
                     .build();
+
         } catch (Exception exception) {
             return new ResponseMessages(List.of(exception.getMessage()));
         }
@@ -41,21 +46,32 @@ public class RegistryService implements IRegistryService {
 
     private List<FullNameOwnerAndListOwnership> getListFullNameOwnerAndListOwnership() {
         List<FullNameOwnerAndListOwnership> result = new ArrayList<>();
-        List<Owner> ownerList = ownerDAO.findAll();
         int count = 1;
-        for (Owner one : ownerList) {
+        for (Owner one : ownerDAO.findAll()) {
             result.add(FullNameOwnerAndListOwnership
                     .builder()
                     .id(count)
                     .fullNameOwner(getFullNameOwner(one))
-                    .listOwnership(new ArrayList<>(one.getOwnerships()))
+                    .listOwnership(getListOwnershipByOwnerId(one.getId()))
                     .build());
             count += 1;
         }
 
         return result.stream().sorted(comparatorString).collect(Collectors.toList());
     }
-    Comparator<FullNameOwnerAndListOwnership> comparatorString =(a, b) -> a.getFullNameOwner().getFullNameOwner()
+
+    private List<Ownership> getListOwnershipByOwnerId(long id) {
+        List<Ownership> result = new ArrayList<>();
+        ownershipDAO.findAll().forEach(el -> {
+            el.getOwners().forEach(one -> {
+                if (one.getId() == id)
+                    result.add(el);
+            });
+        });
+        return result;
+    }
+
+    Comparator<FullNameOwnerAndListOwnership> comparatorString = (a, b) -> a.getFullNameOwner().getFullNameOwner()
             .compareTo(b.getFullNameOwner().getFullNameOwner());
 
     private FullNameOwner getFullNameOwner(Owner owner) {
@@ -71,10 +87,14 @@ public class RegistryService implements IRegistryService {
     @Override
     public Object getRegistryOwnerships() {
         try {
-            return RegistryOwnerships
+            return Response
                     .builder()
-                    .setOwnershipAndListFullNameOwners(getSetOwnershipAndListFullNameOwner())
-                    .buildingCharacteristics(getBuildingCharacteristics())
+                    .data(RegistryOwnerships
+                            .builder()
+                            .setOwnershipAndListFullNameOwners(getSetOwnershipAndListFullNameOwner())
+                            .buildingCharacteristics(getBuildingCharacteristics())
+                            .build())
+                    .messages(List.of("Реестр объектов недвижимости отправлен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ResponseMessages(List.of(exception.getMessage()));
@@ -97,8 +117,9 @@ public class RegistryService implements IRegistryService {
                 .sorted(comparatorInt)
                 .collect(Collectors.toList());
     }
+
     Comparator<OwnershipAndListFullNameOwner> comparatorInt =
-            (a, b) -> (int) a.getOwnership().getId() -(int) b.getOwnership().getId();
+            (a, b) -> (int) a.getOwnership().getId() - (int) b.getOwnership().getId();
 
     // ------------- create strings -----------------------------
 
@@ -119,6 +140,7 @@ public class RegistryService implements IRegistryService {
                 .countNonResidentialRoom(String.valueOf(iOwnershipService.countNonResidentialRoom()))
                 .summaAreaRooms(String.valueOf(iOwnershipService.summaAreaRooms()))
                 .summaAreaApartment(String.valueOf(iOwnershipService.summaAreaApartment()))
+                .summaAreaLivingApartment(String.valueOf(iOwnershipService.summaAreaLivingApartment()))
                 .summaAreaNonResidentialRoom(String.valueOf(iOwnershipService.summaAreaNonResidentialRoom()))
                 .addressDto(AddressDto.getAddressDto())
                 .build();

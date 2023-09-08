@@ -48,12 +48,12 @@ public class Owner {
     @JoinColumn(name = "password_id", referencedColumnName = "id")
     private Password password;
 
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "owner_ownership",
-            joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
-    @JsonIgnore
-    private List<Ownership> ownerships = new ArrayList<>();
+//    @ManyToMany(cascade = {CascadeType.ALL})
+//    @JoinTable(
+//            name = "owner_ownership",
+//            joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
+//            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+//    @JsonIgnore
+//    private List<Ownership> ownerships = new ArrayList<>();
 
 }

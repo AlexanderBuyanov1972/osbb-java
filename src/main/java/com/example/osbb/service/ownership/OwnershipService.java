@@ -2,6 +2,7 @@ package com.example.osbb.service.ownership;
 
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Owner;
@@ -49,7 +50,11 @@ public class OwnershipService implements IOwnershipService {
             if (!ownershipDAO.existsById(one.getId()))
                 list.add("Недвижимость с таким ID не существует.");
             return list.isEmpty() ?
-                    List.of(ownershipDAO.save(one))
+                    List.of(Response
+                            .builder()
+                            .data(List.of(ownershipDAO.save(one)))
+                            .messages(List.of("Объект недвижимости обновлён успешно.", "Удачного дня!"))
+                            .build())
                     :
                     new ErrorResponseMessages(list);
 
@@ -63,7 +68,11 @@ public class OwnershipService implements IOwnershipService {
     public Object getOwnership(Long id) {
         try {
             return ownershipDAO.existsById(id) ?
-                    List.of(ownershipDAO.findById(id).get())
+                    List.of(Response
+                            .builder()
+                            .data(List.of(ownershipDAO.findById(id).get()))
+                            .messages(List.of("Объект недвижемости отправлен успешно.", "Удачного дня!"))
+                            .build())
                     :
                     new ErrorResponseMessages(List.of("Недвижимость с таким ID не существует."));
         } catch (Exception e) {
@@ -129,7 +138,11 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Ownership> result = ownershipDAO.findAll();
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных объектов недвижимости не существует."))
-                    : returnListSorted(result);
+                    : List.of(Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
+                    .build());
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -172,6 +185,19 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
 
+    }
+
+    @Override
+    public Object summaAreaLivingApartment() {
+        List<Ownership> list = ownershipDAO.findAll();
+        try {
+            return list.isEmpty() ? 0 : list.stream()
+                    .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
+                    .mapToDouble(Ownership::getLivingArea)
+                    .sum();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
     }
 
     @Override
