@@ -1,9 +1,11 @@
 package com.example.osbb.service.address;
 
 import com.example.osbb.dao.AddressDAO;
+import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Address;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
+import com.example.osbb.entity.Photo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,11 @@ public class AddressService implements IAddressService {
                     address.getApartment()
             ))
                 list.add("Адресс с такой улицей, номером дома и номером квартиры уже существует.");
-            return list.isEmpty() ? List.of(addressDAO.save(address)) : new ErrorResponseMessages(list);
+            return list.isEmpty() ? Response
+                    .builder()
+                    .data(addressDAO.save(address))
+                    .messages(List.of("Создание адресса прошло успешно.", "Удачного дня!"))
+                    .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -48,7 +54,11 @@ public class AddressService implements IAddressService {
                     address.getApartment()
             ))
                 list.add("Адресс с такой улицей, номером дома и номером квартиры не существует.");
-            return list.isEmpty() ? List.of(addressDAO.save(address)) : new ErrorResponseMessages(list);
+            return list.isEmpty() ? Response
+                    .builder()
+                    .data(addressDAO.save(address))
+                    .messages(List.of("Обновление адресса прошло успешно.", "Удачного дня!"))
+                    .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -63,7 +73,11 @@ public class AddressService implements IAddressService {
             if (!addressDAO.existsById(id)) {
                 list.add("Адресс с таким ID не существует.");
             }
-            return list.isEmpty() ? List.of(addressDAO.findById(id).get()) : new ErrorResponseMessages(list);
+            return list.isEmpty() ? Response
+                    .builder()
+                    .data(addressDAO.findById(id).get())
+                    .messages(List.of("Получение адресса прошло успешно.", "Удачного дня!"))
+                    .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -72,12 +86,18 @@ public class AddressService implements IAddressService {
 
     @Override
     public Object deleteAddress(Long id) {
+        List<String> list = new ArrayList<>();
         try {
             if (addressDAO.existsById(id)) {
                 addressDAO.deleteById(id);
-                return new ResponseMessages(List.of("Адресс удалён успешно."));
+            } else {
+                list.add("Адресс с таким ID не существует.");
             }
-            return new ErrorResponseMessages(List.of("Адресс с таким ID не существует."));
+            return list.isEmpty() ? Response
+                    .builder()
+                    .data(id)
+                    .messages(List.of("Удаление адресса прошло успешно.", "Удачного дня!"))
+                    .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -88,22 +108,21 @@ public class AddressService implements IAddressService {
     // ---------------- all ----------------
 
     @Override
-    public Object createAllAddress(List<Address> list) {
+    public Object createAllAddress(List<Address> addresses) {
+        List<Address> result = new ArrayList<>();
         try {
-            List<Address> result = new ArrayList<>();
-            for (Address one : list) {
-                if (!addressDAO.existsById(one.getId()) &&
-                        !addressDAO.existsByStreetAndHouseAndApartment(
-                                one.getStreet(),
-                                one.getHouse(),
-                                one.getApartment())) {
-                    addressDAO.save(one);
-                    result.add(one);
+            for (Address address : addresses) {
+                if (!addressDAO.existsById(address.getId())) {
+                    result.add(addressDAO.save(address));
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List.
-                    of("Ни один из адрессов создан не был. Адресса с такими ID уже существуют."))
-                    : returnListSorted(result);
+            return result.isEmpty() ? new ResponseMessages(List
+                    .of("Ни один из адрессов создан не был. Адресса с такими ID уже существуют."))
+                    : Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Успешно создан " + result.size() + " адресс из " + addresses.size() + ".", "Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -111,18 +130,21 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public Object updateAllAddress(List<Address> list) {
+    public Object updateAllAddress(List<Address> addresses) {
+        List<Address> result = new ArrayList<>();
         try {
-            List<Address> result = new ArrayList<>();
-            for (Address one : list) {
-                if (addressDAO.existsById(one.getId())) {
-                    addressDAO.save(one);
-                    result.add(one);
+            for (Address address : addresses) {
+                if (addressDAO.existsById(address.getId())) {
+                    result.add(addressDAO.save(address));
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List
+            return result.isEmpty() ? new ResponseMessages(List
                     .of("Ни один из адрессов обновлён не был. Адресса с такими ID не существуют."))
-                    : returnListSorted(result);
+                    : Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Успешно обновлен " + result.size() + " адресс из " + addresses.size() + ".", "Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -132,8 +154,14 @@ public class AddressService implements IAddressService {
     public Object getAllAddress() {
         try {
             List<Address> result = addressDAO.findAll();
-            return result.isEmpty() ? new ResponseMessages(List.of("В базе данных адрессов не существует."))
-                    : returnListSorted(result);
+            return result.isEmpty() ?
+                    new ResponseMessages(List.of("В базе данных нет ни одного адресса по вашему запросу."))
+                    :
+                    Response
+                            .builder()
+                            .data(returnListSorted(result))
+                            .messages(List.of("Запрос выполнен успешно.", "Удачного дня!"))
+                            .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -143,7 +171,7 @@ public class AddressService implements IAddressService {
     public Object deleteAllAddress() {
         try {
             addressDAO.deleteAll();
-            return new ResponseMessages(List.of("Все адресса удалены успешно."));
+            return new ResponseMessages(List.of("Все адресса удалены успешно.", "Удачного дня!"));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -157,7 +185,10 @@ public class AddressService implements IAddressService {
         try {
             if (!addressDAO.existsByStreetAndHouseAndApartment(street, house, numberApartment))
                 return new ErrorResponseMessages(List.of("Адресс с такой улицей, номером дома и номером квартиры не существует."));
-            return addressDAO.findByStreetAndHouseAndApartment(street, house, numberApartment);
+            return Response.builder()
+                    .data(addressDAO.findByStreetAndHouseAndApartment(street, house, numberApartment))
+                    .messages(List.of("Адресс с такой улицей, номером дома и номером квартиры успешно получен.","Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

@@ -45,7 +45,10 @@ public class Address {
     @Column(name = "house", nullable = false)
     private String house;
 
-    @Column(name = "floor", nullable = false)
+    @Column(name = "entrance")
+    private String entrance ;
+
+    @Column(name = "floor")
     private String floor;
 
     @Column(name = "apartment", unique = true, nullable = false)

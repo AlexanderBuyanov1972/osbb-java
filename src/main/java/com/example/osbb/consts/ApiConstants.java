@@ -7,6 +7,7 @@ public class ApiConstants {
     public static final String ROLE = "/role";
     public static final String REGISTRATION_NUMBER = "/registration_number";
     public static final String REGISTRATION_NUMBER_CARD_PAYER_TAXES = "/{registrationNumberCardPayerTaxes}";
+    public static final String PHOTO = "/photo";
     public static final String OWNER = "/owner";
     public static final String OWNERSHIP = "/ownership";
     public static final String REGISTRY = "/registry";

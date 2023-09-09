@@ -37,4 +37,10 @@ public class Password {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "password")
     @JsonIgnore
     private Owner owner;
+
+    public void setDateIssue(LocalDate dateIssue) {
+        if(dateIssue.toString().equals("нет"))
+            this.dateIssue = null;
+        this.dateIssue = dateIssue;
+    }
 }

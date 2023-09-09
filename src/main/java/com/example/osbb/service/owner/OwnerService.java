@@ -31,7 +31,11 @@ public class OwnerService implements IOwnerService {
             return ownerDAO.existsById(owner.getId()) ?
                     new ErrorResponseMessages(List.of("Собственник с таким ID уже существует."))
                     :
-                    List.of(ownerDAO.save(owner));
+
+                    List.of(Response.builder()
+                            .data(List.of(ownerDAO.save(owner)))
+                            .messages(List.of("Объект собственника создан успешно.", "Удачного дня!"))
+                            .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -46,7 +50,7 @@ public class OwnerService implements IOwnerService {
             return List.of(Response
                     .builder()
                     .data(List.of(ownerDAO.save(owner)))
-                    .messages(List.of("Собственник обновлён успешно.", "Удачного дня!"))
+                    .messages(List.of("Объект собственника обновлён успешно.", "Удачного дня!"))
                     .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -74,7 +78,7 @@ public class OwnerService implements IOwnerService {
         try {
             if (ownerDAO.existsById(id)) {
                 ownerDAO.deleteById(id);
-                return new ResponseMessages(List.of("Собственник удалён успешно."));
+                return new ResponseMessages(List.of("Собственник удалён успешно.", "Удачного дня!"));
             }
             return new ErrorResponseMessages(List.of("Собственник с таким ID не существует."));
         } catch (Exception exception) {
@@ -96,8 +100,12 @@ public class OwnerService implements IOwnerService {
             }
             return result.isEmpty() ?
                     new ErrorResponseMessages(List
-                            .of("Ни один из собственников создан не был. Собственники с такими ID уже существуют."))
-                    : returnListSorted(result);
+                            .of("Ни один из собственников создан не был. Собственники с такими ID уже существуют.", "Удачного дня!"))
+                    : List.of(Response
+                    .builder()
+                    .data(List.of(returnListSorted(result)))
+                    .messages(List.of("Количество созданных объектов собственников - " + result.size(),"Удачного дня!"))
+                    .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -117,7 +125,12 @@ public class OwnerService implements IOwnerService {
             return result.isEmpty() ?
                     new ErrorResponseMessages(List
                             .of("Ни один из собственников обновлён не был. Собственников с такими ID не существует."))
-                    : returnListSorted(result);
+                    :
+                    List.of(Response
+                            .builder()
+                            .data(List.of(returnListSorted(result)))
+                            .messages(List.of("Количество обновлённых объектов собственников - " + result.size(),"Удачного дня!"))
+                            .build());
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

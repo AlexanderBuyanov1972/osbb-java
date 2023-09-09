@@ -34,7 +34,11 @@ public class OwnershipService implements IOwnershipService {
             if (ownershipDAO.existsById(ownership.getId()))
                 list.add("Недвижимость с таким ID уже существует.");
             return list.isEmpty() ?
-                    List.of(ownershipDAO.save(ownership))
+                    List.of( List.of(Response
+                            .builder()
+                            .data(returnListSorted(List.of(ownershipDAO.save(ownership))))
+                            .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
+                            .build()))
                     :
                     new ErrorResponseMessages(list);
 
@@ -109,7 +113,10 @@ public class OwnershipService implements IOwnershipService {
             }
             return result.isEmpty() ? new ErrorResponseMessages(List.of(
                     "Ни один из объектов недвижимости создан не был. Недвижимость с такими ID уже существует."))
-                    : returnListSorted(result);
+                    : Response.builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Количество созданных объектов собственности - " + result.size(),"Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -127,7 +134,10 @@ public class OwnershipService implements IOwnershipService {
             }
             return result.isEmpty() ? new ErrorResponseMessages(List.of(
                     "Ни один из объектов недвижимости обновлён не был. Недвижимость с такими ID не существует."))
-                    : returnListSorted(result);
+                    : Response.builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Количество обновлённых объектов собственности - " + result.size(),"Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -152,7 +162,7 @@ public class OwnershipService implements IOwnershipService {
     public Object deleteAllOwnership() {
         try {
             ownershipDAO.deleteAll();
-            return new ResponseMessages(List.of("Объекты недвижимости удалены успешно."));
+            return new ResponseMessages(List.of("Объекты недвижимости удалены успешно.", "Удачного дня!"));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

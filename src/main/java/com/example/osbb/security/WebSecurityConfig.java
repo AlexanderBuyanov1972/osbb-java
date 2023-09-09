@@ -26,6 +26,7 @@ public class WebSecurityConfig {
             "/user", "/user/**",
             "/role", "/role/**",
             "/owner", "/owner/**",
+            "/photo", "/photo/**",
             "/password", "/password/**",
             "/address", "/address/**",
             "/ownership", "/ownership/**", "/ownership/name/**","/ownership/one_ownership_list_owner/**",

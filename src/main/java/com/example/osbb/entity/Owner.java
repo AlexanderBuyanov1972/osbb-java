@@ -48,6 +48,10 @@ public class Owner {
     @JoinColumn(name = "password_id", referencedColumnName = "id")
     private Password password;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "photo_id", referencedColumnName = "id")
+    private List<Photo> photos;
+
 //    @ManyToMany(cascade = {CascadeType.ALL})
 //    @JoinTable(
 //            name = "owner_ownership",
@@ -56,4 +60,10 @@ public class Owner {
 //    @JsonIgnore
 //    private List<Ownership> ownerships = new ArrayList<>();
 
+
+    public void setDateBirth(LocalDate dateBirth) {
+        if(dateBirth.toString().equals("нет"))
+            this.dateBirth = null;
+        this.dateBirth = dateBirth;
+    }
 }
