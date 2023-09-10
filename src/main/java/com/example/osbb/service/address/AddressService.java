@@ -23,20 +23,20 @@ public class AddressService implements IAddressService {
     @Override
     public Object createAddress(Address address) {
         try {
-            List<String> list = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
             if (addressDAO.existsById(address.getId()))
-                list.add("Адресс с таким ID уже существует.");
+                errors.add("Адресс с таким ID уже существует.");
             if (addressDAO.existsByStreetAndHouseAndApartment(
                     address.getStreet(),
                     address.getHouse(),
                     address.getApartment()
             ))
-                list.add("Адресс с такой улицей, номером дома и номером квартиры уже существует.");
-            return list.isEmpty() ? Response
+                errors.add("Адресс с такой улицей, номером дома и номером квартиры уже существует.");
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(addressDAO.save(address))
                     .messages(List.of("Создание адресса прошло успешно.", "Удачного дня!"))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -45,20 +45,20 @@ public class AddressService implements IAddressService {
     @Override
     public Object updateAddress(Address address) {
         try {
-            List<String> list = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
             if (!addressDAO.existsById(address.getId()))
-                list.add("Адресс с таким ID не существует.");
+                errors.add("Адресс с таким ID не существует.");
             if (!addressDAO.existsByStreetAndHouseAndApartment(
                     address.getStreet(),
                     address.getHouse(),
                     address.getApartment()
             ))
-                list.add("Адресс с такой улицей, номером дома и номером квартиры не существует.");
-            return list.isEmpty() ? Response
+                errors.add("Адресс с такой улицей, номером дома и номером квартиры не существует.");
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(addressDAO.save(address))
                     .messages(List.of("Обновление адресса прошло успешно.", "Удачного дня!"))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

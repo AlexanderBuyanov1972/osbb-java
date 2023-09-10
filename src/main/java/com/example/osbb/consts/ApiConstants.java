@@ -13,6 +13,7 @@ public class ApiConstants {
     public static final String REGISTRY = "/registry";
     public static final String SUMMA_AREA_ROOMS = "/summa_area_rooms";
     public static final String SUMMA_AREA_APARTMENT = "/summa_area_apartment";
+    public static final String SUMMA_AREA_LIVING_APARTMENT = "/summa_area_living_apartment";
     public static final String SUMMA_AREA_NON_RESIDENTIAL_ROOM = "/summa_area_non_residential_room";
     public static final String COUNT_ROOMS = "/count_rooms";
     public static final String COUNT_APARTMENT = "/count_apartment";

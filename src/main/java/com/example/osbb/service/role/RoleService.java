@@ -1,6 +1,7 @@
 package com.example.osbb.service.role;
 
 import com.example.osbb.dao.RoleDAO;
+import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.authorization.Role;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
@@ -21,12 +22,16 @@ public class RoleService implements IRoleService {
     @Override
     public Object createRole(Role role) {
         try {
-            List<String> list = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
             if (roleDAO.existsById(role.getId()))
-                list.add("Роль с таким ID уже существует.");
+                errors.add("Роль с таким ID уже существует.");
             if (roleDAO.existsByName(role.getName().name()))
-                list.add("Роль с таким именем уже существует.");
-            return list.isEmpty() ? List.of(roleDAO.save(role)) : new ErrorResponseMessages(list);
+                errors.add("Роль с таким именем уже существует.");
+            return errors.isEmpty() ? Response
+                    .builder()
+                    .data(roleDAO.save(role))
+                    .messages(List.of("Роль создана успешно.", "Удачного дня!"))
+                    .build() : new ErrorResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -36,10 +41,14 @@ public class RoleService implements IRoleService {
     @Override
     public Object updateRole(Role role) {
         try {
-            List<String> list = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
             if (!roleDAO.existsById(role.getId()))
-                list.add("Роль с таким ID не существует.");
-            return list.isEmpty() ? List.of(roleDAO.save(role)) : new ErrorResponseMessages(list);
+                errors.add("Роль с таким ID не существует.");
+            return errors.isEmpty() ? Response
+                    .builder()
+                    .data(roleDAO.save(role))
+                    .messages(List.of("Роль обновлена успешно.", "Удачного дня!"))
+                    .build() : new ErrorResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -50,7 +59,11 @@ public class RoleService implements IRoleService {
     public Object getRole(Long id) {
         try {
             if (roleDAO.existsById(id)) {
-                return List.of(roleDAO.findById(id).get());
+                return Response
+                        .builder()
+                        .data(roleDAO.findById(id).get())
+                        .messages(List.of("Роль получена успешно.", "Удачного дня!"))
+                        .build();
             }
             return new ErrorResponseMessages(List.of("Роль с таким ID уже существует."));
         } catch (Exception exception) {
@@ -64,7 +77,11 @@ public class RoleService implements IRoleService {
         try {
             if (roleDAO.existsById(id)) {
                 roleDAO.deleteById(id);
-                return new ResponseMessages(List.of("Роль удалена успешно."));
+                return Response
+                        .builder()
+                        .data(id)
+                        .messages(List.of("Роль удалена успешно.", "Удачного дня!"))
+                        .build();
             }
             return new ErrorResponseMessages(List.of("Роль с таким ID уже существует."));
         } catch (Exception exception) {
@@ -76,10 +93,10 @@ public class RoleService implements IRoleService {
     // ------------------ all -----------------------
 
     @Override
-    public Object createAllRole(List<Role> list) {
+    public Object createAllRole(List<Role> roles) {
         try {
             List<Role> result = new ArrayList<>();
-            for (Role role : list) {
+            for (Role role : roles) {
                 if (!roleDAO.existsById(role.getId())) {
                     roleDAO.save(role);
                     result.add(role);
@@ -87,7 +104,11 @@ public class RoleService implements IRoleService {
             }
             return result.isEmpty() ? new ResponseMessages(List
                     .of("Ни одна из ролей создана не была. Роли с такими ID уже существуют."))
-                    :  returnListSorted(result);
+                    :  Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Успешно создано " + result.size() + " роли из " + roles.size() + ".", "Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -95,10 +116,10 @@ public class RoleService implements IRoleService {
     }
 
     @Override
-    public Object updateAllRole(List<Role> list) {
+    public Object updateAllRole(List<Role> roles) {
         try {
             List<Role> result = new ArrayList<>();
-            for (Role role : list) {
+            for (Role role : roles) {
                 if (roleDAO.existsById(role.getId())) {
                     roleDAO.save(role);
                     result.add(role);
@@ -106,7 +127,11 @@ public class RoleService implements IRoleService {
             }
             return result.isEmpty() ? new ResponseMessages(List
                     .of("Ни одна из ролей обновлена не была. Ролей с такими ID не существует."))
-                    : returnListSorted(result);
+                    : Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Успешно обновлено " + result.size() + " роли из " + roles.size() + ".", "Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -118,7 +143,11 @@ public class RoleService implements IRoleService {
         try {
             List<Role> result = roleDAO.findAll();
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных ролей не существует."))
-                    : returnListSorted(result);
+                    : Response
+                    .builder()
+                    .data(returnListSorted(result))
+                    .messages(List.of("Все роли получены успешно.", "Удачного дня!"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -129,7 +158,7 @@ public class RoleService implements IRoleService {
     public Object deleteAllRole() {
         try {
             roleDAO.deleteAll();
-            return new ResponseMessages(List.of("Роли удалены успешно."));
+            return new ResponseMessages(List.of("Все роли успешно удалены."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

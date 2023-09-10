@@ -76,6 +76,12 @@ public class OwnershipController {
         return response.returnResponse(service.summaAreaApartment());
     }
 
+    //  Жилая площадь квартир
+    @GetMapping(ApiConstants.SUMMA_AREA_LIVING_APARTMENT)
+    public ResponseEntity<?> summaAreaLivingApartment() {
+        return response.returnResponse(service.summaAreaLivingApartment());
+    }
+
     // Площадь нежилых помещений
     @GetMapping(ApiConstants.SUMMA_AREA_NON_RESIDENTIAL_ROOM)
     public ResponseEntity<?> summaAreaNonResidentialRoom() {
