@@ -7,6 +7,7 @@ import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.dto.registry.*;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Owner;
+import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.service.ownership.IOwnershipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -135,13 +136,19 @@ public class RegistryService implements IRegistryService {
     private BuildingCharacteristics getBuildingCharacteristics() {
         return BuildingCharacteristics
                 .builder()
-                .countRooms(String.valueOf(iOwnershipService.countRooms()))
-                .countApartment(String.valueOf(iOwnershipService.countApartment()))
-                .countNonResidentialRoom(String.valueOf(iOwnershipService.countNonResidentialRoom()))
-                .summaAreaRooms(String.valueOf(iOwnershipService.summaAreaRooms()))
-                .summaAreaApartment(String.valueOf(iOwnershipService.summaAreaApartment()))
-                .summaAreaLivingApartment(String.valueOf(iOwnershipService.summaAreaLivingApartment()))
-                .summaAreaNonResidentialRoom(String.valueOf(iOwnershipService.summaAreaNonResidentialRoom()))
+                .countRooms(ownershipDAO.count())
+                .countApartment(ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT))
+                .countNonResidentialRoom(ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM))
+                .summaAreaRooms(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum())
+                .summaAreaApartment(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
+                        .mapToDouble(Ownership::getTotalArea).sum())
+                .summaAreaLivingApartment(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
+                        .mapToDouble(Ownership::getLivingArea).sum())
+                .summaAreaNonResidentialRoom(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
+                        .mapToDouble(Ownership::getTotalArea).sum())
                 .addressDto(AddressDto.getAddressDto())
                 .build();
     }
