@@ -152,11 +152,11 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Ownership> result = ownershipDAO.findAll();
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных объектов недвижимости не существует."))
-                    : List.of(Response
+                    : Response
                     .builder()
                     .data(returnListSorted(result))
                     .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
-                    .build());
+                    .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
