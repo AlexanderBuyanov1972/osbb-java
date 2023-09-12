@@ -40,6 +40,8 @@ public class Owner {
     private String phoneNumber;
     @Column(name = "date_birth")
     private LocalDate dateBirth;
+    @Column(name = "share_estate")
+    private Double shareInRealEstate;
     @Column(name = "family_status")
     @Enumerated(EnumType.STRING)
     private FamilyStatus familyStatus;
