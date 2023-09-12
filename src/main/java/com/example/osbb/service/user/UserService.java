@@ -41,7 +41,7 @@ public class UserService implements IUserService {
                     .builder()
                     .data(userDAO.save(user))
                     .messages(List.of("Пользователь создан успешно.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(errors);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -61,7 +61,7 @@ public class UserService implements IUserService {
                     .builder()
                     .data(userDAO.save(user))
                     .messages(List.of("Пользователь обновлён успешно.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(errors);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -74,7 +74,7 @@ public class UserService implements IUserService {
                     .builder()
                     .data(userDAO.findById(id).get())
                     .messages(List.of("Пользователь получен успешно.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(List.of("Пользователь с таким ID не существует."));
+                    .build() : new ResponseMessages(List.of("Пользователь с таким ID не существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -92,7 +92,7 @@ public class UserService implements IUserService {
                         .messages(List.of("Пользователь удалён успешно.", "Удачного дня!"))
                         .build();
             }
-            return new ErrorResponseMessages(List.of("Пользователь с таким ID не существует."));
+            return new ResponseMessages(List.of("Пользователь с таким ID не существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

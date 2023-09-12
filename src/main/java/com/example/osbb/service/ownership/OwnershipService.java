@@ -9,7 +9,9 @@ import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.consts.*;
+import org.apache.logging.log4j.core.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class OwnershipService implements IOwnershipService {
                     .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
                     .build())
                     :
-                    new ErrorResponseMessages(errors);
+                    new ResponseMessages(errors);
 
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -58,7 +60,7 @@ public class OwnershipService implements IOwnershipService {
                     .messages(List.of("Объект недвижимости обновлён успешно.", "Удачного дня!"))
                     .build()
                     :
-                    new ErrorResponseMessages(list);
+                    new ResponseMessages(list);
 
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -76,9 +78,10 @@ public class OwnershipService implements IOwnershipService {
                             .messages(List.of("Объект недвижимости отправлен успешно.", "Удачного дня!"))
                             .build()
                     :
-                    new ErrorResponseMessages(List.of("Недвижимость с таким ID не существует."));
+                    new ResponseMessages(List.of("Недвижимость с таким ID не существует."));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
+
         }
 
     }
@@ -95,7 +98,7 @@ public class OwnershipService implements IOwnershipService {
                         .messages(List.of("Недвижимость удаленна успешно.", "Удачного дня!"))
                         .build();
             }
-            return new ErrorResponseMessages(List.of("Недвижимость с таким ID не существует."));
+            return new ResponseMessages(List.of("Недвижимость с таким ID не существует."));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -113,7 +116,7 @@ public class OwnershipService implements IOwnershipService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List.of(
+            return result.isEmpty() ? new ResponseMessages(List.of(
                     "Ни один из объектов недвижимости создан не был. Недвижимость с такими ID уже существует."))
                     : Response
                     .builder()
@@ -135,7 +138,7 @@ public class OwnershipService implements IOwnershipService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(List.of(
+            return result.isEmpty() ? new ResponseMessages(List.of(
                     "Ни один из объектов недвижимости обновлён не был. Недвижимость с такими ID уже существует."))
                     : Response
                     .builder()
@@ -264,7 +267,7 @@ public class OwnershipService implements IOwnershipService {
     @Override
     public Object countApartment() {
         try {
-            long count =  ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT);
+            long count = ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT);
             return Response
                     .builder()
                     .data(count)
@@ -279,7 +282,7 @@ public class OwnershipService implements IOwnershipService {
     @Override
     public Object countNonResidentialRoom() {
         try {
-            long count =  ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM);
+            long count = ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM);
             return Response
                     .builder()
                     .data(count)

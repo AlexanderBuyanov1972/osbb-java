@@ -3,6 +3,7 @@ package com.example.osbb.service.registry;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.*;
+import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.dto.registry.*;
 import com.example.osbb.entity.Ownership;
@@ -41,7 +42,7 @@ public class RegistryService implements IRegistryService {
                     .build();
 
         } catch (Exception exception) {
-            return new ResponseMessages(List.of(exception.getMessage()));
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
 
@@ -98,7 +99,7 @@ public class RegistryService implements IRegistryService {
                     .messages(List.of("Реестр объектов недвижимости отправлен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
-            return new ResponseMessages(List.of(exception.getMessage()));
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
 

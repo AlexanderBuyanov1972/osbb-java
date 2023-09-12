@@ -10,19 +10,13 @@ public class HelpMethodsForController {
 
     public ResponseEntity<?> returnResponse(Object object) {
         return object.getClass().equals(ErrorResponseMessages.class) ?
-                responseBad(object)
+                ResponseEntity.badRequest()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(object)
                 :
-                responseOk(object);
-    }
-    private ResponseEntity<?> responseOk(Object object) {
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(object);
+                ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(object);
     }
 
-    private ResponseEntity<?> responseBad(Object object) {
-        return ResponseEntity.badRequest()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(object);
-    }
 }

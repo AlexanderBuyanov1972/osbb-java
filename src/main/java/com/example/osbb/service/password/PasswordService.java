@@ -33,7 +33,7 @@ public class PasswordService implements IPasswordService {
                             .data(passwordDAO.save(password))
                             .messages(List.of("Паспорт успешно создан.", "Удачного дня!"))
                             .build()
-                    : new ErrorResponseMessages(list);
+                    : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -53,7 +53,7 @@ public class PasswordService implements IPasswordService {
                     .data(passwordDAO.save(password))
                     .messages(List.of("Паспорт успешно обновлён.", "Удачного дня!"))
                     .build()
-                    : new ErrorResponseMessages(list);
+                    : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -71,7 +71,7 @@ public class PasswordService implements IPasswordService {
             return list.isEmpty() ? Response.builder()
                     .data(passwordDAO.findById(id).get())
                     .messages(List.of("Паспорт успешно получен.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(list);
+                    .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -89,7 +89,7 @@ public class PasswordService implements IPasswordService {
                         .messages(List.of("Паспорт удалён успешно.", "Удачного дня!"))
                         .build();
             }
-            return new ErrorResponseMessages(List.of("Паспорт с таким ID не существует."));
+            return new ResponseMessages(List.of("Паспорт с таким ID не существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -110,7 +110,7 @@ public class PasswordService implements IPasswordService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(
+            return result.isEmpty() ? new ResponseMessages(
                     List.of("Ни один из паспортов создан не был. Паспорта с такими ID уже существуют."))
                     : Response.builder()
                     .data(returnListSorted(result))
@@ -133,7 +133,7 @@ public class PasswordService implements IPasswordService {
                     result.add(one);
                 }
             }
-            return result.isEmpty() ? new ErrorResponseMessages(
+            return result.isEmpty() ? new ResponseMessages(
                     List.of("Ни один из паспортов обновлён не был. Паспорта с такими ID не существуют."))
                     : Response.builder()
                     .data(returnListSorted(result))
@@ -179,7 +179,7 @@ public class PasswordService implements IPasswordService {
     public Object findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes) {
         try {
             if (!passwordDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
-                return new ErrorResponseMessages(List
+                return new ResponseMessages(List
                         .of("Паспорт с таким ИНН не существует."));
             return Response.builder()
                     .data(passwordDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))

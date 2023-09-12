@@ -31,7 +31,7 @@ public class RoleService implements IRoleService {
                     .builder()
                     .data(roleDAO.save(role))
                     .messages(List.of("Роль создана успешно.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(errors);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -48,7 +48,7 @@ public class RoleService implements IRoleService {
                     .builder()
                     .data(roleDAO.save(role))
                     .messages(List.of("Роль обновлена успешно.", "Удачного дня!"))
-                    .build() : new ErrorResponseMessages(errors);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -65,7 +65,7 @@ public class RoleService implements IRoleService {
                         .messages(List.of("Роль получена успешно.", "Удачного дня!"))
                         .build();
             }
-            return new ErrorResponseMessages(List.of("Роль с таким ID уже существует."));
+            return new ResponseMessages(List.of("Роль с таким ID уже существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -83,7 +83,7 @@ public class RoleService implements IRoleService {
                         .messages(List.of("Роль удалена успешно.", "Удачного дня!"))
                         .build();
             }
-            return new ErrorResponseMessages(List.of("Роль с таким ID уже существует."));
+            return new ResponseMessages(List.of("Роль с таким ID уже существует."));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
