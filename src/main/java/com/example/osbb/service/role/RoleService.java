@@ -5,6 +5,7 @@ import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.authorization.Role;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class RoleService implements IRoleService {
     // ---------------- one -----------------
 
     @Override
+    @Transactional
     public Object createRole(Role role) {
         try {
             List<String> errors = new ArrayList<>();
@@ -39,6 +41,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
+    @Transactional
     public Object updateRole(Role role) {
         try {
             List<String> errors = new ArrayList<>();
@@ -73,6 +76,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
+    @Transactional
     public Object deleteRole(Long id) {
         try {
             if (roleDAO.existsById(id)) {
@@ -93,6 +97,7 @@ public class RoleService implements IRoleService {
     // ------------------ all -----------------------
 
     @Override
+    @Transactional
     public Object createAllRole(List<Role> roles) {
         try {
             List<Role> result = new ArrayList<>();
@@ -116,6 +121,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
+    @Transactional
     public Object updateAllRole(List<Role> roles) {
         try {
             List<Role> result = new ArrayList<>();
@@ -155,6 +161,7 @@ public class RoleService implements IRoleService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllRole() {
         try {
             roleDAO.deleteAll();

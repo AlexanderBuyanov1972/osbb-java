@@ -1,10 +1,11 @@
-package com.example.osbb.service.photos;
+package com.example.osbb.service.photo;
 
 import com.example.osbb.dao.PhotoDAO;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Photo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class PhotoService implements IPhotoService {
     private PhotoDAO photoDAO;
 
     @Override
+    @Transactional
     public Object createPhoto(Photo photo) {
         List<String> list = new ArrayList<>();
         try {
@@ -35,6 +37,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
+    @Transactional
     public Object updatePhoto(Photo photo) {
         List<String> list = new ArrayList<>();
         try {
@@ -69,6 +72,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
+    @Transactional
     public Object deletePhoto(Long id) {
         List<String> list = new ArrayList<>();
         try {
@@ -88,6 +92,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
+    @Transactional
     public Object createAllPhoto(List<Photo> photos) {
         List<Photo> result = new ArrayList<>();
         try {
@@ -109,6 +114,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
+    @Transactional
     public Object updateAllPhoto(List<Photo> photos) {
         List<Photo> result = new ArrayList<>();
         try {
@@ -147,6 +153,7 @@ public class PhotoService implements IPhotoService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllPhoto() {
         try {
             photoDAO.deleteAll();

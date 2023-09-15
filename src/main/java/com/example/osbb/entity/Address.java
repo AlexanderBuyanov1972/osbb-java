@@ -18,7 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 })
 public class Address {
     @Id
-    @Column(name = "id", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private long id;
 
     @Value("${address.zipcode}")

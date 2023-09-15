@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,18 +12,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "passwords", uniqueConstraints = {
+@Table(name = "passports", uniqueConstraints = {
         @UniqueConstraint(columnNames = "id"),
-        @UniqueConstraint(columnNames = "password_id"),
+        @UniqueConstraint(columnNames = "number_passport"),
         @UniqueConstraint(columnNames = "registration_number_card_payer_taxes")
 })
 
-public class Password {
+public class Passport {
     @Id
-    @Column(name = "id", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private Long id;
-    @Column(name = "password_id", nullable = false, unique = true)
-    private String passwordID;
+    @Column(name = "number_passport", nullable = false, unique = true)
+    private String numberPassport;
     @Column(name = "number_entry", nullable = false)
     private String numberEntry;
     @Column(name = "date_issue", nullable = false)
@@ -34,7 +34,9 @@ public class Password {
     @Column(name = "registration_number_card_payer_taxes", nullable = false, unique = true)
     private String registrationNumberCardPayerTaxes;
 
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "password")
+//    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "passport")
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy="passport")
     @JsonIgnore
     private Owner owner;
 

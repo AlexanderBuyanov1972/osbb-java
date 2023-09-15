@@ -1,5 +1,6 @@
 package com.example.osbb.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -15,6 +16,7 @@ import lombok.*;
         @UniqueConstraint(columnNames = "id")})
 public class Photo {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private long id;
 
@@ -25,6 +27,10 @@ public class Photo {
     @NotEmpty
     @Column(name = "name")
     private String name;
+
+    @ManyToOne
+    @JsonIgnore
+    private Owner owner;
 
 
 }

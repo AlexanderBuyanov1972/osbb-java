@@ -7,10 +7,12 @@ import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.entity.Ownership;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +27,8 @@ public class OwnerService implements IOwnerService {
     // ---------------- one -----------------
 
     @Override
+    @Transactional
     public Object createOwner(Owner owner) {
-
         try {
             return ownerDAO.existsById(owner.getId()) ?
                     new ResponseMessages(List.of("Собственник с таким ID уже существует."))
@@ -40,6 +42,7 @@ public class OwnerService implements IOwnerService {
     }
 
     @Override
+    @Transactional
     public Object updateOwner(Owner owner) {
         try {
             if (!ownerDAO.existsById(owner.getId())) {
@@ -72,6 +75,7 @@ public class OwnerService implements IOwnerService {
     }
 
     @Override
+    @Transactional
     public Object deleteOwner(Long id) {
         try {
             if (ownerDAO.existsById(id)) {
@@ -92,6 +96,7 @@ public class OwnerService implements IOwnerService {
     // ------------------ all -----------------------
 
     @Override
+    @Transactional
     public Object createAllOwner(List<Owner> owners) {
         try {
             List<Owner> result = new ArrayList<>();
@@ -106,7 +111,7 @@ public class OwnerService implements IOwnerService {
                             .of("Ни один из собственников создан не был. Собственники с такими ID уже существуют.", "Удачного дня!"))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedByLastName(result))
                     .messages(List.of("Успешно создано " + result.size() + " объектов собственника из " + owners.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -116,6 +121,7 @@ public class OwnerService implements IOwnerService {
     }
 
     @Override
+    @Transactional
     public Object updateAllOwner(List<Owner> owners) {
         try {
             List<Owner> result = new ArrayList<>();
@@ -131,7 +137,7 @@ public class OwnerService implements IOwnerService {
                     :
                     Response
                             .builder()
-                            .data(returnListSorted(result))
+                            .data(returnListSortedByLastName(result))
                             .messages(List.of("Успешно обновлено " + result.size() + " объектов собственника из " + owners.size() + ".", "Удачного дня!"))
                             .build();
         } catch (Exception exception) {
@@ -147,7 +153,7 @@ public class OwnerService implements IOwnerService {
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных собственников не существует."))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedByLastName(result))
                     .messages(List.of("Список собственников получен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -156,6 +162,7 @@ public class OwnerService implements IOwnerService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllOwner() {
         try {
             ownerDAO.deleteAll();
@@ -180,22 +187,22 @@ public class OwnerService implements IOwnerService {
 
     }
 
-    private List<Owner> returnListSorted(List<Owner> list) {
+    private List<Owner> returnListSortedByLastName(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }
 
     // ---------------- addition functions ----------------
 
-    private List<Ownership> getListOwnershipByOwnerId(long id) {
-        List<Ownership> result = new ArrayList<>();
-        ownershipDAO.findAll().forEach(el -> {
-            el.getOwners().forEach(one -> {
-                if (one.getId() == id)
-                    result.add(el);
-            });
-        });
-        return result;
-    }
+//    private List<Ownership> getListOwnershipByOwnerId(long id) {
+//        List<Ownership> result = new ArrayList<>();
+//        ownershipDAO.findAll().forEach(el -> {
+//            el.getOwners().forEach(one -> {
+//                if (one.getId() == id)
+//                    result.add(el);
+//            });
+//        });
+//        return result;
+//    }
 
 
 }

@@ -9,6 +9,7 @@ import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.service.address.IAddressService;
 import com.example.osbb.service.owner.IOwnerService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.osbb.dao.UserDAO;
@@ -28,6 +29,7 @@ public class UserService implements IUserService {
 
     // ----------- one -------------------
     @Override
+    @Transactional
     public Object createUser(User user) {
         try {
             List<String> errors = new ArrayList<>();
@@ -49,6 +51,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Object updateUser(User user) {
         try {
             List<String> errors = new ArrayList<>();
@@ -82,6 +85,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Object deleteUser(Long id) {
         try {
             if (userDAO.existsById(id)) {
@@ -102,6 +106,7 @@ public class UserService implements IUserService {
     // ------------- all ------------------
 
     @Override
+    @Transactional
     public Object createAllUser(List<User> users) {
         try {
             List<User> result = new ArrayList<>();
@@ -127,6 +132,7 @@ public class UserService implements IUserService {
 
 
     @Override
+    @Transactional
     public Object updateAllUser(List<User> users) {
         try {
             List<User> result = new ArrayList<>();
@@ -168,6 +174,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllUser() {
         try {
             userDAO.deleteAll();

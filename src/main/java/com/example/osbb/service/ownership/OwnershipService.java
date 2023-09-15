@@ -9,6 +9,7 @@ import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.consts.*;
+import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.core.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -30,6 +31,7 @@ public class OwnershipService implements IOwnershipService {
     // ------------- one --------------------
 
     @Override
+    @Transactional
     public Object createOwnership(Ownership ownership) {
         try {
             List<String> errors = new ArrayList<>();
@@ -49,6 +51,7 @@ public class OwnershipService implements IOwnershipService {
     }
 
     @Override
+    @Transactional
     public Object updateOwnership(Ownership one) {
         try {
             List<String> list = new ArrayList<>();
@@ -88,6 +91,7 @@ public class OwnershipService implements IOwnershipService {
 
 
     @Override
+    @Transactional
     public Object deleteOwnership(Long id) {
         try {
             if (ownershipDAO.existsById(id)) {
@@ -107,6 +111,7 @@ public class OwnershipService implements IOwnershipService {
     // ------------------ all -------------------
 
     @Override
+    @Transactional
     public Object createAllOwnership(List<Ownership> ownerships) {
         try {
             List<Ownership> result = new ArrayList<>();
@@ -120,7 +125,7 @@ public class OwnershipService implements IOwnershipService {
                     "Ни один из объектов недвижимости создан не был. Недвижимость с такими ID уже существует."))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedById(result))
                     .messages(List.of("Успешно создано " + result.size() + " объектов недвижимости из " + ownerships.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -129,6 +134,7 @@ public class OwnershipService implements IOwnershipService {
     }
 
     @Override
+    @Transactional
     public Object updateAllOwnership(List<Ownership> ownerships) {
         try {
             List<Ownership> result = new ArrayList<>();
@@ -142,7 +148,7 @@ public class OwnershipService implements IOwnershipService {
                     "Ни один из объектов недвижимости обновлён не был. Недвижимость с такими ID уже существует."))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedById(result))
                     .messages(List.of("Успешно обнавлено " + result.size() + " объектов недвижимости из " + ownerships.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -157,7 +163,7 @@ public class OwnershipService implements IOwnershipService {
             return result.isEmpty() ? new ResponseMessages(List.of("В базе данных объектов недвижимости не существует."))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedByApartment(result))
                     .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception e) {
@@ -166,6 +172,7 @@ public class OwnershipService implements IOwnershipService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllOwnership() {
         try {
             ownershipDAO.deleteAll();
@@ -294,25 +301,27 @@ public class OwnershipService implements IOwnershipService {
 
     }
 
-    private List<Ownership> returnListSorted(List<Ownership> list) {
+
+    private List<Ownership> returnListSortedById(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
-    private List<Owner> returnListSortedOwner(List<Owner> list) {
-        return list.stream().sorted(Comparator.comparing(Owner::getLastName)).collect(Collectors.toList());
+    private List<Ownership> returnListSortedByApartment(List<Ownership> list) {
+        return list.stream().sorted((a, b) -> Integer.parseInt(a.getAddress().getApartment())
+                - Integer.parseInt(b.getAddress().getApartment())).collect(Collectors.toList());
     }
 
-    private Owner createOwner(Owner one) {
-        return Owner
-                .builder()
-                .id(one.getId())
-                .firstName(one.getFirstName())
-                .secondName(one.getSecondName())
-                .lastName(one.getLastName())
-                .gender(one.getGender())
-                .email(one.getEmail())
-                .phoneNumber(one.getPhoneNumber())
-                .password(one.getPassword())
-                .build();
-    }
+//    private Owner createOwner(Owner one) {
+//        return Owner
+//                .builder()
+//                .id(one.getId())
+//                .firstName(one.getFirstName())
+//                .secondName(one.getSecondName())
+//                .lastName(one.getLastName())
+//                .gender(one.getGender())
+//                .email(one.getEmail())
+//                .phoneNumber(one.getPhoneNumber())
+//                .passport(one.getPassport())
+//                .build();
+//    }
 }

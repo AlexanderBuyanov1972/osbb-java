@@ -1,5 +1,6 @@
 package com.example.osbb.security;
 
+import com.example.osbb.consts.ApiConstants;
 import com.example.osbb.security.jwt.CustomAuthenticationManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,17 +24,29 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
-            "/user", "/user/**",
-            "/role", "/role/**",
-            "/owner", "/owner/**",
-            "/photo", "/photo/**",
-            "/password", "/password/**",
-            "/address", "/address/**",
-            "/ownership", "/ownership/**", "/ownership/name/**","/ownership/one_ownership_list_owner/**",
-            "/registry/**"
-
+            ApiConstants.USER,
+            ApiConstants.USER + ApiConstants.SS,
+            ApiConstants.ROLE,
+            ApiConstants.ROLE + ApiConstants.SS,
+            ApiConstants.OWNER,
+            ApiConstants.OWNER + ApiConstants.SS,
+            ApiConstants.PHOTO,
+            ApiConstants.PHOTO + ApiConstants.SS,
+            ApiConstants.PASSPORT,
+            ApiConstants.PASSPORT + ApiConstants.SS,
+            ApiConstants.ADDRESS,
+            ApiConstants.ADDRESS + ApiConstants.SS,
+            ApiConstants.QUESTIONNAIRE,
+            ApiConstants.QUESTIONNAIRE + ApiConstants.ALL,
+            ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
+            ApiConstants.QUESTIONNAIRE + ApiConstants.RESULT + ApiConstants.SS,
+            ApiConstants.OWNERSHIP,
+            ApiConstants.OWNERSHIP + ApiConstants.SS,
+            ApiConstants.OWNERSHIP + ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
+            ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
+            ApiConstants.REGISTRY + ApiConstants.SS
     };
-    private final String[] publicPath = new String[]{"/registration", "/login"};
+    private final String[] publicPath = new String[]{ApiConstants.REGISTRATION, ApiConstants.LOGIN};
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,

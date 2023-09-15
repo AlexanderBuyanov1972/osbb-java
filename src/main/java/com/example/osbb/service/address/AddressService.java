@@ -6,6 +6,7 @@ import com.example.osbb.dto.messages.ResponseMessages;
 import com.example.osbb.entity.Address;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.entity.Photo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class AddressService implements IAddressService {
     // ----------------- one -------------------------------
 
     @Override
+    @Transactional
     public Object createAddress(Address address) {
         try {
             List<String> errors = new ArrayList<>();
@@ -43,6 +45,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
+    @Transactional
     public Object updateAddress(Address address) {
         try {
             List<String> errors = new ArrayList<>();
@@ -85,6 +88,7 @@ public class AddressService implements IAddressService {
 
 
     @Override
+    @Transactional
     public Object deleteAddress(Long id) {
         List<String> list = new ArrayList<>();
         try {
@@ -108,6 +112,7 @@ public class AddressService implements IAddressService {
     // ---------------- all ----------------
 
     @Override
+    @Transactional
     public Object createAllAddress(List<Address> addresses) {
         List<Address> result = new ArrayList<>();
         try {
@@ -130,6 +135,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
+    @Transactional
     public Object updateAllAddress(List<Address> addresses) {
         List<Address> result = new ArrayList<>();
         try {
@@ -168,6 +174,7 @@ public class AddressService implements IAddressService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllAddress() {
         try {
             addressDAO.deleteAll();

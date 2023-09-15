@@ -23,7 +23,8 @@ import java.util.List;
 })
 public class Owner {
     @Id
-    @Column(name = "id", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private long id;
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -47,14 +48,21 @@ public class Owner {
     private FamilyStatus familyStatus;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "password_id", referencedColumnName = "id")
-    private Password password;
+    @JoinColumn(name = "passport_id", referencedColumnName = "id")
+    private Passport passport;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "photo_id", referencedColumnName = "id")
     private List<Photo> photos;
 
-//    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "owner_questionnaire",
+            joinColumns = @JoinColumn(name = "questionnaire_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+    List<Questionnaire> questionnaires = new ArrayList<>();
+
+//    @ManyToMany()
 //    @JoinTable(
 //            name = "owner_ownership",
 //            joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
@@ -64,7 +72,7 @@ public class Owner {
 
 
     public void setDateBirth(LocalDate dateBirth) {
-        if(dateBirth.toString().equals("нет"))
+        if (dateBirth.toString().equals("нет"))
             this.dateBirth = null;
         this.dateBirth = dateBirth;
     }

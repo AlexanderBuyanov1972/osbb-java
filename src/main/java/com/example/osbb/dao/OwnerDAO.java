@@ -11,4 +11,6 @@ public interface OwnerDAO extends JpaRepository<Owner, Long> {
 
     long count();
 
+    Owner findByLastNameAndFirstNameAndSecondName(String lastname, String firstName, String secondName);
+
 }

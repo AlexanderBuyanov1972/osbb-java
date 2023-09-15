@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public interface AddressDAO extends JpaRepository<Address, Long> {
     boolean existsById(long id);
 
+    Address findByApartment(String apartment);
+
     boolean existsByStreetAndHouseAndApartment(
             String street,
             String house,

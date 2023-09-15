@@ -1,6 +1,5 @@
-package com.example.osbb.service.photos;
+package com.example.osbb.service.photo;
 
-import com.example.osbb.entity.Address;
 import com.example.osbb.entity.Photo;
 
 import java.util.List;

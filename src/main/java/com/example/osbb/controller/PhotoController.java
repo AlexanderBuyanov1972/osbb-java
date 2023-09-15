@@ -1,10 +1,8 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.consts.ApiConstants;
-import com.example.osbb.entity.Address;
 import com.example.osbb.entity.Photo;
-import com.example.osbb.service.address.IAddressService;
-import com.example.osbb.service.photos.IPhotoService;
+import com.example.osbb.service.photo.IPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

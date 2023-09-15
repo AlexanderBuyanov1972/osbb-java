@@ -1,11 +1,11 @@
-package com.example.osbb.service.password;
+package com.example.osbb.service.passport;
 
-import com.example.osbb.dao.PasswordDAO;
+import com.example.osbb.dao.PassportDAO;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ResponseMessages;
-import com.example.osbb.entity.Address;
-import com.example.osbb.entity.Password;
+import com.example.osbb.entity.Passport;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,26 +14,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PasswordService implements IPasswordService {
+public class PassportService implements IPassportService {
     @Autowired
-    private PasswordDAO passwordDAO;
+    private PassportDAO passportDAO;
 
     // ----------------- one -------------------------------
 
     @Override
-    public Object createPassword(Password password) {
-        List<String> list = new ArrayList<>();
+    @Transactional
+    public Object createPassport(Passport passport) {
+        List<String> errors = new ArrayList<>();
         try {
-            if (passwordDAO.existsById(password.getId()))
-                list.add("Паспорт с таким ID уже существует.");
-            if (passwordDAO.existsByRegistrationNumberCardPayerTaxes(password.getRegistrationNumberCardPayerTaxes()))
-                list.add("Паспорт с таким ИНН уже существует.");
-            return list.isEmpty() ?
+            if (passportDAO.existsById(passport.getId()))
+                errors.add("Паспорт с таким ID уже существует.");
+            if (passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()))
+                errors.add("Паспорт с таким ИНН уже существует.");
+            return errors.isEmpty() ?
                     Response.builder()
-                            .data(passwordDAO.save(password))
+                            .data(passportDAO.save(passport))
                             .messages(List.of("Паспорт успешно создан.", "Удачного дня!"))
                             .build()
-                    : new ResponseMessages(list);
+                    : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -41,19 +42,20 @@ public class PasswordService implements IPasswordService {
     }
 
     @Override
-    public Object updatePassword(Password password) {
-        List<String> list = new ArrayList<>();
+    @Transactional
+    public Object updatePassport(Passport passport) {
+        List<String> errors = new ArrayList<>();
         try {
-            if (!passwordDAO.existsById(password.getId()))
-                list.add("Паспорт с таким ID не существует.");
-            if (!passwordDAO.existsByRegistrationNumberCardPayerTaxes(password.getRegistrationNumberCardPayerTaxes()
+            if (!passportDAO.existsById(passport.getId()))
+                errors.add("Паспорт с таким ID не существует.");
+            if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()
             ))
-                list.add("Паспорт с таким ИНН не существует.");
-            return list.isEmpty() ? Response.builder()
-                    .data(passwordDAO.save(password))
+                errors.add("Паспорт с таким ИНН не существует.");
+            return errors.isEmpty() ? Response.builder()
+                    .data(passportDAO.save(passport))
                     .messages(List.of("Паспорт успешно обновлён.", "Удачного дня!"))
                     .build()
-                    : new ResponseMessages(list);
+                    : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -62,16 +64,16 @@ public class PasswordService implements IPasswordService {
 
 
     @Override
-    public Object getPassword(Long id) {
-        List<String> list = new ArrayList<>();
+    public Object getPassport(Long id) {
+        List<String> errors = new ArrayList<>();
         try {
-            if (!passwordDAO.existsById(id)) {
-                list.add("Паспорт с таким ID не существует.");
+            if (!passportDAO.existsById(id)) {
+                errors.add("Паспорт с таким ID не существует.");
             }
-            return list.isEmpty() ? Response.builder()
-                    .data(passwordDAO.findById(id).get())
+            return errors.isEmpty() ? Response.builder()
+                    .data(passportDAO.findById(id).get())
                     .messages(List.of("Паспорт успешно получен.", "Удачного дня!"))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -79,10 +81,11 @@ public class PasswordService implements IPasswordService {
 
 
     @Override
-    public Object deletePassword(Long id) {
+    @Transactional
+    public Object deletePassport(Long id) {
         try {
-            if (passwordDAO.existsById(id)) {
-                passwordDAO.deleteById(id);
+            if (passportDAO.existsById(id)) {
+                passportDAO.deleteById(id);
                 return Response
                         .builder()
                         .data(id)
@@ -100,13 +103,14 @@ public class PasswordService implements IPasswordService {
     // ---------------- all ----------------444
 
     @Override
-    public Object createAllPassword(List<Password> passwords) {
+    @Transactional
+    public Object createAllPassport(List<Passport> passports) {
         try {
-            List<Password> result = new ArrayList<>();
-            for (Password one : passwords) {
-                if (!passwordDAO.existsById(one.getId()) &&
-                        !passwordDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
-                    passwordDAO.save(one);
+            List<Passport> result = new ArrayList<>();
+            for (Passport one : passports) {
+                if (!passportDAO.existsById(one.getId()) &&
+                        !passportDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
+                    passportDAO.save(one);
                     result.add(one);
                 }
             }
@@ -114,7 +118,7 @@ public class PasswordService implements IPasswordService {
                     List.of("Ни один из паспортов создан не был. Паспорта с такими ID уже существуют."))
                     : Response.builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создан " + result.size() + " паспорт из " + passwords.size() + ".", "Удачного дня!"))
+                    .messages(List.of("Успешно создан " + result.size() + " паспорт из " + passports.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -123,13 +127,14 @@ public class PasswordService implements IPasswordService {
     }
 
     @Override
-    public Object updateAllPassword(List<Password> passwords) {
+    @Transactional
+    public Object updateAllPassport(List<Passport> passports) {
         try {
-            List<Password> result = new ArrayList<>();
-            for (Password one : passwords) {
-                if (passwordDAO.existsById(one.getId()) &&
-                        passwordDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
-                    passwordDAO.save(one);
+            List<Passport> result = new ArrayList<>();
+            for (Passport one : passports) {
+                if (passportDAO.existsById(one.getId()) &&
+                        passportDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
+                    passportDAO.save(one);
                     result.add(one);
                 }
             }
@@ -137,7 +142,7 @@ public class PasswordService implements IPasswordService {
                     List.of("Ни один из паспортов обновлён не был. Паспорта с такими ID не существуют."))
                     : Response.builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно обновлён " + result.size() + " паспорт из " + passwords.size() + ".", "Удачного дня!"))
+                    .messages(List.of("Успешно обновлён " + result.size() + " паспорт из " + passports.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -146,9 +151,9 @@ public class PasswordService implements IPasswordService {
     }
 
     @Override
-    public Object getAllPassword() {
+    public Object getAllPassport() {
         try {
-            List<Password> result = passwordDAO.findAll();
+            List<Passport> result = passportDAO.findAll();
             return result.isEmpty() ?
                     new ResponseMessages(List.of("В базе данных нет ни одного паспорта по вашему запросу."))
                     :
@@ -164,9 +169,10 @@ public class PasswordService implements IPasswordService {
     }
 
     @Override
-    public Object deleteAllPassword() {
+    @Transactional
+    public Object deleteAllPassport() {
         try {
-            passwordDAO.deleteAll();
+            passportDAO.deleteAll();
             return new ResponseMessages(List.of("Все паспорта удалены успешно.", "Удачного дня!"));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -178,11 +184,11 @@ public class PasswordService implements IPasswordService {
     @Override
     public Object findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes) {
         try {
-            if (!passwordDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
+            if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
                 return new ResponseMessages(List
                         .of("Паспорт с таким ИНН не существует."));
             return Response.builder()
-                    .data(passwordDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
+                    .data(passportDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
                     .messages(List.of("Запрос паспорта по ИНН выполнен успешно.","Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -191,7 +197,7 @@ public class PasswordService implements IPasswordService {
 
     }
 
-    private List<Password> returnListSorted(List<Password> list) {
+    private List<Passport> returnListSorted(List<Passport> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 

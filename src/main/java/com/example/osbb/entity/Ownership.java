@@ -1,6 +1,5 @@
 package com.example.osbb.entity;
 
-import com.example.osbb.enums.DocumentConfirmsRightOwn;
 import com.example.osbb.enums.TypeOfRoom;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,6 +18,7 @@ import java.util.List;
         @UniqueConstraint(columnNames = "id")})
 public class Ownership {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private long id;
 
@@ -36,9 +36,8 @@ public class Ownership {
     private double livingArea;
 
     // документ о праве собственности
-    @Column(name = "document_confirms_right_own", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DocumentConfirmsRightOwn documentConfirmsRightOwn;
+    @Column(name = "document_confirms_right_own")
+    private String documentConfirmsRightOwn;
 
     // количество комнат в квартире
     @Column(name = "number_rooms")
@@ -54,24 +53,10 @@ public class Ownership {
     private Address address;
 
     // список собственников
-    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "owner_ownership",
             joinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"))
-    //@JsonIgnore
     private List<Owner> owners = new ArrayList<>();
 }
-
-//    РЕЄСТР
-//    співвласників багатоквартирного будинку, розташованого за адресою:
-//    м. Харків ,вул. Степова , № будинку 21 .
-//    Загальна площа житлових та нежитлових приміщень 6108 кв.м,
-//    у тому числі площа квартир 5128 кв.м, площа нежитлових приміщень
-//    _980 кв.м. Кількість квартир 112 . Кількість нежитлових приміщень 6 .
-// адресс ОСББ
-// Общая площадь жилых и нежилых помещений
-// Площадь квартир
-// Площадь нежилых помещений
-// Количество квартир
-// Количество нежилых помещений
