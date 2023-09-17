@@ -34,6 +34,8 @@ public class WebSecurityConfig {
             ApiConstants.PHOTO + ApiConstants.SS,
             ApiConstants.PASSPORT,
             ApiConstants.PASSPORT + ApiConstants.SS,
+            ApiConstants.VEHICLE,
+            ApiConstants.VEHICLE + ApiConstants.SS,
             ApiConstants.ADDRESS,
             ApiConstants.ADDRESS + ApiConstants.SS,
             ApiConstants.QUESTIONNAIRE,

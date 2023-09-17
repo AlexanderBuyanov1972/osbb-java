@@ -58,6 +58,13 @@ public class Owner {
             inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
     List<Questionnaire> questionnaires = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "owner_vehicle",
+            joinColumns = @JoinColumn(name = "vehicle_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+    List<Vehicle> vehicles = new ArrayList<>();
+
 //    @ManyToMany()
 //    @JoinTable(
 //            name = "owner_ownership",

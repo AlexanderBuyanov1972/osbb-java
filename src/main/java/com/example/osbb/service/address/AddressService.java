@@ -72,15 +72,15 @@ public class AddressService implements IAddressService {
     @Override
     public Object getAddress(Long id) {
         try {
-            List<String> list = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
             if (!addressDAO.existsById(id)) {
-                list.add("Адресс с таким ID не существует.");
+                errors.add("Адресс с таким ID не существует.");
             }
-            return list.isEmpty() ? Response
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(addressDAO.findById(id).get())
                     .messages(List.of("Получение адресса прошло успешно.", "Удачного дня!"))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

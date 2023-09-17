@@ -64,7 +64,7 @@ public class PassportController {
 
     // ----------- street, house and number apartment ------------
 
-    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.REGISTRATION_NUMBER_CARD_PAYER_TAXES)
+    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.ID)
     public ResponseEntity<?> getByRegistrationNumberCardPayerTaxes(@PathVariable String number) {
         return response.returnResponse(service.findByRegistrationNumberCardPayerTaxes(number));
     }
