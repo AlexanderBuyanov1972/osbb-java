@@ -1,6 +1,5 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.consts.ApiConstants;
 import com.example.osbb.entity.authorization.Role;
 import com.example.osbb.service.role.IRoleService;
 import org.springframework.beans.factory.annotation.Autowired;

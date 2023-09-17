@@ -1,6 +1,5 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.consts.ApiConstants;
 import com.example.osbb.entity.authorization.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

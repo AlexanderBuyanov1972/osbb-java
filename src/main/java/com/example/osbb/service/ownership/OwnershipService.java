@@ -1,22 +1,18 @@
 package com.example.osbb.service.ownership;
 
+import com.example.osbb.dao.AddressDAO;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
-import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
-import com.example.osbb.consts.*;
 import jakarta.transaction.Transactional;
-import org.apache.logging.log4j.core.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +23,8 @@ public class OwnershipService implements IOwnershipService {
     private OwnershipDAO ownershipDAO;
     @Autowired
     private OwnerDAO ownerDAO;
+    @Autowired
+    private AddressDAO addressDAO;
 
     // ------------- one --------------------
 
@@ -294,6 +292,24 @@ public class OwnershipService implements IOwnershipService {
                     .builder()
                     .data(count)
                     .messages(List.of("Общее количество всех нежилых помещений дома составляет " + count + " единиц.", "Удачного дня!"))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+
+    }
+
+    @Override
+    public Object getIdOwnershipByApartment(String apartment) {
+        try {
+            Long id = ownershipDAO.findAll()
+                    .stream()
+                    .filter((el-> el.getAddress().getApartment().equals(apartment)))
+                    .findFirst().get().getId();
+                  return Response
+                    .builder()
+                    .data(id)
+                    .messages(List.of("ID объекта недвижимости успешно райден.","ID = " + id + ".",  "Удачного дня!"))
                     .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));

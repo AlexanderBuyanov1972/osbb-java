@@ -1,6 +1,6 @@
 package com.example.osbb.security;
 
-import com.example.osbb.consts.ApiConstants;
+import com.example.osbb.controller.ApiConstants;
 import com.example.osbb.security.jwt.CustomAuthenticationManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

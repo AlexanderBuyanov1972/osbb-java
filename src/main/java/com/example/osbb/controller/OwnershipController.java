@@ -1,6 +1,5 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.consts.ApiConstants;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.service.ownership.IOwnershipService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +104,9 @@ public class OwnershipController {
     @GetMapping(ApiConstants.COUNT_NON_RESIDENTIAL_ROOM)
     public ResponseEntity<?> countNonResidentialRoom() {
         return response.returnResponse(service.countNonResidentialRoom());
+    }
+    @GetMapping(ApiConstants.APARTMENT + ApiConstants.ID)
+    public ResponseEntity<?> getIdOwnershipByApartment(@PathVariable String id) {
+        return response.returnResponse(service.getIdOwnershipByApartment(id));
     }
 }

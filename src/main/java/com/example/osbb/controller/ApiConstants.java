@@ -1,8 +1,9 @@
-package com.example.osbb.consts;
+package com.example.osbb.controller;
 
 public class ApiConstants {
     // -------------------- BASE -------------------
     public static final String ADDRESS = "/address";
+    public static final String APARTMENT = "/apartment";
     public static final String PASSPORT = "/passport";
     public static final String USER = "/user";
     public static final String ROLE = "/role";
@@ -42,7 +43,6 @@ public class ApiConstants {
     public static final String ID = "/{id}";
     public static final String STREET = "/{street}";
     public static final String HOUSE = "/{house}";
-    public static final String APARTMENT = "/{apartment}";
     public static final String TITLE = "/{title}";
     public static final String REGISTRATION_NUMBER_CARD_PAYER_TAXES = "/{registrationNumberCardPayerTaxes}";
 

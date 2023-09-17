@@ -14,8 +14,7 @@ import java.util.List;
 @Builder
 @ToString
 @Entity
-@Table(name = "ownerships", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "id")})
+@Table(name = "ownerships")
 public class Ownership {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

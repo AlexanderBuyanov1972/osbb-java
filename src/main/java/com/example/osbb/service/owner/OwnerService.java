@@ -25,13 +25,25 @@ public class OwnerService implements IOwnerService {
     private OwnershipDAO ownershipDAO;
 
     // ---------------- one -----------------
+//    boolean existsByEmail(String email);
+//    boolean existsByPhoneNumber(String phoneNumber);
 
     @Override
     @Transactional
     public Object createOwner(Owner owner) {
         try {
-            return ownerDAO.existsById(owner.getId()) ?
-                    new ResponseMessages(List.of("Собственник с таким ID уже существует."))
+            List<String> errors = new ArrayList<>();
+            if (ownerDAO.existsById(owner.getId())) {
+                errors.add("Собственник с таким ID уже существует.");
+            }
+            if (ownerDAO.existsByEmail(owner.getEmail())) {
+                errors.add("Собственник с таким E-mail уже существует.");
+            }
+            if (ownerDAO.existsByPhoneNumber(owner.getPhoneNumber())) {
+                errors.add("Собственник с таким номером телефона уже существует.");
+            }
+            return !errors.isEmpty() ?
+                    new ResponseMessages(errors)
                     : Response.builder()
                     .data(ownerDAO.save(owner))
                     .messages(List.of("Объект собственника создан успешно.", "Удачного дня!"))
@@ -45,11 +57,20 @@ public class OwnerService implements IOwnerService {
     @Transactional
     public Object updateOwner(Owner owner) {
         try {
+            List<String> errors = new ArrayList<>();
             if (!ownerDAO.existsById(owner.getId())) {
-                return new ResponseMessages(List.of("Собственник с таким ID не существует."));
+                errors.add("Собственник с таким ID не существует.");
             }
-            return Response
-                    .builder()
+            if (!ownerDAO.existsByEmail(owner.getEmail())) {
+                errors.add("Собственник с таким E-mail не существует.");
+            }
+            if (!ownerDAO.existsByPhoneNumber(owner.getPhoneNumber())) {
+                errors.add("Собственник с таким номером телефона не существует.");
+            }
+
+            return !errors.isEmpty() ?
+                    new ResponseMessages(errors)
+                    : Response.builder()
                     .data(ownerDAO.save(owner))
                     .messages(List.of("Объект собственника обновлён успешно.", "Удачного дня!"))
                     .build();

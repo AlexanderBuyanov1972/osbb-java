@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 public interface PassportDAO extends JpaRepository<Passport, Long> {
     boolean existsById(long id);
+    boolean existsByNumberPassport(String numberPassport);
     boolean existsByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes);
     Passport findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes);
 }

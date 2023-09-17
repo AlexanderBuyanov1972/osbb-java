@@ -49,4 +49,6 @@ public interface IOwnershipService {
 
     // Количество нежилых помещений
     public Object countNonResidentialRoom();
+    // По номеру квартиры получаем id помещения
+    public Object getIdOwnershipByApartment(String apartment);
 }

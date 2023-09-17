@@ -27,6 +27,8 @@ public class PassportService implements IPassportService {
         try {
             if (passportDAO.existsById(passport.getId()))
                 errors.add("Паспорт с таким ID уже существует.");
+            if (passportDAO.existsByNumberPassport(passport.getNumberPassport()))
+                errors.add("Паспорт с таким номером уже существует.");
             if (passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()))
                 errors.add("Паспорт с таким ИНН уже существует.");
             return errors.isEmpty() ?
@@ -48,6 +50,8 @@ public class PassportService implements IPassportService {
         try {
             if (!passportDAO.existsById(passport.getId()))
                 errors.add("Паспорт с таким ID не существует.");
+            if (!passportDAO.existsByNumberPassport(passport.getNumberPassport()))
+                errors.add("Паспорт с таким номером не существует.");
             if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()
             ))
                 errors.add("Паспорт с таким ИНН не существует.");
@@ -100,7 +104,7 @@ public class PassportService implements IPassportService {
     }
 
 
-    // ---------------- all ----------------444
+    // ---------------- all ----------------
 
     @Override
     @Transactional

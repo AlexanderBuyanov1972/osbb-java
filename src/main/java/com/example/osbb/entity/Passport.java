@@ -12,11 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "passports", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "id"),
-        @UniqueConstraint(columnNames = "number_passport"),
-        @UniqueConstraint(columnNames = "registration_number_card_payer_taxes")
-})
+@Table(name = "passports")
 
 public class Passport {
     @Id
@@ -36,7 +32,7 @@ public class Passport {
 
 //    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "passport")
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy="passport")
+    @OneToOne( mappedBy="passport")
     @JsonIgnore
     private Owner owner;
 

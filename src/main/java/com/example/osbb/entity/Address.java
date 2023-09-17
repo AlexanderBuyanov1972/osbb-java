@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "addresses", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "id"),
-        @UniqueConstraint(columnNames = "apartment")
-})
+@Table(name = "addresses")
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -47,7 +44,7 @@ public class Address {
     private String house;
 
     @Column(name = "entrance")
-    private String entrance ;
+    private String entrance;
 
     @Column(name = "floor")
     private String floor;
@@ -55,7 +52,7 @@ public class Address {
     @Column(name = "apartment", unique = true, nullable = false)
     private String apartment;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy="address")
+    @OneToOne(mappedBy = "address")
     @JsonIgnore
     private Ownership ownership;
 

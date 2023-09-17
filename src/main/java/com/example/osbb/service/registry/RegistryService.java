@@ -84,8 +84,7 @@ public class RegistryService implements IRegistryService {
                 .build();
     }
 
-    // --------------------------------------------------------------------------
-
+    // ---------------------------- getRegistryOwnerships ---------------------------------------------
     @Override
     public Object getRegistryOwnerships() {
         try {
@@ -120,8 +119,12 @@ public class RegistryService implements IRegistryService {
                 .collect(Collectors.toList());
     }
 
+//    Comparator<OwnershipAndListFullNameOwner> comparatorInt =
+//            (a, b) -> (int) a.getOwnership().getId() - (int) b.getOwnership().getId();
+
     Comparator<OwnershipAndListFullNameOwner> comparatorInt =
-            (a, b) -> (int) a.getOwnership().getId() - (int) b.getOwnership().getId();
+            (a, b) -> Integer.parseInt(a.getOwnership().getAddress().getApartment())
+                    - Integer.parseInt(b.getOwnership().getAddress().getApartment());
 
     // ------------- create strings -----------------------------
 
