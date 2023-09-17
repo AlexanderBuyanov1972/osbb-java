@@ -39,9 +39,6 @@ public class OwnerService implements IOwnerService {
             if (ownerDAO.existsByEmail(owner.getEmail())) {
                 errors.add("Собственник с таким E-mail уже существует.");
             }
-            if (ownerDAO.existsByPhoneNumber(owner.getPhoneNumber())) {
-                errors.add("Собственник с таким номером телефона уже существует.");
-            }
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
                     : Response.builder()
@@ -64,10 +61,6 @@ public class OwnerService implements IOwnerService {
             if (!ownerDAO.existsByEmail(owner.getEmail())) {
                 errors.add("Собственник с таким E-mail не существует.");
             }
-            if (!ownerDAO.existsByPhoneNumber(owner.getPhoneNumber())) {
-                errors.add("Собственник с таким номером телефона не существует.");
-            }
-
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
                     : Response.builder()
