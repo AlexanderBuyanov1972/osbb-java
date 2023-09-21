@@ -1,8 +1,8 @@
 package com.example.osbb.entity;
 
-import com.example.osbb.enums.TypeColor;
-import com.example.osbb.enums.TypeManufacturer;
-import com.example.osbb.enums.TypeVehicle;
+import com.example.osbb.enums.TypeOfColor;
+import com.example.osbb.enums.TypeOfManufacturer;
+import com.example.osbb.enums.TypeOfVehicle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +25,7 @@ public class Vehicle {
 
     @Column(name = "type_vehicle")
     @Enumerated(EnumType.STRING)
-    private TypeVehicle typeVehicle;
+    private TypeOfVehicle typeVehicle;
 
     @Column(name = "number_vehicle")
     private String numberVehicle;
@@ -35,11 +35,11 @@ public class Vehicle {
 
     @Column(name = "color")
     @Enumerated(EnumType.STRING)
-    private TypeColor color;
+    private TypeOfColor color;
 
     @Column(name = "type_manufacturer")
     @Enumerated(EnumType.STRING)
-    private TypeManufacturer manufacturer;
+    private TypeOfManufacturer manufacturer;
 
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(

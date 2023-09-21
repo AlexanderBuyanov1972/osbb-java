@@ -1,5 +1,5 @@
 package com.example.osbb.enums;
 
-public enum TypeManufacturer {
+public enum TypeOfManufacturer {
     BMW,TOYOTA,RENO,
 }

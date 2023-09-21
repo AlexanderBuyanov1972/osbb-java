@@ -1,6 +1,6 @@
 package com.example.osbb.entity.authorization;
 
-import com.example.osbb.enums.RoleEnum;
+import com.example.osbb.enums.TypeOfRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ public class Role {
     private long id;
     @Column(name = "name", nullable = false)
     @Enumerated(EnumType.STRING)
-    private RoleEnum name;
+    private TypeOfRole name;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(

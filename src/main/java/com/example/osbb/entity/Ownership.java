@@ -1,6 +1,7 @@
 package com.example.osbb.entity;
 
 import com.example.osbb.enums.TypeOfRoom;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ import java.util.List;
 public class Ownership {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
+    @Column(name = "id", unique = true)
     private long id;
 
     // тип помещения (квартира или нежилое помещение)
@@ -45,7 +46,7 @@ public class Ownership {
     // есть ли балкон
     @Column(name = "loggia", nullable = false)
     private boolean loggia;
-
+    // ------------------------------------------------------------
     // по какому адресу находится
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
@@ -58,4 +59,5 @@ public class Ownership {
             joinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"))
     private List<Owner> owners = new ArrayList<>();
+
 }

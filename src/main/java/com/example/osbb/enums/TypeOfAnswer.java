@@ -1,5 +1,5 @@
 package com.example.osbb.enums;
 
-public enum Answer {
+public enum TypeOfAnswer {
     BEHIND, AGAINST, ABSTAINED
 }

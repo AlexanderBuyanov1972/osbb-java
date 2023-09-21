@@ -1,5 +1,5 @@
 package com.example.osbb.enums;
 
-public enum RoleEnum {
+public enum TypeOfRole {
     USER, ADMIN, BOOKER
 }

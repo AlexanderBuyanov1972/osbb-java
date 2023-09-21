@@ -63,8 +63,14 @@ public class QuestionnaireController {
 
     // ------------------ results ----------------
 
-    @GetMapping(ApiConstants.RESULT + ApiConstants.TITLE)
+    @GetMapping(ApiConstants.RESULT + ApiConstants.PARAM_1)
     public ResponseEntity<?> getResultOfQuestionnaireByTitle(@PathVariable String title) {
         return response.returnResponse(service.getResultOfQuestionnaireByTitle(title));
+    }
+    // ------------------ generate ----------------
+
+    @PostMapping(ApiConstants.GENERATION)
+    public ResponseEntity<?> generateListQuestionnaire(@RequestBody List<Questionnaire> list) {
+        return response.returnResponse(service.generateListQuestionnaire(list));
     }
 }

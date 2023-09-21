@@ -1,5 +1,5 @@
 package com.example.osbb.enums;
 
-public enum Gender {
+public enum TypeOfGender {
     MALE, FEMALE
 }

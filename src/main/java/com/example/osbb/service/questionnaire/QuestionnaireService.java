@@ -1,24 +1,23 @@
 package com.example.osbb.service.questionnaire;
 
-import com.example.osbb.dao.AddressDAO;
-import com.example.osbb.dao.OwnerDAO;
-import com.example.osbb.dao.OwnershipDAO;
-import com.example.osbb.dao.QuestionnaireDAO;
-import com.example.osbb.dto.FioApartmentSelects;
+import com.example.osbb.dao.*;
+import com.example.osbb.dto.FullNameOwnerAndApartment;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.ShareTotalAreaQuestionAnswer;
 import com.example.osbb.dto.messages.ErrorResponseMessages;
 import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.entity.Address;
+import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Questionnaire;
+import com.example.osbb.enums.TypeOfAnswer;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,24 +25,27 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Autowired
     QuestionnaireDAO questionnaireDAO;
     @Autowired
-    OwnerDAO ownerDAO;
+    AddressDAO addressDAO;
     @Autowired
     OwnershipDAO ownershipDAO;
-
-    @Autowired
-    AddressDAO addressDAO;
 
     // ----------------- one -------------------
     @Override
     @Transactional
     public Object createQuestionnaire(Questionnaire questionnaire) {
         List<String> errors = new ArrayList<>();
+        Questionnaire one = null;
         try {
-            if (questionnaireDAO.existsById(questionnaire.getId()))
-                errors.add("Лист опроса  с таким ID уже существует.");
+            if (questionnaireDAO.existsById(questionnaire.getId())) {
+                if (questionnaire.getAnswer() != null) {
+                    questionnaire.setDateReceiving(LocalDate.now());
+                    one = questionnaireDAO.save(questionnaire);
+                }
+            }
+            errors.add("Лист опроса м тикам id не существует");
             return errors.isEmpty() ?
                     Response.builder()
-                            .data(questionnaireDAO.save(questionnaire))
+                            .data(one)
                             .messages(List.of("Лист опроса успешно создан.", "Удачного дня!"))
                             .build()
                     : new ResponseMessages(errors);
@@ -51,6 +53,7 @@ public class QuestionnaireService implements IQuestionnaireService {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
+
 
     @Override
     @Transactional
@@ -115,15 +118,19 @@ public class QuestionnaireService implements IQuestionnaireService {
         try {
             List<Questionnaire> result = new ArrayList<>();
             for (Questionnaire one : questionnaires) {
-                if (!questionnaireDAO.existsById(one.getId())) {
-                    questionnaireDAO.save(one);
-                    result.add(one);
+                if (questionnaireDAO.existsById(one.getId())) {
+                    if (one.getAnswer() != null) {
+                        one.setDateReceiving(LocalDate.now());
+                        questionnaireDAO.save(one);
+                        result.add(one);
+                    }
+
                 }
             }
             return result.isEmpty() ? new ResponseMessages(
                     List.of("Ни один из листов опроса создан не был. Листы опроса с такими ID уже существуют."))
                     : Response.builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedById(result))
                     .messages(List.of("Успешно создан " + result.size() + " лист опроса из " + questionnaires.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -145,7 +152,7 @@ public class QuestionnaireService implements IQuestionnaireService {
             return result.isEmpty() ? new ResponseMessages(
                     List.of("Ни один из листов опроса обновлён не был. Листы опроса с такими ID не существуют."))
                     : Response.builder()
-                    .data(returnListSorted(result))
+                    .data(returnListSortedById(result))
                     .messages(List.of("Успешно обновлён " + result.size() + " лист опроса из " + questionnaires.size() + ".", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
@@ -156,15 +163,15 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object getAllQuestionnaire() {
         try {
-            List<Questionnaire> result = questionnaireDAO.findAll();
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of("В базе данных нет ни одного листа опроса по вашему запросу."))
-                    :
-                    Response
-                            .builder()
-                            .data(returnListSorted(result))
-                            .messages(List.of("Запрос выполнен успешно.", "Все листы опросов получены.", "Удачного дня!"))
-                            .build();
+            List<Questionnaire> list = questionnaireDAO.findAll()
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
+            return Response
+                    .builder()
+                    .data(returnListSortedByApartment(list))
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -181,102 +188,340 @@ public class QuestionnaireService implements IQuestionnaireService {
         }
     }
 
+    // selects ************************************************
+    // ---------------- one ---------------------
     @Override
-    public Object getResultOfQuestionnaireByTitle(String title) {
+    public Object selectAllQuestionnaireByTitle(String title) {
         try {
-            // ------------  initialization variables ----------------------------
-            Map<String, Map<String, Double>> resultDouble = new HashMap<>();
-            Map<String, Map<String, Integer>> resultInteger = new HashMap<>();
-            List<ShareTotalAreaQuestionAnswer> list = new ArrayList<>();
-            //  all computes
-            //  getting data from DB class Questionnaire
-            List<Questionnaire> questionnaireList = questionnaireDAO.findAll();
-            //  filtering by title
-            List<FioApartmentSelects> fioApartmentSelectsList =
-                    questionnaireList.stream()
-                            .filter(el -> !el.getTitle().equals(title))
-                            .map(el -> new FioApartmentSelects(el.getFio(),
-                                    el.getApartment(), el.getSelects()))
-                            .toList();
-            // filling list for base computes
-            fioApartmentSelectsList.forEach(el -> {
-                // getting array names from field fio
-                String[] fios = el.getFio().trim().split(" ");
-                // getting share in real estate
-                Double share = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2])
-                        .getShareInRealEstate();
-                // getting id of ownership
-                Long id = addressDAO.findByApartment(el.getApartment()).getOwnership().getId();
-                // getting total area of ownership
-                Double totalArea = ownershipDAO.findById(id).get().getTotalArea();
-
-//                System.out.println("share ---> : " + share);
-//                System.out.println("id ---> : " + id);
-//                System.out.println("totalArea ---> : " + totalArea);
-
-                // addition element to list for base computes
-                el.getSelectList().forEach(element -> {
-                    list.add(new ShareTotalAreaQuestionAnswer(element.getQuestion(),
-                            element.getAnswer(), share * totalArea));
-                });
-            });
-            //response
+            List<Questionnaire> list = questionnaireDAO.findByTitle(title);
             return Response
                     .builder()
-                    .data(List.of(getResultDouble(resultDouble, list), getResultInteger(resultInteger, list)))
-                    .messages(List.of("Результаты опроса \"" + title + "\" обработаны.", "Удачного дня!"))
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
 
-    private List<Questionnaire> returnListSorted(List<Questionnaire> list) {
+    @Override
+    public Object selectAllQuestionnaireByQuestion(String question) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByQuestion(question);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByFullname(String fullname) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByFullname(fullname);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByApartment(String apartment) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByApartment(apartment);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByDateDispatch(LocalDate dateDispatch) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByDateDispatch(dateDispatch);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByDateReceiving(LocalDate dateReceiving) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByDateReceiving(dateReceiving);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    // ------------------------- two ---------------------
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndQuestion(String title, String question) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndQuestion(title, question);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndApartment(String title, String apartment) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndApartment(title, apartment);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndFullname(String title, String fullname) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullname(title, fullname)
+                    .stream()
+                    .filter(el -> el.getAnswer() == null)
+                    .toList();
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByFullnameAndApartment(String fullname, String apartment) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByFullnameAndApartment(fullname, apartment);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndDateDispatch(String title, LocalDate dateDispatch) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndDateDispatch(title, dateDispatch);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndDateReceiving(String title, LocalDate dateReceiving) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndDateReceiving(title, dateReceiving);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+    // three *****************************************************************************
+
+    @Override
+    public Object selectAllQuestionnaireByTitleAndFullnameAndApartment(String title, String fullname, String apartment) {
+        try {
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullnameAndApartment(title, fullname, apartment);
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    // sorted ****************************************************************************
+    private List<Questionnaire> returnListSortedById(List<Questionnaire> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
-    // -------------- counter by area m2 --------------------
-    private Map<String, Map<String, Double>> getResultDouble(Map<String, Map<String, Double>> result, List<ShareTotalAreaQuestionAnswer> list) {
-        list.forEach(el -> {
-            Map<String, Double> map;
-            if (!result.containsKey(el.getQuestion())) {
-                map = new HashMap<>();
-                map.put(el.getAnswer().toString(), el.getShareTotalArea());
-            } else {
-                map = result.get(el.getQuestion());
-                if (!map.containsKey(el.getAnswer().toString())) {
-                    map.put(el.getAnswer().toString(), el.getShareTotalArea());
-                } else {
-                    Double value = map.get(el.getAnswer().toString());
-                    value += el.getShareTotalArea();
-                    map.put(el.getAnswer().toString(), value);
+    private List<Questionnaire> returnListSortedByApartment(List<Questionnaire> list) {
+        return list.stream()
+                .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
+                .collect(Collectors.toList());
+    }
+
+
+    //  result ***************************************************************
+    @Override
+    public Object getResultOfQuestionnaireByTitle(String title) {
+        try {
+            // базовый лист с которым работаем на счётчик голосов
+            List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
+                    .stream().filter(x -> x.getDateReceiving() != null).toList();
+            // мапа для подсчёта голосов собственниками
+            Map<String, Map<TypeOfAnswer, Long>> mapCountPeople = baseList.stream()
+                    .collect(Collectors.groupingBy(Questionnaire::getQuestion,
+                            Collectors.groupingBy(Questionnaire::getAnswer, Collectors.counting())));
+            // итоги подсчёта голосов собственниками
+            Map<String, Long> itogCountPeople = baseList.stream()
+                    .collect(Collectors.groupingBy(Questionnaire::getQuestion, Collectors.counting()));
+
+            //  мапа для подсчёта голосов квадратными метрами
+            Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
+                    generateShareTotalAreaQuestionAnswer(baseList)
+                            .stream()
+                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
+                                    Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
+                                            Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
+            // итоги подсчёта голосов квадратными метрами
+            Map<String, Double> itogCountArea =
+                    generateShareTotalAreaQuestionAnswer(baseList)
+                            .stream()
+                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
+                                    Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea)));
+            return Response
+                    .builder()
+                    .data(List.of(mapCountPeople, mapCountArea, itogCountPeople, itogCountArea))
+                    .messages(List.of("Результаты опроса \"" + title + "\" обработаны.", "Удачного дня!"))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+
+    }
+
+    private List<ShareTotalAreaQuestionAnswer> generateShareTotalAreaQuestionAnswer(List<Questionnaire> baseList) {
+        List<ShareTotalAreaQuestionAnswer> result = new ArrayList<>();
+        baseList.forEach(q -> {
+            Address address = addressDAO.findByApartment(q.getApartment());
+            Double totalArea = address.getOwnership().getTotalArea();
+            AtomicReference<Double> share = new AtomicReference<>(0.0);
+            List<Owner> owners = address.getOwnership().getOwners();
+            owners.forEach(y -> {
+                String fullname = y.getLastName() + " " + y.getFirstName() + " " + y.getSecondName();
+                if (q.getFullname().equals(fullname)) {
+                    share.set(y.getShareInRealEstate());
                 }
-            }
-            result.put(el.getQuestion(), map);
+            });
+            result.add(new ShareTotalAreaQuestionAnswer(q.getQuestion(), q.getAnswer(), share.get() * totalArea));
         });
         return result;
     }
 
+    // generate ***************************************************************
+    @Override
+    public Object generateListQuestionnaire(List<Questionnaire> questionnaires) {
+        try {
+            getListFullNameOwnerAndApartmentForHouse().forEach(el -> {
+                questionnaires.forEach(x -> {
+                    questionnaireDAO.save(makeQuestionnaire(x, el.getFullname(), el.getApartment()));
+                });
+            });
+            return Response
+                    .builder()
+                    .data(List.of())
+                    .messages(List.of("Генерация прошла успешно.", "Удачного дня!"))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
 
-    // ---------------  counter by peoples --------------------------
-    private Map<String, Map<String, Integer>> getResultInteger(Map<String, Map<String, Integer>> result, List<ShareTotalAreaQuestionAnswer> list) {
-        list.forEach(el -> {
-            Map<String, Integer> map = null;
-            if (!result.containsKey(el.getQuestion())) {
-                map = new HashMap<>();
-                map.put(el.getAnswer().toString(), 1);
-            } else {
-                map = result.get(el.getQuestion());
-                if (!map.containsKey(el.getAnswer().toString())) {
-                    map.put(el.getAnswer().toString(), 1);
-                } else {
-                    int value = map.get(el.getAnswer().toString());
-                    value += 1;
-                    map.put(el.getAnswer().toString(), value);
-                }
-            }
-            result.put(el.getQuestion(), map);
+    private Questionnaire makeQuestionnaire(Questionnaire questionnaire, String fullname, String apartment) {
+        return Questionnaire
+                .builder()
+                .title(questionnaire.getTitle())
+                .byWhom(questionnaire.getByWhom())
+                .dateDispatch(LocalDate.now())
+                .question(questionnaire.getQuestion())
+                .answer(null)
+                .dateReceiving(null)
+                .fullname(fullname)
+                .apartment(apartment)
+                .build();
+    }
+
+
+    // формирует лист объектов собственник-квартира **************************************
+    private List<FullNameOwnerAndApartment> getListFullNameOwnerAndApartmentForHouse() {
+
+        List<FullNameOwnerAndApartment> result = new ArrayList<>();
+
+        ownershipDAO.findAll().forEach(el -> {
+
+            String apartment = el.getAddress().getApartment();
+
+            Double totalArea = el.getTotalArea();
+
+            el.getOwners().forEach(x -> {
+
+                String fullname = x.getLastName() + " " + x.getFirstName() + " " + x.getSecondName();
+
+                Double share = x.getShareInRealEstate();
+
+                result.add(new FullNameOwnerAndApartment(fullname, share, apartment, totalArea));
+            });
         });
+
         return result;
+    }
+
+    // замена fullname в базе данных  на имена собственников из таблицы owners
+    private void changeFullnameForListQuestionnaire(String title) {
+        List<Ownership> ownershipList = ownershipDAO.findAll();
+        List<Questionnaire> questionnaireList = questionnaireDAO.findByTitle(title);
+        ownershipList.forEach(el -> {
+            questionnaireList.forEach(que -> {
+                if (el.getAddress().getApartment().equals(que.getApartment())) {
+                    List<Owner> ownerList = el.getOwners();
+                    List<Questionnaire> questionnaireList1 = questionnaireDAO.findByApartment(que.getApartment());
+                    questionnaireList1.forEach(v -> {
+                        for (Owner one : ownerList) {
+                            v.setFullname(one.getLastName() + " " + one.getFirstName() + " " + one.getSecondName());
+                            questionnaireDAO.save(v);
+                        }
+                    });
+                }
+            });
+        });
     }
 }

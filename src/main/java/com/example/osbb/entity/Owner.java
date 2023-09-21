@@ -1,8 +1,7 @@
 package com.example.osbb.entity;
 
-import com.example.osbb.enums.FamilyStatus;
-import com.example.osbb.enums.Gender;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.example.osbb.enums.TypeOfFamilyStatus;
+import com.example.osbb.enums.TypeOfGender;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +19,7 @@ import java.util.List;
 public class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id")
+    @Column(name = "id", unique = true)
     private long id;
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -30,7 +29,7 @@ public class Owner {
     private String lastName;
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private TypeOfGender gender;
     @Column(name = "email", unique = true)
     private String email;
     @Column(name = "phone_number", unique = true)
@@ -41,7 +40,7 @@ public class Owner {
     private Double shareInRealEstate;
     @Column(name = "family_status")
     @Enumerated(EnumType.STRING)
-    private FamilyStatus familyStatus;
+    private TypeOfFamilyStatus familyStatus;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "passport_id", referencedColumnName = "id")
@@ -50,13 +49,6 @@ public class Owner {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "photo_id", referencedColumnName = "id")
     private List<Photo> photos;
-
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "owner_questionnaire",
-            joinColumns = @JoinColumn(name = "questionnaire_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
-    List<Questionnaire> questionnaires = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(

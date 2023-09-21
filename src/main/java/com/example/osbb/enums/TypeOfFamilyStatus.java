@@ -1,6 +1,6 @@
 package com.example.osbb.enums;
 
-public enum FamilyStatus {
+public enum TypeOfFamilyStatus {
     MARRIED, SINGLE
 
 }

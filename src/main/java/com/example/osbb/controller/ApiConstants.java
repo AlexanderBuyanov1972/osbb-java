@@ -2,6 +2,7 @@ package com.example.osbb.controller;
 
 public class ApiConstants {
     // -------------------- BASE -------------------
+    public static final String REGISTRY = "/registry";
     public static final String ADDRESS = "/address";
     public static final String APARTMENT = "/apartment";
     public static final String PASSPORT = "/passport";
@@ -13,7 +14,12 @@ public class ApiConstants {
     public static final String OWNERSHIP = "/ownership";
     public static final String QUESTIONNAIRE = "/questionnaire";
     public static final String SELECT = "/select";
-    public static final String REGISTRY = "/registry";
+    public static final String TITLE = "/title";
+    public static final String FULLNAME = "/fullname";
+    public static final String QUESTION = "/question";
+    public static final String DATE_DISPATCH = "/date_dispatch";
+    public static final String DATE_RECEIVING = "/date_receiving";
+    public static final String GENERATION = "/generation";
 
     // --------------- summa ------------------
     public static final String SUMMA_AREA_ROOMS = "/summa_area_rooms";
@@ -44,8 +50,12 @@ public class ApiConstants {
     public static final String ID = "/{id}";
     public static final String STREET = "/{street}";
     public static final String HOUSE = "/{house}";
-    public static final String TITLE = "/{title}";
-
+    public static final String PARAM_1 = "/{title}";
+    public static final String PARAM_2 = "/{question}";
+    public static final String PARAM_3 = "/{fullname}";
+    public static final String PARAM_4 = "/{apartment}";
+    public static final String PARAM_5 = "/{dateDispatch}";
+    public static final String PARAM_6 = "/{dateReceiving}";
 
 
 }

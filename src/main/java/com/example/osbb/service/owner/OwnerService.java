@@ -168,7 +168,7 @@ public class OwnerService implements IOwnerService {
                     : Response
                     .builder()
                     .data(returnListSortedByLastName(result))
-                    .messages(List.of("Список собственников получен успешно.", "Удачного дня!"))
+                    .messages(List.of("Список собственников в количестве  " + result.size() + " отправлен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));

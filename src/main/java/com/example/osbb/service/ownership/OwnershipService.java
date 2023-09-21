@@ -162,7 +162,7 @@ public class OwnershipService implements IOwnershipService {
                     : Response
                     .builder()
                     .data(returnListSortedByApartment(result))
-                    .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
+                    .messages(List.of("Список объектов недвижимости в количестве " + result.size() + " отправлен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -304,12 +304,12 @@ public class OwnershipService implements IOwnershipService {
         try {
             Long id = ownershipDAO.findAll()
                     .stream()
-                    .filter((el-> el.getAddress().getApartment().equals(apartment)))
+                    .filter((el -> el.getAddress().getApartment().equals(apartment)))
                     .findFirst().get().getId();
-                  return Response
+            return Response
                     .builder()
                     .data(id)
-                    .messages(List.of("ID объекта недвижимости успешно райден.","ID = " + id + ".",  "Удачного дня!"))
+                    .messages(List.of("ID объекта недвижимости успешно райден.", "ID = " + id + ".", "Удачного дня!"))
                     .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));

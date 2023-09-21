@@ -1,5 +1,5 @@
 package com.example.osbb.enums;
 
-public enum TypeColor {
+public enum TypeOfColor {
     RED, WHITE, BLACK, GREEN
 }

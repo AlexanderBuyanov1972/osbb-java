@@ -1,17 +1,15 @@
 package com.example.osbb.dto;
 
-import com.example.osbb.enums.Answer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.osbb.enums.TypeOfAnswer;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ShareTotalAreaQuestionAnswer {
     private String question;
-    private Answer answer;
+    private TypeOfAnswer answer;
     private Double shareTotalArea;
 }
