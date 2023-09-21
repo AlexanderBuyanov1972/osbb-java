@@ -193,7 +193,28 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByTitle(String title) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitle(title);
+            List<Questionnaire> list = questionnaireDAO.findByTitle(title)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
+            return Response
+                    .builder()
+                    .data(returnListSortedByApartment(list))
+                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .build();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object selectAllTitles() {
+        try {
+            List<String> list = questionnaireDAO.findAll()
+                    .stream()
+                    .map(Questionnaire::getTitle)
+                    .distinct()
+                    .toList();
             return Response
                     .builder()
                     .data(list)
@@ -207,7 +228,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByQuestion(String question) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByQuestion(question);
+            List<Questionnaire> list = questionnaireDAO.findByQuestion(question)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
             return Response
                     .builder()
                     .data(list)
@@ -235,7 +259,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByApartment(String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByApartment(apartment);
+            List<Questionnaire> list = questionnaireDAO.findByApartment(apartment)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
             return Response
                     .builder()
                     .data(list)
@@ -249,7 +276,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByDateDispatch(LocalDate dateDispatch) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByDateDispatch(dateDispatch);
+            List<Questionnaire> list = questionnaireDAO.findByDateDispatch(dateDispatch)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();;
             return Response
                     .builder()
                     .data(list)
@@ -263,7 +293,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByDateReceiving(LocalDate dateReceiving) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByDateReceiving(dateReceiving);
+            List<Questionnaire> list = questionnaireDAO.findByDateReceiving(dateReceiving)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();;
             return Response
                     .builder()
                     .data(list)
@@ -279,7 +312,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByTitleAndQuestion(String title, String question) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitleAndQuestion(title, question);
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndQuestion(title, question)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();;
             return Response
                     .builder()
                     .data(list)
@@ -293,7 +329,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByTitleAndApartment(String title, String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitleAndApartment(title, apartment);
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndApartment(title, apartment)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();;
             return Response
                     .builder()
                     .data(list)
@@ -324,7 +363,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByFullnameAndApartment(String fullname, String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByFullnameAndApartment(fullname, apartment);
+            List<Questionnaire> list = questionnaireDAO.findByFullnameAndApartment(fullname, apartment)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();;
             return Response
                     .builder()
                     .data(list)
@@ -338,7 +380,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByTitleAndDateDispatch(String title, LocalDate dateDispatch) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitleAndDateDispatch(title, dateDispatch);
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndDateDispatch(title, dateDispatch)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
             return Response
                     .builder()
                     .data(list)
@@ -367,7 +412,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object selectAllQuestionnaireByTitleAndFullnameAndApartment(String title, String fullname, String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullnameAndApartment(title, fullname, apartment);
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullnameAndApartment(title, fullname, apartment)
+                    .stream()
+                    .filter(el -> el.getDateReceiving() == null)
+                    .toList();
             return Response
                     .builder()
                     .data(list)

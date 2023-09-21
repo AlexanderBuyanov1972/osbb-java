@@ -19,7 +19,7 @@ import java.util.List;
 public class Ownership {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", unique = true)
+    @Column(name = "id")
     private long id;
 
     // тип помещения (квартира или нежилое помещение)

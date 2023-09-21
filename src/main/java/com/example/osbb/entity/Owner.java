@@ -19,7 +19,7 @@ import java.util.List;
 public class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", unique = true)
+    @Column(name = "id")
     private long id;
     @Column(name = "first_name", nullable = false)
     private String firstName;

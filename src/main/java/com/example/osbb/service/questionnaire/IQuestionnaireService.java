@@ -27,6 +27,7 @@ public interface IQuestionnaireService {
 
     // ------------- selects ------------
     public Object selectAllQuestionnaireByTitle(String title);
+    public Object selectAllTitles();
 
     public Object selectAllQuestionnaireByQuestion(String question);
 

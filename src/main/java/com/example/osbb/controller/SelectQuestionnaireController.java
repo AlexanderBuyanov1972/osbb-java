@@ -26,6 +26,10 @@ public class SelectQuestionnaireController {
         return response.returnResponse(service
                 .selectAllQuestionnaireByTitle(title));
     }
+    @GetMapping(value = ApiConstants.TITLE + ApiConstants.ALL)
+    public ResponseEntity<?> selectAllTitles() {
+        return response.returnResponse(service.selectAllTitles());
+    }
 
     @GetMapping(value = ApiConstants.QUESTION + ApiConstants.PARAM_2)
     public ResponseEntity<?> selectAllQuestionnaireByQuestion(

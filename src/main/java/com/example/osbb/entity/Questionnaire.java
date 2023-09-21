@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class Questionnaire {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", unique = true)
+    @Column(name = "id")
     private long id;
     @Column(name = "title" , nullable = false)
     private String title;
