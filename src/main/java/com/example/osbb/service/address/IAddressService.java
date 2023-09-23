@@ -1,6 +1,7 @@
 package com.example.osbb.service.address;
 
 import com.example.osbb.entity.Address;
+import com.example.osbb.service.IEntityService;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,7 @@ public interface IAddressService {
 
     public Object deleteAllAddress();
 
-    // ------------- street, house and apartment ----------------
+     //------------- street, house and apartment ----------------
 
     public Object getAddress(String street, String house, String apartment);
 

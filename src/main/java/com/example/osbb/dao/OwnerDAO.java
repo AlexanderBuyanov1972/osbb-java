@@ -11,5 +11,6 @@ public interface OwnerDAO extends JpaRepository<Owner, Long> {
     boolean existsByPhoneNumber(String phoneNumber);
     long count();
     Owner findByLastNameAndFirstNameAndSecondName(String lastname, String firstName, String secondName);
+    boolean existsByLastNameAndFirstNameAndSecondName(String lastname, String firstName, String secondName);
 
 }

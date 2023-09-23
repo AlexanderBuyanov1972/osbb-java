@@ -35,6 +35,18 @@ public class OwnershipService implements IOwnershipService {
             List<String> errors = new ArrayList<>();
             if (ownershipDAO.existsById(ownership.getId()))
                 errors.add("Недвижимость с таким ID уже существует.");
+
+            ownership.getOwners().forEach(el -> {
+                if (addressDAO.existsByApartment(ownership.getAddress().getApartment())
+                        && ownerDAO.existsByLastNameAndFirstNameAndSecondName(
+                        el.getLastName(),
+                        el.getFirstName(),
+                        el.getSecondName()))
+                    errors.add("Недвижимость с помещением № " +
+                            ownership.getAddress().getApartment() + "  и собственником " +
+                            el.getLastName() + " " + el.getFirstName() + " " +
+                            el.getSecondName() + " уже существует.");
+            });
             return errors.isEmpty() ? List.of(Response
                     .builder()
                     .data(ownershipDAO.save(ownership))
