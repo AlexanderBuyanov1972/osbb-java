@@ -450,8 +450,8 @@ public class QuestionnaireService implements IQuestionnaireService {
                     .collect(Collectors.groupingBy(Questionnaire::getQuestion,
                             Collectors.groupingBy(Questionnaire::getAnswer, Collectors.counting())));
             // итоги подсчёта голосов собственниками
-            Map<String, Long> itogCountPeople = baseList.stream()
-                    .collect(Collectors.groupingBy(Questionnaire::getQuestion, Collectors.counting()));
+//            Map<String, Long> itogCountPeople = baseList.stream()
+//                    .collect(Collectors.groupingBy(Questionnaire::getQuestion, Collectors.counting()));
 
             //  мапа для подсчёта голосов квадратными метрами
             Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
@@ -461,14 +461,14 @@ public class QuestionnaireService implements IQuestionnaireService {
                                     Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
                                             Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
             // итоги подсчёта голосов квадратными метрами
-            Map<String, Double> itogCountArea =
-                    generateShareTotalAreaQuestionAnswer(baseList)
-                            .stream()
-                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
-                                    Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea)));
+//            Map<String, Double> itogCountArea =
+//                    generateShareTotalAreaQuestionAnswer(baseList)
+//                            .stream()
+//                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
+//                                    Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea)));
             return Response
                     .builder()
-                    .data(List.of(mapCountPeople, mapCountArea, itogCountPeople, itogCountArea))
+                    .data(List.of(mapCountPeople, mapCountArea))
                     .messages(List.of("Результаты опроса \"" + title + "\" обработаны.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
