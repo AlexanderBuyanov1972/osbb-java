@@ -24,21 +24,42 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
-            ApiConstants.USER, ApiConstants.USER + ApiConstants.SS,
-            ApiConstants.ROLE, ApiConstants.ROLE + ApiConstants.SS,
-            ApiConstants.OWNER, ApiConstants.OWNER + ApiConstants.SS,
-            ApiConstants.PHOTO, ApiConstants.PHOTO + ApiConstants.SS,
-            ApiConstants.PASSPORT, ApiConstants.PASSPORT + ApiConstants.SS,
-            ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS,
-            ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS,
-            ApiConstants.QUESTIONNAIRE, ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
+            // user -------------------------
+            ApiConstants.USER,
+            ApiConstants.USER + ApiConstants.SS,
+            // role -------------------------
+            ApiConstants.ROLE,
+            ApiConstants.ROLE + ApiConstants.SS,
+            // owner ------------------------
+            ApiConstants.OWNER,
+            ApiConstants.OWNER + ApiConstants.SS,
+            // photo ------------------------
+            ApiConstants.PHOTO,
+            ApiConstants.PHOTO + ApiConstants.SS,
+            // passport ---------------------
+            ApiConstants.PASSPORT,
+            ApiConstants.PASSPORT + ApiConstants.SS,
+            // vehicle ----------------------
+            ApiConstants.VEHICLE,
+            ApiConstants.VEHICLE + ApiConstants.SS,
+            // address ----------------------
+            ApiConstants.ADDRESS,
+            ApiConstants.ADDRESS + ApiConstants.SS,
+            // questionnaire ----------------
+            ApiConstants.QUESTIONNAIRE,
+            ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
             ApiConstants.QUESTIONNAIRE + ApiConstants.ALL,
             ApiConstants.QUESTIONNAIRE + ApiConstants.GENERATION,
             ApiConstants.QUESTIONNAIRE + ApiConstants.RESULT + ApiConstants.SS,
-            ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
-            ApiConstants.OWNERSHIP + ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
+            // ownership --------------------
+            ApiConstants.OWNERSHIP,
+            ApiConstants.OWNERSHIP + ApiConstants.SS,
+            ApiConstants.OWNERSHIP + ApiConstants.OWNER+ ApiConstants.APARTMENT +  ApiConstants.SS,
+            ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
+            // registry ---------------------
             ApiConstants.REGISTRY + ApiConstants.SS,
+            // select -----------------------
             ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.SS,
             ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.FULLNAME + ApiConstants.SS,
             ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.SS,

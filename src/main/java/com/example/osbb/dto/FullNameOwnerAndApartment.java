@@ -1,7 +1,8 @@
 package com.example.osbb.dto;
 
-import com.example.osbb.enums.TypeOfAnswer;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,4 +15,6 @@ public class FullNameOwnerAndApartment {
     private Double shareInRealEstate;
     private String apartment;
     private Double totalArea;
+
+
 }

@@ -1,14 +1,15 @@
-package com.example.osbb.dto.messages;
-
-import java.util.List;
+package com.example.osbb.dto;
 
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResponseMessages {
+public class ErrorResponseMessages {
     private List<String> messages;
+
 }

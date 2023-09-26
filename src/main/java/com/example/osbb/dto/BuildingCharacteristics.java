@@ -1,6 +1,5 @@
-package com.example.osbb.dto.registry;
+package com.example.osbb.dto;
 
-import com.example.osbb.dto.AddressDto;
 import lombok.*;
 
 @Getter

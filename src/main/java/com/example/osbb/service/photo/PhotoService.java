@@ -1,9 +1,9 @@
 package com.example.osbb.service.photo;
 
 import com.example.osbb.dao.PhotoDAO;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Photo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

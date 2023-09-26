@@ -1,11 +1,10 @@
 package com.example.osbb.service.address;
 
 import com.example.osbb.dao.AddressDAO;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Address;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.entity.Photo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

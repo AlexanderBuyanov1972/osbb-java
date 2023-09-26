@@ -61,7 +61,7 @@ public class VehicleController {
         return response.returnResponse(service.deleteAllVehicle());
     }
 
-    // ----------- street, house and number apartment ------------
+    // ----------- get Vehicle By Number Vehicle ------------
 
     @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.ID)
     public ResponseEntity<?> getVehicleByNumberVehicle( @PathVariable String numberVehicle) {

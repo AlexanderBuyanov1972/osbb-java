@@ -1,10 +1,10 @@
 package com.example.osbb.service.passport;
 
 import com.example.osbb.dao.PassportDAO;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Passport;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,6 @@ public class PassportService implements IPassportService {
         try {
             if (passportDAO.existsById(passport.getId()))
                 errors.add("Паспорт с таким ID уже существует.");
-            if (passportDAO.existsByNumberPassport(passport.getNumberPassport()))
-                errors.add("Паспорт с таким номером уже существует.");
-            if (passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()))
-                errors.add("Паспорт с таким ИНН уже существует.");
             return errors.isEmpty() ?
                     Response.builder()
                             .data(passportDAO.save(passport))
@@ -50,11 +46,7 @@ public class PassportService implements IPassportService {
         try {
             if (!passportDAO.existsById(passport.getId()))
                 errors.add("Паспорт с таким ID не существует.");
-            if (!passportDAO.existsByNumberPassport(passport.getNumberPassport()))
-                errors.add("Паспорт с таким номером не существует.");
-            if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(passport.getRegistrationNumberCardPayerTaxes()
-            ))
-                errors.add("Паспорт с таким ИНН не существует.");
+            errors.add("Паспорт с таким ИНН не существует.");
             return errors.isEmpty() ? Response.builder()
                     .data(passportDAO.save(passport))
                     .messages(List.of("Паспорт успешно обновлён.", "Удачного дня!"))
@@ -112,8 +104,7 @@ public class PassportService implements IPassportService {
         try {
             List<Passport> result = new ArrayList<>();
             for (Passport one : passports) {
-                if (!passportDAO.existsById(one.getId()) &&
-                        !passportDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
+                if (!passportDAO.existsById(one.getId())) {
                     passportDAO.save(one);
                     result.add(one);
                 }
@@ -136,8 +127,7 @@ public class PassportService implements IPassportService {
         try {
             List<Passport> result = new ArrayList<>();
             for (Passport one : passports) {
-                if (passportDAO.existsById(one.getId()) &&
-                        passportDAO.existsByRegistrationNumberCardPayerTaxes(one.getRegistrationNumberCardPayerTaxes())) {
+                if (passportDAO.existsById(one.getId())) {
                     passportDAO.save(one);
                     result.add(one);
                 }
@@ -193,7 +183,7 @@ public class PassportService implements IPassportService {
                         .of("Паспорт с таким ИНН не существует."));
             return Response.builder()
                     .data(passportDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
-                    .messages(List.of("Запрос паспорта по ИНН выполнен успешно.","Удачного дня!"))
+                    .messages(List.of("Запрос паспорта по ИНН выполнен успешно.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));

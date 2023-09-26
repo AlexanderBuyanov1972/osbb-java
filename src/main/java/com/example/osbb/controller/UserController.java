@@ -19,48 +19,48 @@ public class UserController {
     @Autowired
     private HelpMethodsForController response;
 
-    // ---------------------- one --------------------
-
-    @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        return response.returnResponse(service.createUser(user));
-    }
-
-    @PutMapping
-    public ResponseEntity<?> updateUser(@RequestBody User user) {
-        return response.returnResponse(service.updateUser(user));
-    }
-
-    @GetMapping(ApiConstants.ID)
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
-        return response.returnResponse(service.getUser(id));
-    }
-
-    @DeleteMapping(ApiConstants.ID)
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        return response.returnResponse(service.deleteUser(id));
-    }
-
-    // ---------------------- all ---------------------
-
-    @PostMapping(ApiConstants.ALL)
-    public ResponseEntity<?> createAllUser(@RequestBody List<User> list) {
-        return response.returnResponse(service.createAllUser(list));
-    }
-
-    @PutMapping(ApiConstants.ALL)
-    public ResponseEntity<?> updateAllUser(@RequestBody List<User> list) {
-        return response.returnResponse(service.updateAllUser(list));
-    }
-
-    @GetMapping(ApiConstants.ALL)
-    public ResponseEntity<?> getAllUser() {
-        return response.returnResponse(service.getAllUser());
-    }
-
-    @DeleteMapping(ApiConstants.ALL)
-    public ResponseEntity<?> deleteAllUser() {
-        return response.returnResponse(service.deleteAllUser());
-    }
+//    // ---------------------- one --------------------
+//
+//    @PostMapping
+//    public ResponseEntity<?> createUser(@RequestBody User user) {
+//        return response.returnResponse(service.createUser(user));
+//    }
+//
+//    @PutMapping
+//    public ResponseEntity<?> updateUser(@RequestBody User user) {
+//        return response.returnResponse(service.updateUser(user));
+//    }
+//
+//    @GetMapping(ApiConstants.ID)
+//    public ResponseEntity<?> getUser(@PathVariable Long id) {
+//        return response.returnResponse(service.getUser(id));
+//    }
+//
+//    @DeleteMapping(ApiConstants.ID)
+//    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+//        return response.returnResponse(service.deleteUser(id));
+//    }
+//
+//    // ---------------------- all ---------------------
+//
+//    @PostMapping(ApiConstants.ALL)
+//    public ResponseEntity<?> createAllUser(@RequestBody List<User> list) {
+//        return response.returnResponse(service.createAllUser(list));
+//    }
+//
+//    @PutMapping(ApiConstants.ALL)
+//    public ResponseEntity<?> updateAllUser(@RequestBody List<User> list) {
+//        return response.returnResponse(service.updateAllUser(list));
+//    }
+//
+//    @GetMapping(ApiConstants.ALL)
+//    public ResponseEntity<?> getAllUser() {
+//        return response.returnResponse(service.getAllUser());
+//    }
+//
+//    @DeleteMapping(ApiConstants.ALL)
+//    public ResponseEntity<?> deleteAllUser() {
+//        return response.returnResponse(service.deleteAllUser());
+//    }
 
 }

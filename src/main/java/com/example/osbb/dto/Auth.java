@@ -2,6 +2,8 @@ package com.example.osbb.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -10,4 +12,6 @@ import lombok.*;
 public class Auth {
     private String username;
     private String password;
+
+
 }

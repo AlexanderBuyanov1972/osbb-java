@@ -1,7 +1,9 @@
 package com.example.osbb.entity;
 
+import com.example.osbb.enums.TypeOfBeneficiary;
 import com.example.osbb.enums.TypeOfFamilyStatus;
 import com.example.osbb.enums.TypeOfGender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,45 +32,42 @@ public class Owner {
     @Column(name = "gender", nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeOfGender gender;
-    @Column(name = "email", unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
-    @Column(name = "phone_number", unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
-    @Column(name = "date_birth")
+    @Column(name = "date_birth", nullable = false)
     private LocalDate dateBirth;
-    @Column(name = "share_estate")
+    @Column(name = "share_estate", nullable = false)
     private Double shareInRealEstate;
-    @Column(name = "family_status")
+    @Column(name = "family_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeOfFamilyStatus familyStatus;
+    @Column(name = "beneficiary", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TypeOfBeneficiary beneficiary;
+
+
+    // ----------- one to one -----------------
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "passport_id", referencedColumnName = "id")
     private Passport passport;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "place_work_id", referencedColumnName = "id")
+    private PlaceWork placeWork;
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "photo_id", referencedColumnName = "id")
-    private List<Photo> photos;
+    private Photo photo;
 
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "owner_vehicle",
-            joinColumns = @JoinColumn(name = "vehicle_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
-    List<Vehicle> vehicles = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
+    private Vehicle vehicle;
 
-//    @ManyToMany()
-//    @JoinTable(
-//            name = "owner_ownership",
-//            joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
-//            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
-//    @JsonIgnore
-//    private List<Ownership> ownerships = new ArrayList<>();
+    @OneToOne(mappedBy = "owner")
+    @JsonIgnore
+    private Ownership ownership;
 
-
-    public void setDateBirth(LocalDate dateBirth) {
-        if (dateBirth.toString().equals("нет"))
-            this.dateBirth = null;
-        this.dateBirth = dateBirth;
-    }
 }

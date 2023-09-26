@@ -3,9 +3,10 @@ package com.example.osbb.service.ownership;
 import com.example.osbb.dao.AddressDAO;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dto.Auth;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
 import jakarta.transaction.Transactional;
@@ -35,22 +36,21 @@ public class OwnershipService implements IOwnershipService {
             List<String> errors = new ArrayList<>();
             if (ownershipDAO.existsById(ownership.getId()))
                 errors.add("Недвижимость с таким ID уже существует.");
+            if (addressDAO.existsByApartment(ownership.getAddress().getApartment())
+                    && ownerDAO.existsByLastNameAndFirstNameAndSecondName(
+                    ownership.getOwner().getLastName(),
+                    ownership.getOwner().getFirstName(),
+                    ownership.getOwner().getSecondName())) {
+                errors.add("Недвижимость с помещением № " +
+                        ownership.getAddress().getApartment() + "  и собственником " +
+                        ownership.getOwner().getLastName() + " " + ownership.getOwner().getFirstName() + " " +
+                        ownership.getOwner().getSecondName() + " уже существует.");
 
-            ownership.getOwners().forEach(el -> {
-                if (addressDAO.existsByApartment(ownership.getAddress().getApartment())
-                        && ownerDAO.existsByLastNameAndFirstNameAndSecondName(
-                        el.getLastName(),
-                        el.getFirstName(),
-                        el.getSecondName()))
-                    errors.add("Недвижимость с помещением № " +
-                            ownership.getAddress().getApartment() + "  и собственником " +
-                            el.getLastName() + " " + el.getFirstName() + " " +
-                            el.getSecondName() + " уже существует.");
-            });
+            }
             return errors.isEmpty() ? List.of(Response
                     .builder()
                     .data(ownershipDAO.save(ownership))
-                    .messages(List.of("Список объектов недвижимости отправлен успешно.", "Удачного дня!"))
+                    .messages(List.of("Объект недвижимости создан успешно.", "Удачного дня!"))
                     .build())
                     :
                     new ResponseMessages(errors);
@@ -316,8 +316,12 @@ public class OwnershipService implements IOwnershipService {
         try {
             Long id = ownershipDAO.findAll()
                     .stream()
-                    .filter((el -> el.getAddress().getApartment().equals(apartment)))
-                    .findFirst().get().getId();
+                    .filter((el -> el.getAddress()
+                            .getApartment()
+                            .equals(apartment)))
+                    .findFirst()
+                    .get()
+                    .getId();
             return Response
                     .builder()
                     .data(id)
@@ -329,7 +333,26 @@ public class OwnershipService implements IOwnershipService {
 
     }
 
+    @Override
+    public Object getOwnersByApartment(String apartment) {
+        try {
+            List<String> list = ownershipDAO.findAll()
+                    .stream()
+                    .filter(s -> s.getAddress().getApartment().equals(apartment))
+                    .map(el -> el.getOwner().getLastName() + " " + el.getOwner().getFirstName() + " " + el.getOwner().getSecondName())
+                    .collect(Collectors.toList());
+            list.add(0, "Собственниками помещения № " + apartment + " являются  " + list.size() + " человека : ");
+            return Response
+                    .builder()
+                    .data(list)
+                    .messages(list)
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
 
+    // sorted ************************************************************
     private List<Ownership> returnListSortedById(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
@@ -339,17 +362,4 @@ public class OwnershipService implements IOwnershipService {
                 - Integer.parseInt(b.getAddress().getApartment())).collect(Collectors.toList());
     }
 
-//    private Owner createOwner(Owner one) {
-//        return Owner
-//                .builder()
-//                .id(one.getId())
-//                .firstName(one.getFirstName())
-//                .secondName(one.getSecondName())
-//                .lastName(one.getLastName())
-//                .gender(one.getGender())
-//                .email(one.getEmail())
-//                .phoneNumber(one.getPhoneNumber())
-//                .passport(one.getPassport())
-//                .build();
-//    }
 }

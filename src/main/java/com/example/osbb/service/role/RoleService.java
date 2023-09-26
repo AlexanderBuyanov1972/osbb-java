@@ -1,10 +1,11 @@
 package com.example.osbb.service.role;
 
 import com.example.osbb.dao.RoleDAO;
+import com.example.osbb.dto.Auth;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.authorization.Role;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

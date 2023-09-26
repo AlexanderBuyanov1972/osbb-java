@@ -2,17 +2,15 @@ package com.example.osbb.service.owner;
 
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Owner;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.entity.Ownership;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +23,6 @@ public class OwnerService implements IOwnerService {
     private OwnershipDAO ownershipDAO;
 
     // ---------------- one -----------------
-//    boolean existsByEmail(String email);
-//    boolean existsByPhoneNumber(String phoneNumber);
-
     @Override
     @Transactional
     public Object createOwner(Owner owner) {
@@ -35,9 +30,6 @@ public class OwnerService implements IOwnerService {
             List<String> errors = new ArrayList<>();
             if (ownerDAO.existsById(owner.getId())) {
                 errors.add("Собственник с таким ID уже существует.");
-            }
-            if (ownerDAO.existsByEmail(owner.getEmail())) {
-                errors.add("Собственник с таким E-mail уже существует.");
             }
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
@@ -57,9 +49,6 @@ public class OwnerService implements IOwnerService {
             List<String> errors = new ArrayList<>();
             if (!ownerDAO.existsById(owner.getId())) {
                 errors.add("Собственник с таким ID не существует.");
-            }
-            if (!ownerDAO.existsByEmail(owner.getEmail())) {
-                errors.add("Собственник с таким E-mail не существует.");
             }
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
@@ -200,6 +189,7 @@ public class OwnerService implements IOwnerService {
         }
 
     }
+
 
     private List<Owner> returnListSortedByLastName(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());

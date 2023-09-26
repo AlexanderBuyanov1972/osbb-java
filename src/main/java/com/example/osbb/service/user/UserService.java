@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.service.address.IAddressService;
 import com.example.osbb.service.owner.IOwnerService;
 import jakarta.transaction.Transactional;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.osbb.dao.UserDAO;
 import com.example.osbb.entity.authorization.User;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
 
 @Service
 public class UserService implements IUserService {

@@ -1,14 +1,14 @@
 package com.example.osbb.service.role;
 
+import com.example.osbb.entity.Rate;
 import com.example.osbb.entity.authorization.Role;
 
 import java.util.List;
-import java.util.Set;
 
 public interface IRoleService {
 
     // ----- one -----
-    public Object createRole(Role role);
+    public Object createRole(Role r);
 
     public Object updateRole(Role role);
 

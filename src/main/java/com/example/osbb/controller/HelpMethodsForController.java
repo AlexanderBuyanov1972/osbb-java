@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.dto.messages.ErrorResponseMessages;
+import com.example.osbb.dto.ErrorResponseMessages;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OwnershipDAO extends JpaRepository<Ownership, Long> {
     long countByTypeRoom(TypeOfRoom typeRoom);
+    Ownership findByAddressApartment(String apartment);
     long count();
 
 }

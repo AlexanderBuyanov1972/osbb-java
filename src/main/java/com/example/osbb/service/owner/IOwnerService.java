@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IOwnerService {
 
-    // ----- one -----
+    // one
     public Object createOwner(Owner owner);
 
     public Object updateOwner(Owner owner);
@@ -16,7 +16,7 @@ public interface IOwnerService {
 
     public Object deleteOwner(Long id);
 
-    // ----- all -----
+    // all
 
     public Object createAllOwner(List<Owner> owners);
 
@@ -26,7 +26,9 @@ public interface IOwnerService {
 
     public Object deleteAllOwner();
 
-    // ----------- count ---------------
+    // count
     public Object countOwners();
+
+
 
 }

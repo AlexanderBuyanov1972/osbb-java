@@ -19,7 +19,7 @@ public class Passport {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
-    @Column(name = "number_passport", nullable = false, unique = true)
+    @Column(name = "number_passport", nullable = false)
     private String numberPassport;
     @Column(name = "number_entry", nullable = false)
     private String numberEntry;
@@ -27,18 +27,12 @@ public class Passport {
     private LocalDate dateIssue;
     @Column(name = "issuing_authority", nullable = false)
     private String issuingAuthority;
-    @Column(name = "registration_number_card_payer_taxes", nullable = false, unique = true)
+    @Column(name = "registration_number_card_payer_taxes", nullable = false)
     private String registrationNumberCardPayerTaxes;
 
-//    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "passport")
 
-    @OneToOne( mappedBy="passport")
+    @OneToOne(mappedBy = "passport")
     @JsonIgnore
     private Owner owner;
 
-    public void setDateIssue(LocalDate dateIssue) {
-        if(dateIssue.toString().equals("нет"))
-            this.dateIssue = null;
-        this.dateIssue = dateIssue;
-    }
 }

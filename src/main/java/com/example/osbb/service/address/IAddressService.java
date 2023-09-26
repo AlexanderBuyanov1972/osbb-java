@@ -1,10 +1,8 @@
 package com.example.osbb.service.address;
 
 import com.example.osbb.entity.Address;
-import com.example.osbb.service.IEntityService;
 
 import java.util.List;
-import java.util.Set;
 
 public interface IAddressService {
 

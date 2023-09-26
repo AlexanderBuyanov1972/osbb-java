@@ -16,4 +16,6 @@ public class AddressDto {
     public static AddressDto getAddressDto() {
         return AddressDto.builder().city("Кам'янське").street("Свободи").house("51").build();
     }
+
+
 }

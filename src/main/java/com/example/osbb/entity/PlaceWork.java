@@ -2,7 +2,6 @@ package com.example.osbb.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -13,25 +12,25 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString
 @Entity
-@Table(name = "photos", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "id")})
-public class Photo {
+@Table(name = "places_work")
+public class PlaceWork {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private long id;
+    @Column(name = "business_name")
+    private String businessName;
+    @Column(name = "address")
+    private String address;
+    @Column(name = "number_phone")
+    private String numberPhone;
+    @Column(name = "position")
+    private String position;
+    @Column(name = "addition")
+    private String addition;
 
-    @Column(name = "url")
-    @NotEmpty
-    private String url;
-
-    @NotEmpty
-    @Column(name = "name")
-    private String name;
-
-    @OneToOne(mappedBy = "photo")
+    @OneToOne(mappedBy = "placeWork")
     @JsonIgnore
     private Owner owner;
 

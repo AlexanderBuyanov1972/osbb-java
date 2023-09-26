@@ -14,28 +14,28 @@ import com.example.osbb.service.auth.IAuthService;
 @RestController
 public class AuthController {
 
-    @Autowired
-    IAuthService service;
-
-    @Autowired
-    UserController userController;
-
-    @Autowired
-    private HelpMethodsForController response;
-
-    @PostMapping(ApiConstants.REGISTRATION)
-    public ResponseEntity<?> registration(@RequestBody User user) {
-        return response.returnResponse(userController.createUser(user));
-    }
-
-    @PostMapping(ApiConstants.LOGIN)
-    public ResponseEntity<?> login(@RequestBody Auth auth) {
-        return response.returnResponse(service.login(auth));
-    }
-
-    @GetMapping(ApiConstants.LOGOUT)
-    public ResponseEntity<?> logout() {
-        return response.returnResponse(service.logout());
-    }
+//    @Autowired
+//    IAuthService service;
+//
+//    @Autowired
+//    UserController userController;
+//
+//    @Autowired
+//    private HelpMethodsForController response;
+//
+//    @PostMapping(ApiConstants.REGISTRATION)
+//    public ResponseEntity<?> registration(@RequestBody User user) {
+//        return response.returnResponse(userController.createUser(user));
+//    }
+//
+//    @PostMapping(ApiConstants.LOGIN)
+//    public ResponseEntity<?> login(@RequestBody Auth auth) {
+//        return response.returnResponse(service.login(auth));
+//    }
+//
+//    @GetMapping(ApiConstants.LOGOUT)
+//    public ResponseEntity<?> logout() {
+//        return response.returnResponse(service.logout());
+//    }
 
 }

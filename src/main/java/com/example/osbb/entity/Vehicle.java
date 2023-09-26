@@ -35,17 +35,16 @@ public class Vehicle {
 
     @Column(name = "color")
     @Enumerated(EnumType.STRING)
-    private TypeOfColor color;
+    private TypeOfColor typeColor;
 
     @Column(name = "type_manufacturer")
     @Enumerated(EnumType.STRING)
-    private TypeOfManufacturer manufacturer;
+    private TypeOfManufacturer typeManufacturer;
 
-    @ManyToMany(cascade = {CascadeType.ALL})
-    @JoinTable(
-            name = "owner_vehicle",
-            joinColumns = @JoinColumn(name = "vehicle_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+    // --------- many to one ---------------
+
+    @OneToOne(mappedBy = "vehicle")
     @JsonIgnore
-    List<Owner> owners = new ArrayList<>();
+    private Owner owner;
+
 }

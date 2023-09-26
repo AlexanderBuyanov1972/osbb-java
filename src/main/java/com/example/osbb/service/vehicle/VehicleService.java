@@ -1,10 +1,9 @@
 package com.example.osbb.service.vehicle;
 
 import com.example.osbb.dao.VehicleDAO;
+import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.dto.messages.ResponseMessages;
-import com.example.osbb.entity.Address;
+import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Vehicle;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

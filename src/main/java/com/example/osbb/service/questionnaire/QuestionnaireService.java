@@ -1,11 +1,7 @@
 package com.example.osbb.service.questionnaire;
 
 import com.example.osbb.dao.*;
-import com.example.osbb.dto.FullNameOwnerAndApartment;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ShareTotalAreaQuestionAnswer;
-import com.example.osbb.dto.messages.ErrorResponseMessages;
-import com.example.osbb.dto.messages.ResponseMessages;
+import com.example.osbb.dto.*;
 import com.example.osbb.entity.Address;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
@@ -279,7 +275,8 @@ public class QuestionnaireService implements IQuestionnaireService {
             List<Questionnaire> list = questionnaireDAO.findByDateDispatch(dateDispatch)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
-                    .toList();;
+                    .toList();
+            ;
             return Response
                     .builder()
                     .data(list)
@@ -296,7 +293,8 @@ public class QuestionnaireService implements IQuestionnaireService {
             List<Questionnaire> list = questionnaireDAO.findByDateReceiving(dateReceiving)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
-                    .toList();;
+                    .toList();
+            ;
             return Response
                     .builder()
                     .data(list)
@@ -315,7 +313,8 @@ public class QuestionnaireService implements IQuestionnaireService {
             List<Questionnaire> list = questionnaireDAO.findByTitleAndQuestion(title, question)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
-                    .toList();;
+                    .toList();
+            ;
             return Response
                     .builder()
                     .data(list)
@@ -332,7 +331,8 @@ public class QuestionnaireService implements IQuestionnaireService {
             List<Questionnaire> list = questionnaireDAO.findByTitleAndApartment(title, apartment)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
-                    .toList();;
+                    .toList();
+            ;
             return Response
                     .builder()
                     .data(list)
@@ -366,7 +366,8 @@ public class QuestionnaireService implements IQuestionnaireService {
             List<Questionnaire> list = questionnaireDAO.findByFullnameAndApartment(fullname, apartment)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
-                    .toList();;
+                    .toList();
+            ;
             return Response
                     .builder()
                     .data(list)
@@ -407,6 +408,7 @@ public class QuestionnaireService implements IQuestionnaireService {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
+
     // three *****************************************************************************
 
     @Override
@@ -441,17 +443,17 @@ public class QuestionnaireService implements IQuestionnaireService {
     //  result ***************************************************************
     @Override
     public Object getResultOfQuestionnaireByTitle(String title) {
+        List<String> messages = new ArrayList<>();
         try {
             // базовый лист с которым работаем на счётчик голосов
             List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
                     .stream().filter(x -> x.getDateReceiving() != null).toList();
+
             // мапа для подсчёта голосов собственниками
             Map<String, Map<TypeOfAnswer, Long>> mapCountPeople = baseList.stream()
                     .collect(Collectors.groupingBy(Questionnaire::getQuestion,
                             Collectors.groupingBy(Questionnaire::getAnswer, Collectors.counting())));
-            // итоги подсчёта голосов собственниками
-//            Map<String, Long> itogCountPeople = baseList.stream()
-//                    .collect(Collectors.groupingBy(Questionnaire::getQuestion, Collectors.counting()));
+
 
             //  мапа для подсчёта голосов квадратными метрами
             Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
@@ -460,17 +462,15 @@ public class QuestionnaireService implements IQuestionnaireService {
                             .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
                                     Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
                                             Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
-            // итоги подсчёта голосов квадратными метрами
-//            Map<String, Double> itogCountArea =
-//                    generateShareTotalAreaQuestionAnswer(baseList)
-//                            .stream()
-//                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
-//                                    Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea)));
-            return Response
+            if (mapCountPeople.isEmpty() || mapCountArea.isEmpty()) {
+                messages.add("Нет данных для обработки результатов голосования.");
+            }
+
+            return messages.isEmpty() ? Response
                     .builder()
                     .data(List.of(mapCountPeople, mapCountArea))
                     .messages(List.of("Результаты опроса \"" + title + "\" обработаны.", "Удачного дня!"))
-                    .build();
+                    .build() : new ResponseMessages(messages);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -480,17 +480,14 @@ public class QuestionnaireService implements IQuestionnaireService {
     private List<ShareTotalAreaQuestionAnswer> generateShareTotalAreaQuestionAnswer(List<Questionnaire> baseList) {
         List<ShareTotalAreaQuestionAnswer> result = new ArrayList<>();
         baseList.forEach(q -> {
-            Address address = addressDAO.findByApartment(q.getApartment());
-            Double totalArea = address.getOwnership().getTotalArea();
+            Double totalArea = addressDAO.findByApartment(q.getApartment()).getOwnership().getTotalArea();
             AtomicReference<Double> share = new AtomicReference<>(0.0);
-            List<Owner> owners = address.getOwnership().getOwners();
-            owners.forEach(y -> {
-                String fullname = y.getLastName() + " " + y.getFirstName() + " " + y.getSecondName();
-                if (q.getFullname().equals(fullname)) {
-                    share.set(y.getShareInRealEstate());
-                }
-            });
-            result.add(new ShareTotalAreaQuestionAnswer(q.getQuestion(), q.getAnswer(), share.get() * totalArea));
+            Owner owner =  ownershipDAO.findByAddressApartment(q.getApartment()).getOwner();
+            String fullname = owner.getLastName() + " " + owner.getFirstName() + " " + owner.getSecondName();
+            if (q.getFullname().equals(fullname)) {
+                share.set(owner.getShareInRealEstate());
+            }
+              result.add(new ShareTotalAreaQuestionAnswer(q.getQuestion(), q.getAnswer(), share.get() * totalArea));
         });
         return result;
     }
@@ -531,45 +528,15 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     // формирует лист объектов собственник-квартира **************************************
     private List<FullNameOwnerAndApartment> getListFullNameOwnerAndApartmentForHouse() {
-
         List<FullNameOwnerAndApartment> result = new ArrayList<>();
-
         ownershipDAO.findAll().forEach(el -> {
-
             String apartment = el.getAddress().getApartment();
-
             Double totalArea = el.getTotalArea();
-
-            el.getOwners().forEach(x -> {
-
-                String fullname = x.getLastName() + " " + x.getFirstName() + " " + x.getSecondName();
-
-                Double share = x.getShareInRealEstate();
-
-                result.add(new FullNameOwnerAndApartment(fullname, share, apartment, totalArea));
-            });
+            String fullname = el.getOwner().getLastName() + " " + el.getOwner().getFirstName() + " " + el.getOwner().getSecondName();
+            Double share = el.getOwner().getShareInRealEstate();
+            result.add(new FullNameOwnerAndApartment(fullname, share, apartment, totalArea));
         });
-
         return result;
     }
 
-    // замена fullname в базе данных  на имена собственников из таблицы owners
-    private void changeFullnameForListQuestionnaire(String title) {
-        List<Ownership> ownershipList = ownershipDAO.findAll();
-        List<Questionnaire> questionnaireList = questionnaireDAO.findByTitle(title);
-        ownershipList.forEach(el -> {
-            questionnaireList.forEach(que -> {
-                if (el.getAddress().getApartment().equals(que.getApartment())) {
-                    List<Owner> ownerList = el.getOwners();
-                    List<Questionnaire> questionnaireList1 = questionnaireDAO.findByApartment(que.getApartment());
-                    questionnaireList1.forEach(v -> {
-                        for (Owner one : ownerList) {
-                            v.setFullname(one.getLastName() + " " + one.getFirstName() + " " + one.getSecondName());
-                            questionnaireDAO.save(v);
-                        }
-                    });
-                }
-            });
-        });
-    }
 }

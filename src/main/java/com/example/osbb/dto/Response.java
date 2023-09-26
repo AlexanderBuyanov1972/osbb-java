@@ -1,6 +1,5 @@
 package com.example.osbb.dto;
 
-import com.example.osbb.dto.messages.ResponseMessages;
 import lombok.*;
 
 import java.util.List;
