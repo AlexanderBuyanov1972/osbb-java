@@ -1,4 +1,4 @@
-package com.example.osbb.dto;
+package com.example.osbb.dto.pojo;
 
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;

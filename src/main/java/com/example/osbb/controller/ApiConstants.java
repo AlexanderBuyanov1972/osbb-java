@@ -60,5 +60,5 @@ public class ApiConstants {
     public static final String PARAM_6 = "/{dateReceiving}";
 
 
-
+    public static final String CHECK = "/check";
 }

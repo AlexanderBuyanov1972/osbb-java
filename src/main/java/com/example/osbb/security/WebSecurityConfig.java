@@ -24,6 +24,8 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
+            // check -------------------------
+            ApiConstants.REGISTRY + ApiConstants.CHECK,
             // user -------------------------
             ApiConstants.USER,
             ApiConstants.USER + ApiConstants.SS,
@@ -54,7 +56,7 @@ public class WebSecurityConfig {
             // ownership --------------------
             ApiConstants.OWNERSHIP,
             ApiConstants.OWNERSHIP + ApiConstants.SS,
-            ApiConstants.OWNERSHIP + ApiConstants.OWNER+ ApiConstants.APARTMENT +  ApiConstants.SS,
+            ApiConstants.OWNERSHIP + ApiConstants.OWNER + ApiConstants.APARTMENT + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
             // registry ---------------------
