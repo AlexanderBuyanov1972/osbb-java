@@ -25,8 +25,6 @@ public class VehicleService implements IVehicleService {
             List<String> errors = new ArrayList<>();
             if (vehicleDAO.existsById(vehicle.getId()))
                 errors.add("Транспортное средство с ID = " + vehicle.getId() + " уже существует.");
-            if (vehicleDAO.existsByNumberVehicle(vehicle.getNumberVehicle()))
-                errors.add("Транспортное средство c номером = " + vehicle.getNumberVehicle() + " уже существует.");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.save(vehicle
@@ -45,8 +43,6 @@ public class VehicleService implements IVehicleService {
             List<String> errors = new ArrayList<>();
             if (!vehicleDAO.existsById(vehicle.getId()))
                 errors.add("Транспортное средство с ID = " + vehicle.getId() + " не существует.");
-            if (!vehicleDAO.existsByNumberVehicle(vehicle.getNumberVehicle()))
-                errors.add("Транспортное средство c номером = " + vehicle.getNumberVehicle() + " не существует.");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.save(vehicle
@@ -90,7 +86,7 @@ public class VehicleService implements IVehicleService {
                     .data(id)
                     .messages(List.of("Удаление транспортного средства c ID = " + id + " прошло успешно.", "Удачного дня!"))
                     .build() : new ResponseMessages(list);
-        } catch (Exception exception) {
+        } catch (IllegalArgumentException exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
@@ -101,10 +97,8 @@ public class VehicleService implements IVehicleService {
         List<Vehicle> result = new ArrayList<>();
         try {
             for (Vehicle vehicle : vehicles) {
-                if (!vehicleDAO.existsById(vehicle.getId())
-                        && !vehicleDAO.existsByNumberVehicle(vehicle.getNumberVehicle())) {
+                if (!vehicleDAO.existsById(vehicle.getId()))
                     result.add(vehicleDAO.save(vehicle));
-                }
             }
             return result.isEmpty() ? new ResponseMessages(List
                     .of("Ни одно из транспортных средств создано не было. транспортные средства с такими ID уже существуют."))

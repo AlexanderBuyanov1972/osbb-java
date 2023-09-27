@@ -49,7 +49,7 @@ public class Address {
     @Column(name = "floor")
     private String floor;
 
-    @Column(name = "apartment", unique = true, nullable = false)
+    @Column(name = "apartment")
     private String apartment;
 
     @OneToOne(mappedBy = "address")

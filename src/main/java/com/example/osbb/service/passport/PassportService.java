@@ -46,7 +46,6 @@ public class PassportService implements IPassportService {
         try {
             if (!passportDAO.existsById(passport.getId()))
                 errors.add("Паспорт с таким ID не существует.");
-            errors.add("Паспорт с таким ИНН не существует.");
             return errors.isEmpty() ? Response.builder()
                     .data(passportDAO.save(passport))
                     .messages(List.of("Паспорт успешно обновлён.", "Удачного дня!"))
