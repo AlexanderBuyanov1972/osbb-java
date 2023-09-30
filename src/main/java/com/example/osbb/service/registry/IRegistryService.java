@@ -5,4 +5,6 @@ public interface IRegistryService {
 
     Object getRegistryOwnerships();
 
+    Object getBuildingCharacteristics();
+
 }

@@ -89,31 +89,34 @@ public class OwnershipController {
 
     // ------------- count rooms -----------------
 
-    // Количество квартир
+    // Количество помещений
     @GetMapping(ApiConstants.COUNT_ROOMS)
     public ResponseEntity<?> countRooms() {
         return response.returnResponse(service.countRooms());
     }
 
+    // Количество квартир
     @GetMapping(ApiConstants.COUNT_APARTMENT)
     public ResponseEntity<?> countApartment() {
         return response.returnResponse(service.countApartment());
     }
 
-    // Количество нежилых помещений
+    // Количество нежилых помещений -----------------------
     @GetMapping(ApiConstants.COUNT_NON_RESIDENTIAL_ROOM)
     public ResponseEntity<?> countNonResidentialRoom() {
         return response.returnResponse(service.countNonResidentialRoom());
     }
 
-    @GetMapping(ApiConstants.APARTMENT + ApiConstants.ID)
-    public ResponseEntity<?> getIdOwnershipByApartment(@PathVariable String id) {
-        return response.returnResponse(service.getIdOwnershipByApartment(id));
+    // get ownership by apartment -------------------------
+    @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_4)
+    public ResponseEntity<?> getOwnershipByApartment(@PathVariable String apartment) {
+        return response.returnResponse(service.getOwnershipByApartment(apartment));
+    }
+    // get room by apartment -------------------------
+    @GetMapping(ApiConstants.ROOM + ApiConstants.PARAM_4)
+    public ResponseEntity<?> getRoomByApartment(@PathVariable String apartment) {
+        return response.returnResponse(service.getRoomByApartment(apartment));
     }
 
-    // list owners by apartment
-    @GetMapping(ApiConstants.OWNER +ApiConstants.APARTMENT +  ApiConstants.PARAM_4)
-    public ResponseEntity<?> getOwnersByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getOwnersByApartment(apartment));
-    }
+
 }

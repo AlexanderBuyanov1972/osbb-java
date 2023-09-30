@@ -29,6 +29,8 @@ public interface IOwnerService {
     // count
     public Object countOwners();
 
+    // get owner by full name
+    public Object getOwnerByFullName(String fullName);
 
 
 }

@@ -6,6 +6,7 @@ import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.PlaceWork;
+import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,11 @@ public class PlaceWorkService implements IPlaceWorkService {
         try {
             List<String> errors = new ArrayList<>();
             if (placeWorkDAO.existsById(placeWork.getId()))
-                errors.add("Рабочее место с таким id уже существует.");
+                errors.add(ServiceMessages.ALREADY_EXISTS);
             return errors.isEmpty() ? Response
                     .builder()
                     .data(placeWorkDAO.save(placeWork))
-                    .messages(List.of("Рабочее место создано успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -45,11 +46,11 @@ public class PlaceWorkService implements IPlaceWorkService {
         try {
             List<String> errors = new ArrayList<>();
             if (!placeWorkDAO.existsById(placeWork.getId()))
-                errors.add("Рабочее место с таким id не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ? Response
                     .builder()
                     .data(placeWorkDAO.save(placeWork))
-                    .messages(List.of("Рабочее место обновлено успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -63,10 +64,10 @@ public class PlaceWorkService implements IPlaceWorkService {
                 return Response
                         .builder()
                         .data(placeWorkDAO.findById(id).get())
-                        .messages(List.of("Рабочее место получено успешно.", "Удачного дня!"))
+                        .messages(List.of(ServiceMessages.OK))
                         .build();
             }
-            return new ResponseMessages(List.of("Рабочее место с таким ID уже существует."));
+            return new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -76,15 +77,15 @@ public class PlaceWorkService implements IPlaceWorkService {
     @Transactional
     public Object deletePlaceWork(Long id) {
         try {
-            if(placeWorkDAO.existsById(id)){
+            if (placeWorkDAO.existsById(id)) {
                 placeWorkDAO.deleteById(id);
                 return Response
                         .builder()
                         .data(id)
-                        .messages(List.of("Рабочее место удалено успешно.", "Удачного дня!"))
+                        .messages(List.of(ServiceMessages.OK))
                         .build();
             }
-            return new ResponseMessages(List.of("Рабочее место с таким ID уже существует."));
+            return new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -102,11 +103,11 @@ public class PlaceWorkService implements IPlaceWorkService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни одно из рабочих мест создано не было. Рабочие места с такими ID уже существуют."))
-                    :  Response
+                    .of(ServiceMessages.NOT_CREATED))
+                    : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создано " + result.size() + " рабочих мест из " + list.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -125,11 +126,11 @@ public class PlaceWorkService implements IPlaceWorkService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни одно из рабочих мест обновлено не было. Рабочие места с такими ID уже существуют."))
-                    :  Response
+                    .of(ServiceMessages.NOT_UPDATED))
+                    : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создано " + result.size() + " рабочих мест из " + list.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -140,11 +141,11 @@ public class PlaceWorkService implements IPlaceWorkService {
     public Object getAllPlaceWork() {
         try {
             List<PlaceWork> result = placeWorkDAO.findAll();
-            return result.isEmpty() ? new ResponseMessages(List.of("В базе данных рабочих мест не существует."))
+            return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Все рабочие места получены успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -155,13 +156,14 @@ public class PlaceWorkService implements IPlaceWorkService {
     public Object deleteAllPlaceWork() {
         try {
             placeWorkDAO.deleteAll();
-            return new ResponseMessages(List.of("Все рабочие места успешно удалены."));
+            return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
 
-    private List<PlaceWork> returnListSorted(List<PlaceWork> list){
+    // sorted --------------------
+    private List<PlaceWork> returnListSorted(List<PlaceWork> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 

@@ -5,6 +5,7 @@ import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Passport;
+import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,11 @@ public class PassportService implements IPassportService {
         List<String> errors = new ArrayList<>();
         try {
             if (passportDAO.existsById(passport.getId()))
-                errors.add("Паспорт с таким ID уже существует.");
+                errors.add(ServiceMessages.ALREADY_EXISTS);
             return errors.isEmpty() ?
                     Response.builder()
                             .data(passportDAO.save(passport))
-                            .messages(List.of("Паспорт успешно создан.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build()
                     : new ResponseMessages(errors);
         } catch (Exception exception) {
@@ -45,10 +46,10 @@ public class PassportService implements IPassportService {
         List<String> errors = new ArrayList<>();
         try {
             if (!passportDAO.existsById(passport.getId()))
-                errors.add("Паспорт с таким ID не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ? Response.builder()
                     .data(passportDAO.save(passport))
-                    .messages(List.of("Паспорт успешно обновлён.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build()
                     : new ResponseMessages(errors);
         } catch (Exception exception) {
@@ -63,11 +64,11 @@ public class PassportService implements IPassportService {
         List<String> errors = new ArrayList<>();
         try {
             if (!passportDAO.existsById(id)) {
-                errors.add("Паспорт с таким ID не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
             return errors.isEmpty() ? Response.builder()
                     .data(passportDAO.findById(id).get())
-                    .messages(List.of("Паспорт успешно получен.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -84,10 +85,10 @@ public class PassportService implements IPassportService {
                 return Response
                         .builder()
                         .data(id)
-                        .messages(List.of("Паспорт удалён успешно.", "Удачного дня!"))
+                        .messages(List.of(ServiceMessages.OK))
                         .build();
             }
-            return new ResponseMessages(List.of("Паспорт с таким ID не существует."));
+            return new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -109,10 +110,10 @@ public class PassportService implements IPassportService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(
-                    List.of("Ни один из паспортов создан не был. Паспорта с такими ID уже существуют."))
+                    List.of(ServiceMessages.NOT_CREATED))
                     : Response.builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создан " + result.size() + " паспорт из " + passports.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -132,10 +133,10 @@ public class PassportService implements IPassportService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(
-                    List.of("Ни один из паспортов обновлён не был. Паспорта с такими ID не существуют."))
+                    List.of(ServiceMessages.NOT_UPDATED))
                     : Response.builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно обновлён " + result.size() + " паспорт из " + passports.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -148,12 +149,12 @@ public class PassportService implements IPassportService {
         try {
             List<Passport> result = passportDAO.findAll();
             return result.isEmpty() ?
-                    new ResponseMessages(List.of("В базе данных нет ни одного паспорта по вашему запросу."))
+                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
                     Response
                             .builder()
                             .data(returnListSorted(result))
-                            .messages(List.of("Запрос выполнен успешно.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -166,29 +167,31 @@ public class PassportService implements IPassportService {
     public Object deleteAllPassport() {
         try {
             passportDAO.deleteAll();
-            return new ResponseMessages(List.of("Все паспорта удалены успешно.", "Удачного дня!"));
+            return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
 
     }
 
-
+    // ИНН -----------------------------------
     @Override
     public Object findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes) {
         try {
             if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
                 return new ResponseMessages(List
-                        .of("Паспорт с таким ИНН не существует."));
+                        .of(ServiceMessages.NOT_EXISTS));
             return Response.builder()
                     .data(passportDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
-                    .messages(List.of("Запрос паспорта по ИНН выполнен успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
 
     }
+
+    // sorted ------------------------------
 
     private List<Passport> returnListSorted(List<Passport> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.service.ServiceMessages;
 import com.example.osbb.service.address.IAddressService;
 import com.example.osbb.service.owner.IOwnerService;
 import jakarta.transaction.Transactional;
@@ -34,15 +35,15 @@ public class UserService implements IUserService {
         try {
             List<String> errors = new ArrayList<>();
             if (userDAO.existsById(user.getId()))
-                errors.add("Пользователь с таким ID уже существует.");
+                errors.add(ServiceMessages.ALREADY_EXISTS);
             if (userDAO.existsByUsername(user.getUsername()))
-                errors.add("Пользователь с таким USERNAME уже существует.");
+                errors.add(ServiceMessages.USERNAME_ALREADY_EXISTS);
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
             return errors.isEmpty() ? Response
                     .builder()
                     .data(userDAO.save(user))
-                    .messages(List.of("Пользователь создан успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -56,14 +57,14 @@ public class UserService implements IUserService {
         try {
             List<String> errors = new ArrayList<>();
             if (!userDAO.existsById(user.getId()))
-                errors.add("Пользователь с таким ID не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             if (!userDAO.existsByUsername(user.getUsername()))
-                errors.add("Пользователь с таким USERNAME не существует.");
+                errors.add(ServiceMessages.USERNAME_NOT_EXISTS);
             user.setUpdatedAt(LocalDateTime.now());
             return errors.isEmpty() ? Response
                     .builder()
                     .data(userDAO.save(user))
-                    .messages(List.of("Пользователь обновлён успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -76,8 +77,8 @@ public class UserService implements IUserService {
             return userDAO.existsById(id) ? Response
                     .builder()
                     .data(userDAO.findById(id).get())
-                    .messages(List.of("Пользователь получен успешно.", "Удачного дня!"))
-                    .build() : new ResponseMessages(List.of("Пользователь с таким ID не существует."));
+                    .messages(List.of(ServiceMessages.OK))
+                    .build() : new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -93,10 +94,10 @@ public class UserService implements IUserService {
                 return Response
                         .builder()
                         .data(id)
-                        .messages(List.of("Пользователь удалён успешно.", "Удачного дня!"))
+                        .messages(List.of(ServiceMessages.OK))
                         .build();
             }
-            return new ResponseMessages(List.of("Пользователь с таким ID не существует."));
+            return new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -119,11 +120,11 @@ public class UserService implements IUserService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни один из пользователей создан не был. Пользователей с такими ID уже существуют."))
+                    .of(ServiceMessages.NOT_CREATED))
                     : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создано " + result.size() + " пользователя из " + users.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -144,11 +145,11 @@ public class UserService implements IUserService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни один из пользователей обновлён не был. Пользователей с такими ID не существуют."))
+                    .of(ServiceMessages.NOT_UPDATED))
                     : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно создано " + result.size() + " пользователя из " + users.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -161,12 +162,12 @@ public class UserService implements IUserService {
         try {
             List<User> result = userDAO.findAll();
             return result.isEmpty() ?
-                    new ResponseMessages(List.of("В базе данных нет ни одного пользователя по вашему запросу."))
+                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
                     Response
                             .builder()
                             .data(returnListSorted(result))
-                            .messages(List.of("Все пользователи получены успешно.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -178,7 +179,7 @@ public class UserService implements IUserService {
     public Object deleteAllUser() {
         try {
             userDAO.deleteAll();
-            return new ResponseMessages(List.of("Все пользователи успешно удалены."));
+            return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -190,6 +191,7 @@ public class UserService implements IUserService {
         return userDAO.existsByUsername(username) ? userDAO.findByUsername(username) : null;
     }
 
+    // sorted ------------------------
     private List<User> returnListSorted(List<User> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }

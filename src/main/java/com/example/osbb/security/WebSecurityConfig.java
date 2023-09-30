@@ -24,15 +24,16 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
-            // check -------------------------
-            ApiConstants.REGISTRY + ApiConstants.CHECK,
-            // user -------------------------
+            // record ---------------------------
+            ApiConstants.RECORD,
+            ApiConstants.RECORD + ApiConstants.SS,
+            // user -----------------------------
             ApiConstants.USER,
             ApiConstants.USER + ApiConstants.SS,
-            // role -------------------------
+            // role -----------------------------
             ApiConstants.ROLE,
             ApiConstants.ROLE + ApiConstants.SS,
-            // owner ------------------------
+            // owner ----------------------------
             ApiConstants.OWNER,
             ApiConstants.OWNER + ApiConstants.SS,
             // photo ------------------------
@@ -61,6 +62,11 @@ public class WebSecurityConfig {
             ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
             // registry ---------------------
             ApiConstants.REGISTRY + ApiConstants.SS,
+            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_4,
+            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_3,
+            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.PARAM_3,
+            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_3,
+            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.TOTAL_AREA,
             // select -----------------------
             ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.SS,
             ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.FULLNAME + ApiConstants.SS,

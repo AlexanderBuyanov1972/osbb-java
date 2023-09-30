@@ -3,16 +3,19 @@ package com.example.osbb.service;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 
+import com.example.osbb.dao.QuestionnaireDAO;
 import com.example.osbb.dto.pojo.*;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 
+import com.example.osbb.entity.Questionnaire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,10 +24,13 @@ public class ServicePojo {
     private OwnershipDAO ownershipDAO;
     @Autowired
     private OwnerDAO ownerDAO;
+    @Autowired
+    private QuestionnaireDAO questionnaireDAO;
 
     // на одно помешение колличество клиентов (собственников)
-    public PojoRoomAndListClients getPojoRoomAndListOwners(String apartment) {
-        Ownership one = ownershipDAO.findByAddressApartment(apartment);
+    //check
+    public PojoRoomAndListClients getPojoRoomAndListClients(String apartment) {
+        Ownership one = ownershipDAO.findByAddressApartment(apartment).stream().findFirst().get();
         List<Client> clients = ownershipDAO.findAll()
                 .stream()
                 .filter(s -> hasApartment(s, apartment))
@@ -36,52 +42,49 @@ public class ServicePojo {
     }
 
     // на одного клиента (собственника) количество помещений
-    public PojoClientAndListRooms getPojoRoomAndListOwners(String fullName, LocalDate date) {
+    // check
+    public PojoClientAndListRooms getPojoClientAndListRooms(String fullName) {
         String[] fios = fullName.trim().split(" ");
-        Owner one = ownerDAO.findByLastNameAndFirstNameAndSecondNameAndDateBirth(fios[0], fios[1], fios[2], date);
+        Owner one = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
         List<Room> rooms = ownershipDAO.findAll()
                 .stream()
-                .filter(s -> hasFullName(s, fullName) && hasDate(s, date))
+                .filter(s -> hasFullName(s, fullName))
                 .map(Room::new)
                 .toList();
         return new PojoClientAndListRooms(new Client(one), rooms);
 
     }
 
-    // доля собственника в м2 в доме
-    public Double getShareAreaFromHouseByFIOAndDateBirth(String fullName, LocalDate date) {
+    // подготовка листа для расчёта опроса по фио
+    // check
+    public Object getListQuestionnaireByFullName(String fullName) {
         return ownershipDAO.findAll()
                 .stream()
-                .filter(s -> hasFullName(s, fullName) && hasDate(s, date))
-                .map(s -> s.getTotalArea() * s.getOwner().getShareInRealEstate())
-                .reduce(0.00, Double::sum);
-    }
-
-    // список для подсчёта при опросе (голосовании)
-//    Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
-//            generateShareTotalAreaQuestionAnswer(baseList)
-//                    .stream()
-//                    .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
-//                            Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
-//                                    Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
-
-    public Object getListForQuestionnaire() {
-//        return ownershipDAO.findAll()
-//                .stream()
-//                .filter(s -> hasFullName(s, "Иванова Лидия Петровна"))
-//                .collect(Collectors.groupingBy(s -> s.getOwner().getLastName() + " " + s.getOwner().getFirstName() + " " + s.getOwner().getSecondName(),
-//                        Collectors.groupingBy(s -> s.getOwner().getDateBirth(),
-//                                Collectors.groupingBy(s -> s.getAddress().getApartment(),
-//                                        Collectors.summingDouble(s -> s.getOwner().getShareInRealEstate() * s.getTotalArea()
-//                                        )))));
-
-        return ownershipDAO.findAll()
-                .stream()
-                .filter(s -> hasFullName(s, "Иванова Лидия Петровна"))
+                .filter(s -> hasFullName(s, fullName))
                 .map(s -> s.getAddress().getApartment() + " --->" + s.getOwner().getShareInRealEstate() + " ---> " + s.getTotalArea())
                 .toList();
 
 
+    }
+
+    // доля собственника в м2 в доме
+    //check
+    public Double getShareAreaFromHouseByFIO(String fullName) {
+        return ownershipDAO.findAll()
+                .stream()
+                .filter(s -> hasFullName(s, fullName))
+                .map(s -> s.getTotalArea() * s.getOwner().getShareInRealEstate())
+                .reduce(0.00, Double::sum);
+    }
+
+    public Object getListClientAndTotalArea() {
+        Map<String, Double> map = ownershipDAO.findAll()
+                .stream()
+                .collect(Collectors.groupingBy(s -> s.getOwner().getLastName() + " " + s.getOwner().getFirstName() + " " + s.getOwner().getSecondName()
+                                + " ---> apartment --->" + s.getAddress().getApartment(),
+                        Collectors.summingDouble(s -> s.getOwner().getShareInRealEstate() * s.getTotalArea()
+                        )));
+        return map;
     }
 
 

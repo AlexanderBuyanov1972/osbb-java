@@ -26,7 +26,7 @@ public interface IOwnershipService {
 
     public Object deleteAllOwnership();
 
-    // summa area
+    // summa area --------------------------------
 
     // Общая площадь жилых и нежилых помещений
     public Object summaAreaRooms();
@@ -40,7 +40,7 @@ public interface IOwnershipService {
     // Площадь нежилых помещений
     public Object summaAreaNonResidentialRoom();
 
-    // count rooms
+    // count rooms ------------------------------------
 
     public Object countRooms();
 
@@ -49,9 +49,10 @@ public interface IOwnershipService {
 
     // Количество нежилых помещений
     public Object countNonResidentialRoom();
-    // По номеру квартиры получаем id помещения
-    public Object getIdOwnershipByApartment(String apartment);
 
-    // list owners by apartment
-    public Object getOwnersByApartment(String apartment);
+    // get ownership by apartment -------------------------------
+    public Object getOwnershipByApartment(String apartment);
+
+    // get room by apartment -------------------------------
+    public Object getRoomByApartment(String apartment);
 }

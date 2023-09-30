@@ -7,6 +7,7 @@ import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Questionnaire;
 import com.example.osbb.enums.TypeOfAnswer;
+import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,11 +39,11 @@ public class QuestionnaireService implements IQuestionnaireService {
                     one = questionnaireDAO.save(questionnaire);
                 }
             }
-            errors.add("Лист опроса м тикам id не существует");
+            errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ?
                     Response.builder()
                             .data(one)
-                            .messages(List.of("Лист опроса успешно создан.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build()
                     : new ResponseMessages(errors);
         } catch (Exception exception) {
@@ -57,11 +58,11 @@ public class QuestionnaireService implements IQuestionnaireService {
         List<String> errors = new ArrayList<>();
         try {
             if (!questionnaireDAO.existsById(questionnaire.getId()))
-                errors.add("Лист опроса  с таким ID не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ?
                     Response.builder()
                             .data(questionnaireDAO.save(questionnaire))
-                            .messages(List.of("Лист опроса успешно обновлён.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build()
                     : new ResponseMessages(errors);
         } catch (Exception exception) {
@@ -74,11 +75,11 @@ public class QuestionnaireService implements IQuestionnaireService {
         List<String> errors = new ArrayList<>();
         try {
             if (!questionnaireDAO.existsById(id))
-                errors.add("Лист опроса  с таким ID не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ?
                     Response.builder()
                             .data(questionnaireDAO.findById(id).get())
-                            .messages(List.of("Лист опроса получен успешно.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build()
                     : new ResponseMessages(errors);
         } catch (Exception exception) {
@@ -94,12 +95,12 @@ public class QuestionnaireService implements IQuestionnaireService {
             if (questionnaireDAO.existsById(id)) {
                 questionnaireDAO.deleteById(id);
             } else {
-                list.add("Опросный лист с таким ID не существует.");
+                list.add(ServiceMessages.NOT_EXISTS);
             }
             return list.isEmpty() ? Response
                     .builder()
                     .data(id)
-                    .messages(List.of("Удаление опросного листа прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(list);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -124,10 +125,10 @@ public class QuestionnaireService implements IQuestionnaireService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(
-                    List.of("Ни один из листов опроса создан не был. Листы опроса с такими ID уже существуют."))
+                    List.of(ServiceMessages.NOT_CREATED))
                     : Response.builder()
                     .data(returnListSortedById(result))
-                    .messages(List.of("Успешно создан " + result.size() + " лист опроса из " + questionnaires.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -146,10 +147,10 @@ public class QuestionnaireService implements IQuestionnaireService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(
-                    List.of("Ни один из листов опроса обновлён не был. Листы опроса с такими ID не существуют."))
+                    List.of(ServiceMessages.NOT_UPDATED))
                     : Response.builder()
                     .data(returnListSortedById(result))
-                    .messages(List.of("Успешно обновлён " + result.size() + " лист опроса из " + questionnaires.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -166,7 +167,7 @@ public class QuestionnaireService implements IQuestionnaireService {
             return Response
                     .builder()
                     .data(returnListSortedByApartment(list))
-                    .messages(List.of("Получено " + list.size() + " объектов."))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -178,7 +179,7 @@ public class QuestionnaireService implements IQuestionnaireService {
     public Object deleteAllQuestionnaire() {
         try {
             questionnaireDAO.deleteAll();
-            return new ResponseMessages(List.of("Все листы опроса удалены успешно.", "Удачного дня!"));
+            return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -482,7 +483,7 @@ public class QuestionnaireService implements IQuestionnaireService {
         baseList.forEach(q -> {
             Double totalArea = addressDAO.findByApartment(q.getApartment()).getOwnership().getTotalArea();
             AtomicReference<Double> share = new AtomicReference<>(0.0);
-            Owner owner =  ownershipDAO.findByAddressApartment(q.getApartment()).getOwner();
+            Owner owner =  ownershipDAO.findByAddressApartment(q.getApartment()).stream().findFirst().get().getOwner();
             String fullname = owner.getLastName() + " " + owner.getFirstName() + " " + owner.getSecondName();
             if (q.getFullname().equals(fullname)) {
                 share.set(owner.getShareInRealEstate());

@@ -8,13 +8,14 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class BuildingCharacteristics {
+    private Long countOwners;
     private Long countRooms;
     private Long countApartment;
     private Long countNonResidentialRoom;
-    private Double summaAreaRooms;
-    private Double summaAreaApartment;
-    private Double summaAreaLivingApartment;
-    private Double summaAreaNonResidentialRoom;
+    private Double summaTotalArea;
+    private Double summaTotalAreaApartment;
+    private Double summaLivingAreaApartment;
+    private Double summaTotalAreaNonResidentialRoom;
     private AddressDto addressDto;
 
 }

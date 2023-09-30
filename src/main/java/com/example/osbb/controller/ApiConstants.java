@@ -22,6 +22,7 @@ public class ApiConstants {
     public static final String DATE_RECEIVING = "/date_receiving";
     public static final String PLACE_WORK = "/place_work";
     public static final String GENERATION = "/generation";
+    public static final String CHARACTERISTICS = "/characteristics";
 
     // --------------- summa ------------------
     public static final String SUMMA_AREA_ROOMS = "/summa_area_rooms";
@@ -61,4 +62,8 @@ public class ApiConstants {
 
 
     public static final String CHECK = "/check";
+    public static final String SHARE = "/share";
+    public static final String TOTAL_AREA = "/total_area";
+    public static final String ROOM = "/room";
+    public static final String RECORD = "/record";
 }

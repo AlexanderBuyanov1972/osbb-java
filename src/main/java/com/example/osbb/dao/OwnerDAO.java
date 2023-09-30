@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 @EnableJpaRepositories
 public interface OwnerDAO extends JpaRepository<Owner, Long> {
-    boolean existsById(long id);
 
     boolean existsByEmail(String email);
 
@@ -16,9 +15,9 @@ public interface OwnerDAO extends JpaRepository<Owner, Long> {
 
     long count();
 
-    Owner findByLastNameAndFirstNameAndSecondName(String lastname, String firstName, String secondName);
+    Owner findByLastNameAndFirstNameAndSecondName(String lastName, String firstName, String secondName);
 
-    Owner findByLastNameAndFirstNameAndSecondNameAndDateBirth(String lastname, String firstName, String secondName, LocalDate dateBirth);
+    Owner findByLastNameAndFirstNameAndSecondNameAndDateBirth(String lastName, String firstName, String secondName, LocalDate dateBirth);
 
     boolean existsByLastNameAndFirstNameAndSecondName(String lastname, String firstName, String secondName);
 

@@ -70,4 +70,8 @@ public class Owner {
     @JsonIgnore
     private Ownership ownership;
 
+    @OneToOne(mappedBy = "owner")
+    @JsonIgnore
+    private Record record;
+
 }

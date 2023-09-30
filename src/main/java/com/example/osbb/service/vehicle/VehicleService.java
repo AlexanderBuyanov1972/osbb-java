@@ -5,6 +5,7 @@ import com.example.osbb.dto.ErrorResponseMessages;
 import com.example.osbb.dto.Response;
 import com.example.osbb.dto.ResponseMessages;
 import com.example.osbb.entity.Vehicle;
+import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,12 @@ public class VehicleService implements IVehicleService {
         try {
             List<String> errors = new ArrayList<>();
             if (vehicleDAO.existsById(vehicle.getId()))
-                errors.add("Транспортное средство с ID = " + vehicle.getId() + " уже существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.save(vehicle
                     ))
-                    .messages(List.of("Создание транспортного средства c ID = " + vehicle.getId() + " прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -42,12 +43,12 @@ public class VehicleService implements IVehicleService {
         try {
             List<String> errors = new ArrayList<>();
             if (!vehicleDAO.existsById(vehicle.getId()))
-                errors.add("Транспортное средство с ID = " + vehicle.getId() + " не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.save(vehicle
                     ))
-                    .messages(List.of("Обновление транспортного средства c ID = " + vehicle.getId() + " прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -59,12 +60,12 @@ public class VehicleService implements IVehicleService {
         try {
             List<String> errors = new ArrayList<>();
             if (!vehicleDAO.existsById(id)) {
-                errors.add("Транспортное средство с ID = " + id + " не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.findById(id).get())
-                    .messages(List.of("Получение транспортного средства c ID = " + id + " прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -79,12 +80,12 @@ public class VehicleService implements IVehicleService {
             if (vehicleDAO.existsById(id)) {
                 vehicleDAO.deleteById(id);
             } else {
-                list.add("Транспортное средство с ID = " + id + " не существует.");
+                list.add(ServiceMessages.NOT_EXISTS);
             }
             return list.isEmpty() ? Response
                     .builder()
                     .data(id)
-                    .messages(List.of("Удаление транспортного средства c ID = " + id + " прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(list);
         } catch (IllegalArgumentException exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -101,11 +102,11 @@ public class VehicleService implements IVehicleService {
                     result.add(vehicleDAO.save(vehicle));
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни одно из транспортных средств создано не было. транспортные средства с такими ID уже существуют."))
+                    .of(ServiceMessages.NOT_CREATED))
                     : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно созданы " + result.size() + " транспортные средства из " + vehicles.size() + ".", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -124,12 +125,11 @@ public class VehicleService implements IVehicleService {
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни одно из транспортных средств обновлено не было. транспортные средства с такими ID не существуют."))
+                    .of(ServiceMessages.NOT_UPDATED))
                     : Response
                     .builder()
                     .data(returnListSorted(result))
-                    .messages(List.of("Успешно обновлены " + result.size() + " транспортные средства из " + vehicles.size() + ".",
-                            "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -141,12 +141,12 @@ public class VehicleService implements IVehicleService {
         try {
             List<Vehicle> result = vehicleDAO.findAll();
             return result.isEmpty() ?
-                    new ResponseMessages(List.of("В базе данных нет ни одного транспортного средства по вашему запросу."))
+                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
                     Response
                             .builder()
                             .data(returnListSorted(result))
-                            .messages(List.of("Запрос выполнен успешно.", "Удачного дня!"))
+                            .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -158,7 +158,7 @@ public class VehicleService implements IVehicleService {
     public Object deleteAllVehicle() {
         try {
             vehicleDAO.deleteAll();
-            return new ResponseMessages(List.of("Все транспортные средства удалены успешно.", "Удачного дня!"));
+            return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -169,18 +169,19 @@ public class VehicleService implements IVehicleService {
         try {
             List<String> errors = new ArrayList<>();
             if (!vehicleDAO.existsByNumberVehicle(numberVehicle)) {
-                errors.add("Транспортное средство с номером = " + numberVehicle + " не существует.");
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
             return errors.isEmpty() ? Response
                     .builder()
                     .data(vehicleDAO.findByNumberVehicle(numberVehicle))
-                    .messages(List.of("Получение транспортного средства c номером = " + numberVehicle + " прошло успешно.", "Удачного дня!"))
+                    .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
     }
 
+    // sorted -----------------
     private List<Vehicle> returnListSorted(List<Vehicle> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }

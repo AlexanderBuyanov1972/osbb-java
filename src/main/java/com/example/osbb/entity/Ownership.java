@@ -21,25 +21,41 @@ public class Ownership {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private long id;
-
     @Column(name = "type_room", nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeOfRoom typeRoom;
-
     @Column(name = "total_area")
     private double totalArea;
-
     @Column(name = "living_area")
     private double livingArea;
-
     @Column(name = "document_confirms_right_own")
     private String documentConfirmsRightOwn;
-
     @Column(name = "number_rooms")
     private int numberRooms;
-
-   @Column(name = "loggia", nullable = false)
+    @Column(name = "loggia", nullable = false)
     private boolean loggia;
+    // газоснабжение
+    @Column(name = "gas_supply")
+    private String gasSupply;
+    // газовый счётчик
+    @Column(name = "gas_meter")
+    private String gasMeter;
+    //водоснабжение
+    @Column(name = "water_supply")
+    private String waterSupply;
+    //водяной счётчик
+    @Column(name = "water_meter")
+    private String waterMeter;
+    //канализация
+    @Column(name = "sewerage")
+    private String sewerage;
+    //теплоснабжение
+    @Column(name = "heat_supply")
+    private String heatSupply;
+    //тепловой счётчик
+    @Column(name = "heat_meter")
+    private String heatМeter;
+
 
     // -----------  one to one -------------------------
 
@@ -49,7 +65,11 @@ public class Ownership {
 
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "ownership_id", referencedColumnName = "id")
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private Owner owner;
+
+    @OneToOne(mappedBy = "ownership")
+    @JsonIgnore
+    private Record record;
 
 }

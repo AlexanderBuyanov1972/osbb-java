@@ -14,7 +14,7 @@ public class AddressDto {
     private String house;
 
     public static AddressDto getAddressDto() {
-        return AddressDto.builder().city("Кам'янське").street("Свободи").house("51").build();
+        return AddressDto.builder().city("Каменское").street("Свободы").house("51").build();
     }
 
 
