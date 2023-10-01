@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -63,5 +65,13 @@ public class Ownership {
     @OneToOne(mappedBy = "ownership")
     @JsonIgnore
     private Record record;
+
+    // many to many ---------------------------
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "owner_ownership",
+            joinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"))
+    private List<Owner> owners;
 
 }

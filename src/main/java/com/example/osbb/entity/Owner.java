@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -67,5 +68,13 @@ public class Owner {
     @OneToOne(mappedBy = "owner")
     @JsonIgnore
     private Record record;
+
+    // many to many ---------------------------
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "owner_ownership",
+            joinColumns = @JoinColumn(name = "ownership_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "owner_id", referencedColumnName = "id"))
+    private List<Ownership> ownerships;
 
 }
