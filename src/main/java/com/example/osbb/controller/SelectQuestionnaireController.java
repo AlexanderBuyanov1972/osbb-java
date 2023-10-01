@@ -37,10 +37,10 @@ public class SelectQuestionnaireController {
     }
 
     @GetMapping(value = ApiConstants.FULLNAME + ApiConstants.PARAM_3)
-    public ResponseEntity<?> selectAllQuestionnaireByFullname(
-            @PathVariable String fullname) {
+    public ResponseEntity<?> selectAllQuestionnaireByFullName(
+            @PathVariable String fullName) {
         return response.returnResponse(service.
-                selectAllQuestionnaireByFullname(fullname));
+                selectAllQuestionnaireByFullName(fullName));
     }
 
     @GetMapping(value = ApiConstants.APARTMENT + ApiConstants.PARAM_4)
@@ -66,11 +66,11 @@ public class SelectQuestionnaireController {
 
     // -------------- two -------------------
     @GetMapping(value = ApiConstants.FULLNAME + ApiConstants.APARTMENT + ApiConstants.PARAM_3 + ApiConstants.PARAM_4)
-    public ResponseEntity<?> selectAllQuestionnaireByFullnameAndApartment(
-            @PathVariable String fullname,
+    public ResponseEntity<?> selectAllQuestionnaireByFullNameAndApartment(
+            @PathVariable String fullName,
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByFullnameAndApartment(fullname, apartment));
+                .selectAllQuestionnaireByFullNameAndApartment(fullName, apartment));
     }
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.PARAM_1 + ApiConstants.PARAM_4)
@@ -84,9 +84,9 @@ public class SelectQuestionnaireController {
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.FULLNAME + ApiConstants.PARAM_1 + ApiConstants.PARAM_3)
     public ResponseEntity<?> selectAllQuestionnaireByTitleAndFullname(
             @PathVariable String title,
-            @PathVariable String fullname) {
+            @PathVariable String fullName) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndFullname(title, fullname));
+                .selectAllQuestionnaireByTitleAndFullName(title, fullName));
     }
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.DATE_DISPATCH + ApiConstants.PARAM_1 + ApiConstants.PARAM_5)
     public ResponseEntity<?> selectAllQuestionnaireByTitleAndDateDispatch(
@@ -116,12 +116,12 @@ public class SelectQuestionnaireController {
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.FULLNAME +
             ApiConstants.APARTMENT + ApiConstants.PARAM_1 + ApiConstants.PARAM_3 + ApiConstants.PARAM_4)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndFullnameAndApartment(
+    public ResponseEntity<?> selectAllQuestionnaireByTitleAndFullNameAndApartment(
             @PathVariable String title,
-            @PathVariable String fullname,
+            @PathVariable String fullName,
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndFullnameAndApartment(title, fullname, apartment));
+                .selectAllQuestionnaireByTitleAndFullNameAndApartment(title, fullName, apartment));
     }
 
 

@@ -9,7 +9,7 @@ public interface ISelectQuestionnaireService {
 
     public Object selectAllQuestionnaireByQuestion(String question);
 
-    public Object selectAllQuestionnaireByFullname(String fullname);
+    public Object selectAllQuestionnaireByFullName(String fullName);
 
     public Object selectAllQuestionnaireByApartment(String apartment);
 
@@ -17,11 +17,11 @@ public interface ISelectQuestionnaireService {
 
     public Object selectAllQuestionnaireByTitleAndApartment(String title, String apartment);
 
-    public Object selectAllQuestionnaireByTitleAndFullname(String title, String fullname);
+    public Object selectAllQuestionnaireByTitleAndFullName(String title, String fullName);
 
-    public Object selectAllQuestionnaireByTitleAndFullnameAndApartment(String title, String fullname, String apartment);
+    public Object selectAllQuestionnaireByTitleAndFullNameAndApartment(String title, String fullName, String apartment);
 
-    public Object selectAllQuestionnaireByFullnameAndApartment(String fullname, String apartment);
+    public Object selectAllQuestionnaireByFullNameAndApartment(String fullName, String apartment);
 
     public Object selectAllQuestionnaireByDateDispatch(LocalDate dateDispatch);
 
