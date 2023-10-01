@@ -1,9 +1,16 @@
 package com.example.osbb.service.records;
 
+import com.example.osbb.dao.OwnerDAO;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.pojo.Client;
+import com.example.osbb.dto.pojo.Room;
+import com.example.osbb.dto.pojo.ListRoomAndListClient;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
+import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +26,10 @@ public class RecordService implements IRecordService {
 
     @Autowired
     RecordDAO recordDAO;
+    @Autowired
+    OwnershipDAO ownershipDAO;
+    @Autowired
+    OwnerDAO ownerDAO;
 
     @Override
     public Object createRecord(Record record) {
@@ -45,7 +56,7 @@ public class RecordService implements IRecordService {
         try {
             if (!recordDAO.existsById(record.getId())) {
                 list.add(ServiceMessages.NOT_EXISTS);
-            } else{
+            } else {
                 record.setUpdateAt(LocalDateTime.now());
             }
             return list.isEmpty() ? Response
@@ -159,6 +170,66 @@ public class RecordService implements IRecordService {
         try {
             recordDAO.deleteAll();
             return new ResponseMessages(List.of(ServiceMessages.OK));
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getRoomsAndClientsByOwnershipId(Long id) {
+        try {
+            List<Room> rooms = List.of(new Room(ownershipDAO.findById(id).get()));
+            List<Client> clients = recordDAO.findAll()
+                    .stream()
+                    .filter(s -> s.getOwnership().getId() == id)
+                    .map(s -> new Client(s.getOwner()))
+                    .toList();
+            return Response
+                    .builder()
+                    .data(new ListRoomAndListClient(rooms, clients))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+
+    }
+
+    @Override
+    public Object getRoomsAndClientsByOwnerId(Long id) {
+        try {
+            List<Client> clients = List.of(new Client(ownerDAO.findById(id).get()));
+            List<Room> rooms = recordDAO.findAll()
+                    .stream()
+                    .filter(s -> s.getOwner().getId() == id)
+                    .map(s -> new Room(s.getOwnership()))
+                    .toList();
+            return Response
+                    .builder()
+                    .data(new ListRoomAndListClient(rooms, clients))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getRecordByApartmentAndFullName(String apartment, String fullName) {
+        List<String> errors = new ArrayList<>();
+        String[] fios = fullName.split(" ");
+        try {
+            if (!recordDAO.existsByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
+                    apartment, fios[0], fios[1], fios[2])) {
+                errors.add(ServiceMessages.NOT_EXISTS);
+            }
+            return errors.isEmpty() ? Response
+                    .builder()
+                    .data(recordDAO.findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
+                            apartment,  fios[0], fios[1], fios[2]
+                    ))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }

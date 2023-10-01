@@ -3,10 +3,9 @@ package com.example.osbb.service.ownership;
 import com.example.osbb.dao.AddressDAO;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
-import com.example.osbb.dto.Auth;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Room;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
@@ -37,17 +36,8 @@ public class OwnershipService implements IOwnershipService {
     public Object createOwnership(Ownership ownership) {
         try {
             List<String> errors = new ArrayList<>();
-            if (addressDAO.existsByApartment(ownership.getAddress().getApartment())
-                    && ownerDAO.existsByLastNameAndFirstNameAndSecondName(
-                    ownership.getOwner().getLastName(),
-                    ownership.getOwner().getFirstName(),
-                    ownership.getOwner().getSecondName())) {
-                errors.add("Недвижимость с помещением № " +
-                        ownership.getAddress().getApartment() + "  и собственником " +
-                        ownership.getOwner().getLastName() + " " + ownership.getOwner().getFirstName() + " " +
-                        ownership.getOwner().getSecondName() + " уже существует.");
-
-            }
+            if (ownershipDAO.existsById(ownership.getId()))
+                errors.add(ServiceMessages.ALREADY_EXISTS);
             return errors.isEmpty() ? List.of(Response
                     .builder()
                     .data(ownershipDAO.save(ownership))
@@ -55,7 +45,6 @@ public class OwnershipService implements IOwnershipService {
                     .build())
                     :
                     new ResponseMessages(errors);
-
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -339,7 +328,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             return Response
                     .builder()
-                    .data(new Room(ownershipDAO.findByAddressApartment(apartment).stream().findFirst().get()))
+                    .data(new Room(ownershipDAO.findByAddressApartment(apartment)))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {

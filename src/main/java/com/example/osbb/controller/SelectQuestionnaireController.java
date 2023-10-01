@@ -1,20 +1,18 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.entity.Questionnaire;
-import com.example.osbb.service.questionnaire.IQuestionnaireService;
+import com.example.osbb.service.questionnaire.ISelectQuestionnaireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = ApiConstants.SELECT)
 public class SelectQuestionnaireController {
 
     @Autowired
-    private IQuestionnaireService service;
+    private ISelectQuestionnaireService service;
 
     @Autowired
     private HelpMethodsForController response;

@@ -2,7 +2,6 @@ package com.example.osbb.dto.pojo;
 
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
-import jakarta.persistence.Column;
 import lombok.*;
 
 @Getter
@@ -11,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class Room {
+    private long id;
     private TypeOfRoom typeRoom;
     private double totalArea;
     private double livingArea;
@@ -27,9 +27,10 @@ public class Room {
     private String waterMeter;
     private String sewerage;
     private String heatSupply;
-    private String heatМeter;
+    private String heatMeter;
 
     public Room(Ownership one) {
+        this.id = one.getId();
         this.typeRoom = one.getTypeRoom();
         this.totalArea = one.getTotalArea();
         this.livingArea = one.getLivingArea();
@@ -46,7 +47,7 @@ public class Room {
         this.waterMeter = one.getWaterMeter();
         this.sewerage = one.getSewerage();
         this.heatSupply = one.getHeatSupply();
-        this.heatМeter = one.getHeatМeter();
+        this.heatMeter = one.getHeatMeter();
     }
 
 }

@@ -2,9 +2,9 @@ package com.example.osbb.service.owner;
 
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Client;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.service.ServiceMessages;

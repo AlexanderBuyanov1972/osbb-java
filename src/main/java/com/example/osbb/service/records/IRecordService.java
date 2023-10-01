@@ -5,7 +5,7 @@ import com.example.osbb.entity.Record;
 import java.util.List;
 
 public interface IRecordService {
-    // ------------------- one -----------------------
+    //  one -----------------------------
     public Object createRecord(Record record);
 
     public Object updateRecord(Record record);
@@ -14,7 +14,7 @@ public interface IRecordService {
 
     public Object deleteRecord(Long id);
 
-    // ------------------ all ----------------
+    // all ----------------------------
 
     public Object createAllRecord(List<Record> records);
 
@@ -23,4 +23,12 @@ public interface IRecordService {
     public Object getAllRecord();
 
     public Object deleteAllRecord();
+
+    // other ---------------------------
+
+    public Object getRoomsAndClientsByOwnershipId(Long id);
+
+    public Object getRoomsAndClientsByOwnerId(Long id);
+
+    public Object getRecordByApartmentAndFullName(String apartment, String fullName);
 }

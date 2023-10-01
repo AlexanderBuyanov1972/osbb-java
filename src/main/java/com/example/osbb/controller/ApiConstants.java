@@ -13,15 +13,16 @@ public class ApiConstants {
     public static final String OWNER = "/owner";
     public static final String OWNERSHIP = "/ownership";
     public static final String QUESTIONNAIRE = "/questionnaire";
+
     public static final String SELECT = "/select";
     public static final String RATE = "/rate";
     public static final String TITLE = "/title";
-    public static final String FULLNAME = "/fullname";
+    public static final String FULLNAME = "/full_name";
     public static final String QUESTION = "/question";
     public static final String DATE_DISPATCH = "/date_dispatch";
     public static final String DATE_RECEIVING = "/date_receiving";
     public static final String PLACE_WORK = "/place_work";
-    public static final String GENERATION = "/generation";
+//    public static final String GENERATION = "/generation";
     public static final String CHARACTERISTICS = "/characteristics";
 
     // --------------- summa ------------------
@@ -55,7 +56,7 @@ public class ApiConstants {
     public static final String HOUSE = "/{house}";
     public static final String PARAM_1 = "/{title}";
     public static final String PARAM_2 = "/{question}";
-    public static final String PARAM_3 = "/{fullname}";
+    public static final String PARAM_3 = "/{fullName}";
     public static final String PARAM_4 = "/{apartment}";
     public static final String PARAM_5 = "/{dateDispatch}";
     public static final String PARAM_6 = "/{dateReceiving}";

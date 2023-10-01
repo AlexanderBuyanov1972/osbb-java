@@ -1,4 +1,4 @@
-package com.example.osbb.dto;
+package com.example.osbb.dto.response;
 
 import lombok.*;
 
@@ -9,6 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResponseMessages {
+public class Response {
+    private Object data;
     private List<String> messages;
 }

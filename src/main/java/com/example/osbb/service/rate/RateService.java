@@ -1,9 +1,9 @@
 package com.example.osbb.service.rate;
 
 import com.example.osbb.dao.RateDAO;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

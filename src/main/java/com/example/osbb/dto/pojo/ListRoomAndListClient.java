@@ -2,17 +2,15 @@ package com.example.osbb.dto.pojo;
 
 import lombok.*;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collector;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PojoRoomAndListClients {
-    private Room room;
+public class ListRoomAndListClient {
+    private List<Room> rooms;
     private List<Client> clients;
 
  }

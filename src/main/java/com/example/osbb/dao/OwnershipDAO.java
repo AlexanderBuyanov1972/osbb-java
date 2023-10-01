@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface OwnershipDAO extends JpaRepository<Ownership, Long> {
     long countByTypeRoom(TypeOfRoom typeRoom);
-    List<Ownership> findByAddressApartment(String apartment);
+    Ownership findByAddressApartment(String apartment);
     long count();
 
 }

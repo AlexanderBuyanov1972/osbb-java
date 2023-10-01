@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.service.ServiceMessages;
 import com.example.osbb.service.address.IAddressService;
 import com.example.osbb.service.owner.IOwnerService;

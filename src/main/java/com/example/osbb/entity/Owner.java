@@ -8,8 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -65,10 +63,6 @@ public class Owner {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
     private Vehicle vehicle;
-
-    @OneToOne(mappedBy = "owner")
-    @JsonIgnore
-    private Ownership ownership;
 
     @OneToOne(mappedBy = "owner")
     @JsonIgnore

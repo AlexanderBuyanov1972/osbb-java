@@ -62,5 +62,23 @@ public class RecordController {
         return response.returnResponse(service.deleteAllRecord());
     }
 
+    // other ---------------------------
+
+    @GetMapping(ApiConstants.OWNERSHIP + ApiConstants.ID)
+    public ResponseEntity<?> getRoomAndListClientByOwnershipId(@PathVariable Long id) {
+        return response.returnResponse(service.getRoomsAndClientsByOwnershipId(id));
+    }
+
+    @GetMapping(ApiConstants.OWNER + ApiConstants.ID)
+    public ResponseEntity<?> getClientAndListRoomByOwnerId(@PathVariable Long id) {
+        return response.returnResponse(service.getRoomsAndClientsByOwnerId(id));
+    }
+
+    @GetMapping(ApiConstants.PARAM_4 + ApiConstants.PARAM_3)
+    public ResponseEntity<?> getRecordByApartmentAndFullName(
+            @PathVariable String apartment,
+            @PathVariable String fullName) {
+        return response.returnResponse(service.getRecordByApartmentAndFullName(apartment, fullName));
+    }
 
 }

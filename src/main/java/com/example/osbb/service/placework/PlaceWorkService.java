@@ -1,10 +1,9 @@
 package com.example.osbb.service.placework;
 
 import com.example.osbb.dao.PlaceWorkDAO;
-import com.example.osbb.dto.Auth;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.PlaceWork;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;

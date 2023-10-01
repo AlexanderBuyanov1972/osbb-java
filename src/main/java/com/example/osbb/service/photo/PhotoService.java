@@ -1,9 +1,9 @@
 package com.example.osbb.service.photo;
 
 import com.example.osbb.dao.PhotoDAO;
-import com.example.osbb.dto.ErrorResponseMessages;
-import com.example.osbb.dto.Response;
-import com.example.osbb.dto.ResponseMessages;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.Photo;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;

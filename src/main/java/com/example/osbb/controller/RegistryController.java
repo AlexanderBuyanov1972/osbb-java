@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping(ApiConstants.REGISTRY)
 public class RegistryController {
@@ -44,11 +42,6 @@ public class RegistryController {
     }
 
     //----------------------------------------------------------------------
-    // check
-    @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_4)
-    Object getPojoRoomAndListClients(@PathVariable String apartment) {
-        return servicePojo.getPojoRoomAndListClients(apartment);
-    }
 
     //check
     @GetMapping(ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_3)
@@ -56,16 +49,11 @@ public class RegistryController {
         return servicePojo.getListQuestionnaireByFullName(fullname);
     }
 
-    //check
-    @GetMapping(ApiConstants.FULLNAME + ApiConstants.PARAM_3)
-    Object getPojoClientAndListRooms(@PathVariable String fullname) {
-        return servicePojo.getPojoClientAndListRooms(fullname);
-    }
 
     //check
     @GetMapping(ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_3)
     Object getShareAreaFromHouseByFIO(@PathVariable String fullname) {
-        return servicePojo.getShareAreaFromHouseByFIO(fullname);
+        return servicePojo.getShareAreaFromHouseByFullName(fullname);
     }
 
     //check

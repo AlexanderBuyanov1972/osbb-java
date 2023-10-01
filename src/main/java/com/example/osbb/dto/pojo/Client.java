@@ -28,6 +28,7 @@ public class Client {
     private Double shareInRealEstate;
     private TypeOfFamilyStatus familyStatus;
     private TypeOfBeneficiary beneficiary;
+    private String photoName;
 
     public Client(Owner one) {
         this.id = one.getId();
@@ -41,5 +42,6 @@ public class Client {
         this.shareInRealEstate = one.getShareInRealEstate();
         this.familyStatus = one.getFamilyStatus();
         this.beneficiary = one.getBeneficiary();
+        this.photoName = one.getPhoto().getName();
     }
 }

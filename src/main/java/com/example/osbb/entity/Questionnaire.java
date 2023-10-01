@@ -1,5 +1,6 @@
 package com.example.osbb.entity;
 
+import com.example.osbb.dto.polls.FullNameOwnerAndApartment;
 import com.example.osbb.enums.TypeOfAnswer;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,7 +29,7 @@ public class Questionnaire {
     @Column(name = "apartment")
     private String apartment;
     @Column(name = "full_name")
-    private String fullname;
+    private String fullName;
     @Column(name = "by_whom" , nullable = false)
     private String byWhom;
     @Column(name = "question" , nullable = false)
@@ -36,6 +37,18 @@ public class Questionnaire {
     @Column(name = "answer")
     @Enumerated(EnumType.STRING)
     private TypeOfAnswer answer;
+
+    public Questionnaire(Questionnaire q, FullNameOwnerAndApartment f){
+                this.title= q.getTitle();
+                this.byWhom= q.getByWhom();
+                this.dateDispatch= LocalDate.now();
+                this.question= q.getQuestion();
+                this.answer= null;
+                this.dateReceiving= null;
+                this.fullName = f.getFullName();
+                this.apartment= f.getApartment();
+
+    }
 
 
 

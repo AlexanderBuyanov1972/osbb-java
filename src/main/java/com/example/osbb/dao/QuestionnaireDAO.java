@@ -2,12 +2,10 @@ package com.example.osbb.dao;
 
 import com.example.osbb.entity.Questionnaire;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Stream;
 
 @EnableJpaRepositories
 public interface QuestionnaireDAO extends JpaRepository<Questionnaire, Long> {
@@ -18,7 +16,7 @@ public interface QuestionnaireDAO extends JpaRepository<Questionnaire, Long> {
 
     List<Questionnaire> findByApartment(String apartment);
 
-    List<Questionnaire> findByFullname(String fullname);
+    List<Questionnaire> findByFullName(String fullName);
 
     List<Questionnaire> findByDateDispatch(LocalDate dateDispatch);
 
@@ -28,18 +26,18 @@ public interface QuestionnaireDAO extends JpaRepository<Questionnaire, Long> {
 
     List<Questionnaire> findByTitleAndQuestion(String title, String question);
 
-    List<Questionnaire> findByTitleAndFullname(String title, String fullname);
+    List<Questionnaire> findByTitleAndFullName(String title, String fullname);
 
     List<Questionnaire> findByTitleAndApartment(String title, String apartment);
 
-    List<Questionnaire> findByFullnameAndApartment(String fullname, String apartment);
+    List<Questionnaire> findByFullNameAndApartment(String fullname, String apartment);
 
     List<Questionnaire> findByTitleAndDateDispatch(String title, LocalDate dateDispatch);
 
     List<Questionnaire> findByTitleAndDateReceiving(String title, LocalDate dateReceiving);
 
     // --------------- three ---------------------
-    List<Questionnaire> findByTitleAndFullnameAndApartment(String title, String fullname, String apartment);
+    List<Questionnaire> findByTitleAndFullNameAndApartment(String title, String fullname, String apartment);
 
 
 }

@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -54,7 +51,7 @@ public class Ownership {
     private String heatSupply;
     //тепловой счётчик
     @Column(name = "heat_meter")
-    private String heatМeter;
+    private String heatMeter;
 
 
     // -----------  one to one -------------------------
@@ -62,11 +59,6 @@ public class Ownership {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
-
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    private Owner owner;
 
     @OneToOne(mappedBy = "ownership")
     @JsonIgnore

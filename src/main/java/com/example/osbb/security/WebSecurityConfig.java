@@ -24,35 +24,19 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
-            // record ---------------------------
-            ApiConstants.RECORD,
-            ApiConstants.RECORD + ApiConstants.SS,
-            // user -----------------------------
-            ApiConstants.USER,
-            ApiConstants.USER + ApiConstants.SS,
-            // role -----------------------------
-            ApiConstants.ROLE,
-            ApiConstants.ROLE + ApiConstants.SS,
-            // owner ----------------------------
-            ApiConstants.OWNER,
-            ApiConstants.OWNER + ApiConstants.SS,
-            // photo ------------------------
-            ApiConstants.PHOTO,
-            ApiConstants.PHOTO + ApiConstants.SS,
-            // passport ---------------------
-            ApiConstants.PASSPORT,
-            ApiConstants.PASSPORT + ApiConstants.SS,
-            // vehicle ----------------------
-            ApiConstants.VEHICLE,
-            ApiConstants.VEHICLE + ApiConstants.SS,
-            // address ----------------------
-            ApiConstants.ADDRESS,
-            ApiConstants.ADDRESS + ApiConstants.SS,
+            ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS,
+            ApiConstants.USER, ApiConstants.USER + ApiConstants.SS,
+            ApiConstants.ROLE, ApiConstants.ROLE + ApiConstants.SS,
+            ApiConstants.OWNER, ApiConstants.OWNER + ApiConstants.SS,
+            ApiConstants.PHOTO, ApiConstants.PHOTO + ApiConstants.SS,
+            ApiConstants.PASSPORT, ApiConstants.PASSPORT + ApiConstants.SS,
+            ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS,
+            ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS,
             // questionnaire ----------------
             ApiConstants.QUESTIONNAIRE,
             ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
             ApiConstants.QUESTIONNAIRE + ApiConstants.ALL,
-            ApiConstants.QUESTIONNAIRE + ApiConstants.GENERATION,
+//            ApiConstants.QUESTIONNAIRE + ApiConstants.GENERATION,
             ApiConstants.QUESTIONNAIRE + ApiConstants.RESULT + ApiConstants.SS,
             // ownership --------------------
             ApiConstants.OWNERSHIP,
