@@ -23,11 +23,14 @@ public class Record {
     @JoinColumn(name = "update_at")
     private LocalDateTime updateAt;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    // many to one --------------------------
+
+    @ManyToOne
     @JoinColumn(name = "ownership_id")
     private Ownership ownership;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
+
 }

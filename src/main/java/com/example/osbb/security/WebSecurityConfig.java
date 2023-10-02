@@ -37,7 +37,9 @@ public class WebSecurityConfig {
             ApiConstants.QUESTIONNAIRE + ApiConstants.ALL,
             ApiConstants.QUESTIONNAIRE + ApiConstants.RESULT + ApiConstants.SS,
             // ownership --------------------
-            ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
+            ApiConstants.OWNERSHIP,
+            ApiConstants.OWNERSHIP + ApiConstants.ID,
+            ApiConstants.OWNERSHIP + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.OWNER + ApiConstants.APARTMENT + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
             ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,

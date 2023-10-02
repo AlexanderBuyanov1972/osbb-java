@@ -13,6 +13,7 @@ import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.service.ServiceMessages;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,14 +33,22 @@ public class RecordService implements IRecordService {
     OwnerDAO ownerDAO;
 
     @Override
+//    @Transactional
     public Object createRecord(Record record) {
         List<String> list = new ArrayList<>();
         try {
             if (recordDAO.existsById(record.getId())) {
                 list.add(ServiceMessages.ALREADY_EXISTS);
-            } else {
-                record.setCreateAt(LocalDateTime.now());
             }
+            if (recordDAO.existsByOwnerId(record.getOwner().getId())
+                    && recordDAO.existsByOwnershipId(record.getOwnership().getId())) {
+                list.addAll(List.of(
+                        "Запись с таким номером помещения и с таким Ф.И.О. обственника уже существует.",
+                        "Проверьте правильность заполнения данных.",
+                        "Не может быть две записи одинаковых записи по номеру помещения и Ф.И.О. обственника одновременно."
+                ));
+            }
+            record.setCreateAt(LocalDateTime.now());
             return list.isEmpty() ? Response
                     .builder()
                     .data(recordDAO.save(record))
@@ -51,14 +60,23 @@ public class RecordService implements IRecordService {
     }
 
     @Override
+//    @Transactional
     public Object updateRecord(Record record) {
         List<String> list = new ArrayList<>();
         try {
             if (!recordDAO.existsById(record.getId())) {
                 list.add(ServiceMessages.NOT_EXISTS);
-            } else {
-                record.setUpdateAt(LocalDateTime.now());
             }
+            if (!recordDAO.existsByOwnerId(record.getOwner().getId())
+                    && !recordDAO.existsByOwnershipId(record.getOwnership().getId())) {
+                list.addAll(List.of(
+                        "Запись с таким номером помещения и с таким Ф.И.О. обственника отсутствует.",
+                        "Проверьте правильность заполнения данных.",
+                        "Невозможно обновить запись, которая не существует в базе данных."
+                ));
+            }
+                record.setUpdateAt(LocalDateTime.now());
+
             return list.isEmpty() ? Response
                     .builder()
                     .data(recordDAO.save(record))
@@ -87,6 +105,7 @@ public class RecordService implements IRecordService {
     }
 
     @Override
+    @Transactional
     public Object deleteRecord(Long id) {
         List<String> list = new ArrayList<>();
         try {
@@ -105,6 +124,7 @@ public class RecordService implements IRecordService {
     }
 
     @Override
+    @Transactional
     public Object createAllRecord(List<Record> records) {
         List<Record> result = new ArrayList<>();
         try {
@@ -127,6 +147,7 @@ public class RecordService implements IRecordService {
     }
 
     @Override
+    @Transactional
     public Object updateAllRecord(List<Record> records) {
         List<Record> result = new ArrayList<>();
         try {
@@ -166,6 +187,7 @@ public class RecordService implements IRecordService {
     }
 
     @Override
+    @Transactional
     public Object deleteAllRecord() {
         try {
             recordDAO.deleteAll();
@@ -226,7 +248,7 @@ public class RecordService implements IRecordService {
             return errors.isEmpty() ? Response
                     .builder()
                     .data(recordDAO.findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
-                            apartment,  fios[0], fios[1], fios[2]
+                            apartment, fios[0], fios[1], fios[2]
                     ))
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);

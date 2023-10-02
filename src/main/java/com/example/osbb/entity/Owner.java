@@ -65,8 +65,11 @@ public class Owner {
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id")
     private Vehicle vehicle;
 
-    @OneToOne(mappedBy = "owner")
+    // ----------- one to many -----------------
+
+    @OneToMany(mappedBy = "owner", cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
     @JsonIgnore
-    private Record record;
+    private List<Record> records;
+
 
 }

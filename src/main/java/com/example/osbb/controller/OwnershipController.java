@@ -21,17 +21,17 @@ public class OwnershipController {
     // ---------- one -------------------
 
     @PostMapping
-    public ResponseEntity<?> createObjectOwnership(@RequestBody Ownership one) {
+    public ResponseEntity<?> createOwnership(@RequestBody Ownership one) {
         return response.returnResponse(service.createOwnership(one));
     }
 
     @PutMapping
-    public ResponseEntity<?> updateObjectOwnership(@RequestBody Ownership one) {
+    public ResponseEntity<?> updateOwnership(@RequestBody Ownership one) {
         return response.returnResponse(service.updateOwnership(one));
     }
 
     @GetMapping(ApiConstants.ID)
-    public ResponseEntity<?> getObjectOwnership(@PathVariable Long id) {
+    public ResponseEntity<?> getOwnership(@PathVariable Long id) {
         return response.returnResponse(service.getOwnership(id));
     }
 
@@ -42,22 +42,22 @@ public class OwnershipController {
 
     // ------------------- all ----------------
     @PostMapping(ApiConstants.ALL)
-    public ResponseEntity<?> createAllObjectOwnership(@RequestBody List<Ownership> list) {
+    public ResponseEntity<?> createAllOwnership(@RequestBody List<Ownership> list) {
         return response.returnResponse(service.createAllOwnership(list));
     }
 
     @PutMapping(ApiConstants.ALL)
-    public ResponseEntity<?> updateAllObjectOwnership(@RequestBody List<Ownership> list) {
+    public ResponseEntity<?> updateAllOwnership(@RequestBody List<Ownership> list) {
         return response.returnResponse(service.updateAllOwnership(list));
     }
 
     @GetMapping(ApiConstants.ALL)
-    public ResponseEntity<?> getAllObjectOwnership() {
+    public ResponseEntity<?> getAllOwnership() {
         return response.returnResponse(service.getAllOwnership());
     }
 
     @DeleteMapping(ApiConstants.ALL)
-    public ResponseEntity<?> deleteAllObjectOwnership() {
+    public ResponseEntity<?> deleteAllOwnership() {
         return response.returnResponse(service.deleteAllOwnership());
     }
 

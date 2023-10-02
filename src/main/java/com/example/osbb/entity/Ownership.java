@@ -55,16 +55,16 @@ public class Ownership {
     @Column(name = "heat_meter")
     private String heatMeter;
 
-
-    // -----------  one to one -------------------------
+    // one to one -------------------------
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
-    @OneToOne(mappedBy = "ownership")
-    @JsonIgnore
-    private Record record;
+    // one to many ------------------------
 
+    @OneToMany(mappedBy = "ownership",cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @JsonIgnore
+    private List<Record> records;
 
 }
