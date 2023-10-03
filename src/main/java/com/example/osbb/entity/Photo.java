@@ -36,3 +36,8 @@ public class Photo {
     private Owner owner;
 
 }
+
+//    id
+//    url
+//    name
+//    owner

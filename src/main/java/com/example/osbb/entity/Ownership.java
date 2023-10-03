@@ -63,8 +63,30 @@ public class Ownership {
 
     // one to many ------------------------
 
-    @OneToMany(mappedBy = "ownership",cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "ownership", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
     @JsonIgnore
     private List<Record> records;
 
+    @OneToMany(mappedBy = "ownership", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @JsonIgnore
+    private List<Share> shares;
+
 }
+
+//    id
+//    typeRoom
+//    totalArea
+//    livingArea
+//    documentConfirmsRightOwn
+//    numberRooms
+//    loggia
+//    gasSupply
+//    gasMeter
+//    waterSupply
+//    waterMeter
+//    sewerage
+//    heatSupply
+//    heatMeter
+//    address
+//    records
+//    shares

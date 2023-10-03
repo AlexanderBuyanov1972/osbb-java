@@ -30,47 +30,47 @@ public class ServicePojo {
     private QuestionnaireDAO questionnaireDAO;
 
 
-    // по конкретному Ф.И.О. перечень владения в доме :
-    //  квартира ---> доля ---> общая площадь
-    //  (apartment ---> share ---> total area)
-    // check
-    public Object getListQuestionnaireByFullName(String fullName) {
-        return recordDAO.findAll()
-                .stream()
-                .filter(s -> isEqualsRecordByFullname(s, fullName))
-                .map(s -> s.getOwnership().getAddress().getApartment()
-                        + " --->" + s.getOwner().getShareInRealEstate()
-                        + " ---> " + s.getOwnership().getTotalArea())
-                .toList();
-
-
-    }
-
-    // Доля собственника по Ф.И.О. в м2 в доме.
-    // Проход по всем записям, фильтруем по конкретному  Ф.И.О.,
-    // получаем общую площадь и долю, перемножаем по каждой записи и
-    // суммируем
-    // check
-    public Double getShareAreaFromHouseByFullName(String fullName) {
-        return recordDAO.findAll()
-                .stream()
-                .filter(s -> isEqualsRecordByFullname(s, fullName))
-                .map(s -> s.getOwnership().getTotalArea() * s.getOwner().getShareInRealEstate())
-                .reduce(0.00, Double::sum);
-    }
-
-    // мапа ( ключ : Ф.И.О. и номер квартиры,  значение : сумма произведений  доли на общую площадь  по каждому помещению
-    public Object getListClientAndTotalArea() {
-        Map<String, Double> map = recordDAO.findAll()
-                .stream()
-                .collect(Collectors.groupingBy(s -> s.getOwner().getLastName()
-                                + " " + s.getOwner().getFirstName()
-                                + " " + s.getOwner().getSecondName()
-                                + " ---> apartment --->" + s.getOwnership().getAddress().getApartment(),
-                        Collectors.summingDouble(s -> s.getOwner().getShareInRealEstate() * s.getOwnership().getTotalArea()
-                        )));
-        return map;
-    }
+//    // по конкретному Ф.И.О. перечень владения в доме :
+//    //  квартира ---> доля ---> общая площадь
+//    //  (apartment ---> share ---> total area)
+//    // check
+//    public Object getListQuestionnaireByFullName(String fullName) {
+//        return recordDAO.findAll()
+//                .stream()
+//                .filter(s -> isEqualsRecordByFullname(s, fullName))
+//                .map(s -> s.getOwnership().getAddress().getApartment()
+//                        + " --->" + s.getOwner().getShares().
+//                        + " ---> " + s.getOwnership().getTotalArea())
+//                .toList();
+//
+//
+//    }
+//
+//    // Доля собственника по Ф.И.О. в м2 в доме.
+//    // Проход по всем записям, фильтруем по конкретному  Ф.И.О.,
+//    // получаем общую площадь и долю, перемножаем по каждой записи и
+//    // суммируем
+//    // check
+//    public Double getShareAreaFromHouseByFullName(String fullName) {
+//        return recordDAO.findAll()
+//                .stream()
+//                .filter(s -> isEqualsRecordByFullname(s, fullName))
+//                .map(s -> s.getOwnership().getTotalArea() * s.getOwner().getShares().)
+//                .reduce(0.00, Double::sum);
+//    }
+//
+//    // мапа ( ключ : Ф.И.О. и номер квартиры,  значение : сумма произведений  доли на общую площадь  по каждому помещению
+//    public Object getListClientAndTotalArea() {
+//        Map<String, Double> map = recordDAO.findAll()
+//                .stream()
+//                .collect(Collectors.groupingBy(s -> s.getOwner().getLastName()
+//                                + " " + s.getOwner().getFirstName()
+//                                + " " + s.getOwner().getSecondName()
+//                                + " ---> apartment --->" + s.getOwnership().getAddress().getApartment(),
+//                        Collectors.summingDouble(s -> s.getOwner().getShareInRealEstate() * s.getOwnership().getTotalArea()
+//                        )));
+//        return map;
+//    }
 
     // help functions -----------------------------
     boolean isEqualsRecordByFullname(Record s, String fullName) {

@@ -37,8 +37,6 @@ public class Owner {
     private String phoneNumber;
     @Column(name = "date_birth", nullable = false)
     private LocalDate dateBirth;
-    @Column(name = "share_estate", nullable = false)
-    private Double shareInRealEstate;
     @Column(name = "family_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeOfFamilyStatus familyStatus;
@@ -67,9 +65,30 @@ public class Owner {
 
     // ----------- one to many -----------------
 
-    @OneToMany(mappedBy = "owner", cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
     @JsonIgnore
     private List<Record> records;
 
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
+    @JsonIgnore
+    private List<Share> shares;
+
 
 }
+
+//    id
+//    firstName
+//    secondName
+//    lastName
+//    gender
+//    email
+//    phoneNumber
+//    dateBirth
+//    familyStatus
+//    beneficiary
+//    passport
+//    placeWork
+//    photo
+//    vehicle
+//    records
+//    shares

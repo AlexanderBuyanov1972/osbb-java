@@ -1,6 +1,5 @@
 package com.example.osbb.entity;
 
-import com.example.osbb.dto.polls.FullNameOwnerAndApartment;
 import com.example.osbb.enums.TypeOfAnswer;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,18 +37,26 @@ public class Questionnaire {
     @Enumerated(EnumType.STRING)
     private TypeOfAnswer answer;
 
-    public Questionnaire(Questionnaire q, FullNameOwnerAndApartment f){
+    public Questionnaire(Questionnaire q, String fullName,String apartment ){
                 this.title= q.getTitle();
                 this.byWhom= q.getByWhom();
                 this.dateDispatch= LocalDate.now();
                 this.question= q.getQuestion();
                 this.answer= null;
                 this.dateReceiving= null;
-                this.fullName = f.getFullName();
-                this.apartment= f.getApartment();
+                this.fullName = fullName;
+                this.apartment= apartment;
 
     }
 
-
-
 }
+
+//    id
+//    title
+//    dateDispatch
+//    dateReceiving
+//    apartment
+//    fullName
+//    byWhom
+//    question
+//    answer

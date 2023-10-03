@@ -3,6 +3,7 @@ package com.example.osbb.service.records;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
+import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.pojo.Client;
 import com.example.osbb.dto.pojo.Room;
 import com.example.osbb.dto.pojo.ListRoomAndListClient;
@@ -12,6 +13,7 @@ import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Record;
+import com.example.osbb.entity.Share;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class RecordService implements IRecordService {
     OwnershipDAO ownershipDAO;
     @Autowired
     OwnerDAO ownerDAO;
+    @Autowired
+    ShareDAO shareDAO;
 
     @Override
 //    @Transactional
@@ -40,8 +44,7 @@ public class RecordService implements IRecordService {
             if (recordDAO.existsById(record.getId())) {
                 list.add(ServiceMessages.ALREADY_EXISTS);
             }
-            if (recordDAO.existsByOwnerId(record.getOwner().getId())
-                    && recordDAO.existsByOwnershipId(record.getOwnership().getId())) {
+            if (recordDAO.existsByOwnershipIdAndOwnerId(record.getOwnership().getId(), record.getOwner().getId())) {
                 list.addAll(List.of(
                         "Запись с таким номером помещения и с таким Ф.И.О. обственника уже существует.",
                         "Проверьте правильность заполнения данных.",
@@ -67,15 +70,14 @@ public class RecordService implements IRecordService {
             if (!recordDAO.existsById(record.getId())) {
                 list.add(ServiceMessages.NOT_EXISTS);
             }
-            if (!recordDAO.existsByOwnerId(record.getOwner().getId())
-                    && !recordDAO.existsByOwnershipId(record.getOwnership().getId())) {
+            if (!recordDAO.existsByOwnershipIdAndOwnerId(record.getOwnership().getId(), record.getOwner().getId())) {
                 list.addAll(List.of(
                         "Запись с таким номером помещения и с таким Ф.И.О. обственника отсутствует.",
                         "Проверьте правильность заполнения данных.",
                         "Невозможно обновить запись, которая не существует в базе данных."
                 ));
             }
-                record.setUpdateAt(LocalDateTime.now());
+            record.setUpdateAt(LocalDateTime.now());
 
             return list.isEmpty() ? Response
                     .builder()
@@ -105,7 +107,6 @@ public class RecordService implements IRecordService {
     }
 
     @Override
-    @Transactional
     public Object deleteRecord(Long id) {
         List<String> list = new ArrayList<>();
         try {
@@ -124,7 +125,6 @@ public class RecordService implements IRecordService {
     }
 
     @Override
-    @Transactional
     public Object createAllRecord(List<Record> records) {
         List<Record> result = new ArrayList<>();
         try {
@@ -147,7 +147,6 @@ public class RecordService implements IRecordService {
     }
 
     @Override
-    @Transactional
     public Object updateAllRecord(List<Record> records) {
         List<Record> result = new ArrayList<>();
         try {
@@ -187,7 +186,6 @@ public class RecordService implements IRecordService {
     }
 
     @Override
-    @Transactional
     public Object deleteAllRecord() {
         try {
             recordDAO.deleteAll();
@@ -200,11 +198,12 @@ public class RecordService implements IRecordService {
     @Override
     public Object getRoomsAndClientsByOwnershipId(Long id) {
         try {
-            List<Room> rooms = List.of(new Room(ownershipDAO.findById(id).get()));
+            List<Room> rooms = List.of(new Room(ownershipDAO.findById(id).get(),Double.parseDouble("0")));
             List<Client> clients = recordDAO.findAll()
                     .stream()
                     .filter(s -> s.getOwnership().getId() == id)
-                    .map(s -> new Client(s.getOwner()))
+                    .map(s -> new Client(
+                            s.getOwner(),Double.parseDouble("0")))
                     .toList();
             return Response
                     .builder()
@@ -220,11 +219,13 @@ public class RecordService implements IRecordService {
     @Override
     public Object getRoomsAndClientsByOwnerId(Long id) {
         try {
-            List<Client> clients = List.of(new Client(ownerDAO.findById(id).get()));
+            List<Client> clients = List.of(new Client(ownerDAO.findById(id).get(), 0.00));
             List<Room> rooms = recordDAO.findAll()
                     .stream()
                     .filter(s -> s.getOwner().getId() == id)
-                    .map(s -> new Room(s.getOwnership()))
+                    .map(s -> new Room(
+                            s.getOwnership(),Double.parseDouble("0")
+                            ))
                     .toList();
             return Response
                     .builder()

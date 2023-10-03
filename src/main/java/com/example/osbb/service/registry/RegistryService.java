@@ -3,10 +3,13 @@ package com.example.osbb.service.registry;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
+import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.*;
 import com.example.osbb.dto.pojo.*;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.Record;
+import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,8 @@ public class RegistryService implements IRegistryService {
     private OwnershipDAO ownershipDAO;
     @Autowired
     private RecordDAO recordDAO;
+    @Autowired
+    private ShareDAO shareDAO;
 
 
     @Override
@@ -33,12 +38,16 @@ public class RegistryService implements IRegistryService {
                 .stream()
                 .collect(Collectors.groupingBy(s -> s.getOwner().getId(),
                         Collectors.filtering(s -> s.getOwnership() != null,
-                                Collectors.mapping(s -> new Room(s.getOwnership()),
+                                Collectors.mapping(s ->
+                                                new Room(s.getOwnership(),
+                                                        getShareFromRecord(s)),
                                         Collectors.toList()))));
         for (Long key : map.keySet()) {
             result.add(new ListRoomAndListClient(
                     map.get(key),
-                    List.of(new Client(ownerDAO.findById(key).get()))));
+                    List.of(new Client(
+                            ownerDAO.findById(key).get(),
+                            0.00))));
         }
         return Response
                 .builder()
@@ -54,15 +63,26 @@ public class RegistryService implements IRegistryService {
                 .stream()
                 .collect(Collectors.groupingBy(s -> s.getOwnership().getId(),
                         Collectors.filtering(s -> s.getOwner() != null,
-                                Collectors.mapping(s -> new Client(s.getOwner()),
+                                Collectors.mapping(s -> new Client(s.getOwner(),
+                                                getShareFromRecord(s)),
                                         Collectors.toList()))));
         for (Long key : map.keySet())
-            result.add(new ListRoomAndListClient(List.of(new Room(ownershipDAO.findById(key).get())), map.get(key)));
+            result.add(new ListRoomAndListClient(List.of(new Room(
+                    ownershipDAO.findById(key).get()
+                    , 0.00)), map.get(key)));
         return Response
                 .builder()
                 .data(result)
                 .messages(List.of(ServiceMessages.OK))
                 .build();
+    }
+
+    private Double getShareFromRecord(Record r) {
+        return shareDAO.findAll()
+                .stream()
+                .filter(s -> s.getOwnership().equals(r.getOwnership()))
+                .filter(s -> s.getOwner().equals(r.getOwner()))
+                .map(Share::getValue).findAny().orElse(0.00);
     }
 
     @Override

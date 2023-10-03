@@ -30,5 +30,12 @@ public class Account {
     @Column(name = "end_time")
     private LocalDate endTime;
 
-
 }
+
+//    id
+//    openingBalances
+//    debt
+//    credit
+//    balancesEndPeriod
+//    startTime
+//    endTime

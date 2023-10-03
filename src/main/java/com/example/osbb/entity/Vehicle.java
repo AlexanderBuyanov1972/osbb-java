@@ -48,3 +48,11 @@ public class Vehicle {
     private Owner owner;
 
 }
+
+//    id
+//    typeVehicle
+//    numberVehicle
+//    yearOfIssue
+//    typeColor
+//    typeManufacturer
+//    owner

@@ -1,7 +1,6 @@
 package com.example.osbb.service.questionnaire;
 
 import com.example.osbb.dao.*;
-import com.example.osbb.dto.polls.FullNameOwnerAndApartment;
 import com.example.osbb.dto.polls.ShareTotalAreaQuestionAnswer;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
@@ -28,6 +27,8 @@ public class QuestionnaireService implements IQuestionnaireService {
     OwnerDAO ownerDAO;
     @Autowired
     RecordDAO recordDAO;
+    @Autowired
+    ShareDAO shareDAO;
 
     //  result --------------------------------
     @Override
@@ -41,14 +42,14 @@ public class QuestionnaireService implements IQuestionnaireService {
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
 
-            // мапа для подсчёта голосов собственниками
+            // мапа для подсчёта голосов собственниками по квартирам
             // Map<Вопрос, Map<Ответ, Один голос>>
             Map<String, Map<TypeOfAnswer, Long>> mapCountPeople = baseList.stream()
                     .collect(Collectors.groupingBy(Questionnaire::getQuestion,
                             Collectors.groupingBy(Questionnaire::getAnswer, Collectors.counting())));
 
 
-            // мапа для подсчёта голосов квадратными метрами
+            // мапа для подсчёта голосов квадратными метрами по квартирам
             // Map<Вопрос, Map<Ответ, Квадратные метры>>
             Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
                     generateShareTotalAreaQuestionAnswer(baseList)
@@ -73,23 +74,23 @@ public class QuestionnaireService implements IQuestionnaireService {
     }
 
     private List<ShareTotalAreaQuestionAnswer> generateShareTotalAreaQuestionAnswer(List<Questionnaire> list) {
-
-        List<ShareTotalAreaQuestionAnswer> result = new ArrayList<>();
-        list.forEach(q -> {
-            String[] fios = q.getFullName().split(" ");
-            Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
-            result.add(new ShareTotalAreaQuestionAnswer(
-                    q.getQuestion(),
-                    q.getAnswer(),
-                    owner.getShareInRealEstate()
-                            *
-                            ownershipDAO.findByAddressApartment(q.getApartment()).getTotalArea())
-            );
-        });
-        return result;
+        return list.stream().map(this::computeShare).collect(Collectors.toList());
     }
 
-    // ----------------- one -------------------
+    private ShareTotalAreaQuestionAnswer computeShare(Questionnaire q) {
+        String[] fios = q.getFullName().split(" ");
+        return shareDAO.findAll().stream()
+                .filter(s -> s.getOwnership().getAddress().getApartment().equals(q.getApartment()))
+                .filter(s -> s.getOwner().getLastName().equals(fios[0]))
+                .filter(s -> s.getOwner().getFirstName().equals(fios[1]))
+                .filter(s -> s.getOwner().getSecondName().equals(fios[2]))
+                .map(s -> new ShareTotalAreaQuestionAnswer(
+                        q.getQuestion(),
+                        q.getAnswer(),
+                        s.getValue() * s.getOwnership().getTotalArea())).findFirst().get();
+    }
+
+    // one -----------------------------
     @Override
     @Transactional
     public Object createQuestionnaire(Questionnaire questionnaire) {
@@ -179,24 +180,27 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     }
 
-    // --------------- all --------------
+    // all -------------------------------
 
     @Override
     @Transactional
     public Object createAllQuestionnaire(List<Questionnaire> questionnaires) {
         try {
             recordDAO.findAll()
-                    .stream()
-                    .map(FullNameOwnerAndApartment::new)
                     .forEach(el -> {
                         questionnaires.forEach(s -> {
-                            questionnaireDAO.save(new Questionnaire(s, el));
+                            questionnaireDAO.save(
+                                    new Questionnaire(
+                                            s,
+                                            mapNamesToFullName(el.getOwner()),
+                                            el.getOwnership().getAddress().getApartment()));
                         });
                     });
+            int size = questionnaires.size();
             return Response
                     .builder()
-                    .data(List.of())
-                    .messages(List.of("Генерация прошла успешно.", "Удачного дня!"))
+                    .data(size)
+                    .messages(List.of("Создано " + size + " вопросов.", "Удачного дня!"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -207,19 +211,30 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Transactional
     public Object updateAllQuestionnaire(List<Questionnaire> questionnaires) {
         try {
-            List<Questionnaire> result = new ArrayList<>();
             for (Questionnaire one : questionnaires) {
                 if (questionnaireDAO.existsById(one.getId())) {
                     // устанавливаем дату прохождения опроса, опрос пройден
                     one.setDateReceiving(LocalDate.now());
-                    result.add(questionnaireDAO.save(one));
+                    questionnaireDAO.save(one);
                 }
             }
-            result.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
-            return result.isEmpty() ? new ResponseMessages(
-                    List.of(ServiceMessages.NOT_UPDATED))
-                    : Response.builder()
-                    .data(result)
+            //------------ start ------------------
+            for (Questionnaire two : questionnaires) {
+                List<Questionnaire> list = questionnaireDAO
+                        .findByTitleAndFullNameAndDateReceiving(two.getTitle(), two.getFullName(), null);
+                if (!list.isEmpty()) {
+                    list.forEach(el -> {
+                        if (el.getQuestion().equals(two.getQuestion())) {
+                            el.setAnswer(two.getAnswer());
+                            el.setDateReceiving(LocalDate.now());
+                            questionnaireDAO.save(el);
+                        }
+                    });
+                }
+            }
+            //------------ finish -----------------
+
+            return Response.builder()
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
@@ -254,6 +269,12 @@ public class QuestionnaireService implements IQuestionnaireService {
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
+    }
+
+    // other ------------------------------
+
+    private String mapNamesToFullName(Owner o) {
+        return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
     }
 
 }

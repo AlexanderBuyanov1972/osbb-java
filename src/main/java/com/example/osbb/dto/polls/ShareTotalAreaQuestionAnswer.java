@@ -11,5 +11,6 @@ import lombok.*;
 public class ShareTotalAreaQuestionAnswer {
     private String question;
     private TypeOfAnswer answer;
+    // доля в квартире умноженная на общую площадь той же квартиры
     private Double shareTotalArea;
 }

@@ -23,3 +23,8 @@ public class Rate {
     private Double price;
 }
 
+
+//    id
+//    period
+//    price
+

@@ -36,3 +36,10 @@ public class Passport {
     private Owner owner;
 
 }
+
+//    id
+//    numberPassport
+//    numberEntry
+//    dateIssue
+//    issuingAuthority
+//    owner

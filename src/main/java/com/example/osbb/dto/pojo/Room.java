@@ -1,6 +1,7 @@
 package com.example.osbb.dto.pojo;
 
 import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;
 import lombok.*;
 
@@ -28,8 +29,9 @@ public class Room {
     private String sewerage;
     private String heatSupply;
     private String heatMeter;
+    private Double share;
 
-    public Room(Ownership one) {
+    public Room(Ownership one, Double share) {
         this.id = one.getId();
         this.typeRoom = one.getTypeRoom();
         this.totalArea = one.getTotalArea();
@@ -48,6 +50,7 @@ public class Room {
         this.sewerage = one.getSewerage();
         this.heatSupply = one.getHeatSupply();
         this.heatMeter = one.getHeatMeter();
+        this.share = share;
     }
 
 }

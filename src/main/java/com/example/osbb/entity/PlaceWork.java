@@ -35,3 +35,11 @@ public class PlaceWork {
     private Owner owner;
 
 }
+
+//    id
+//    businessName
+//    address
+//    numberPhone
+//    position
+//    addition
+//    owner

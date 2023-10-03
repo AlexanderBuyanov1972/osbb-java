@@ -72,3 +72,16 @@ public class Address {
         return this;
     }
 }
+
+
+//    id
+//    zipCode
+//    country
+//    region
+//    city
+//    street
+//    house
+//    entrance
+//    floor
+//    apartment
+//    ownership

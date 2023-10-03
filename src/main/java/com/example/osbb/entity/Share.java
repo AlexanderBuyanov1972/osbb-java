@@ -1,29 +1,24 @@
 package com.example.osbb.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "records")
-public class Record {
+@NoArgsConstructor
+@Table(name = "shares")
+public class Share {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id")
     private long id;
 
-    @JoinColumn(name = "create_at")
-    private LocalDateTime createAt;
-
-    @JoinColumn(name = "update_at")
-    private LocalDateTime updateAt;
-
-    // many to one --------------------------
+    @Column(name = "value")
+    private Double value;
 
     @ManyToOne
     @JoinColumn(name = "ownership_id")
@@ -33,10 +28,12 @@ public class Record {
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
+    public Share(Double value) {
+        this.value = value;
+    }
 }
 
 //    id
-//    createAt
-//    updateAt
-//    ownership
+//    value
 //    owner
+//    ownership

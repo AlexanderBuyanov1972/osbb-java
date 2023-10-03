@@ -8,6 +8,7 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Room;
 import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
@@ -38,11 +39,11 @@ public class OwnershipService implements IOwnershipService {
             List<String> errors = new ArrayList<>();
             if (ownershipDAO.existsById(ownership.getId()))
                 errors.add(ServiceMessages.ALREADY_EXISTS);
-            return errors.isEmpty() ? List.of(Response
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(ownershipDAO.save(ownership))
                     .messages(List.of(ServiceMessages.OK))
-                    .build())
+                    .build()
                     :
                     new ResponseMessages(errors);
         } catch (Exception e) {
@@ -160,7 +161,7 @@ public class OwnershipService implements IOwnershipService {
     public Object getAllOwnership() {
         try {
             List<Room> result = ownershipDAO.findAll().stream()
-                    .map(Room::new)
+                    .map(s -> new Room(s, 0.00))
                     .sorted(comparatorByApartment())
                     .toList();
             return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
@@ -328,7 +329,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             return Response
                     .builder()
-                    .data(new Room(ownershipDAO.findByAddressApartment(apartment)))
+                    .data(new Room(ownershipDAO.findByAddressApartment(apartment), 0.00))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {

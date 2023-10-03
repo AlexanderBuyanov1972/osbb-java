@@ -1,6 +1,8 @@
 package com.example.osbb.dto.pojo;
 
 import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfBeneficiary;
 import com.example.osbb.enums.TypeOfFamilyStatus;
 import com.example.osbb.enums.TypeOfGender;
@@ -25,12 +27,12 @@ public class Client {
     private String email;
     private String phoneNumber;
     private LocalDate dateBirth;
-    private Double shareInRealEstate;
     private TypeOfFamilyStatus familyStatus;
     private TypeOfBeneficiary beneficiary;
     private String photoName;
+    private Double share;
 
-    public Client(Owner one) {
+    public Client(Owner one, Double share) {
         this.id = one.getId();
         this.firstName = one.getFirstName();
         this.secondName = one.getSecondName();
@@ -39,9 +41,9 @@ public class Client {
         this.email = one.getEmail();
         this.phoneNumber = one.getPhoneNumber();
         this.dateBirth = one.getDateBirth();
-        this.shareInRealEstate = one.getShareInRealEstate();
         this.familyStatus = one.getFamilyStatus();
         this.beneficiary = one.getBeneficiary();
         this.photoName = one.getPhoto().getName();
+        this.share = share;
     }
 }

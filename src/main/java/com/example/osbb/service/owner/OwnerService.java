@@ -7,6 +7,7 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Client;
 import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.Share;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,7 +158,7 @@ public class OwnerService implements IOwnerService {
         try {
             List<Client> result = ownerDAO.findAll()
                     .stream()
-                    .map(Client::new)
+                    .map(s-> new Client(s, Double.parseDouble("0")))
                     .sorted((a, b) -> a.getLastName().compareTo(b.getLastName()))
                     .toList();
             return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))

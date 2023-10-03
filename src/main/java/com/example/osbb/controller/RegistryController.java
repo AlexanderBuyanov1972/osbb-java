@@ -41,25 +41,5 @@ public class RegistryController {
 
     }
 
-    //----------------------------------------------------------------------
-
-    //check
-    @GetMapping(ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_3)
-    Object getListQuestionnaireByFullName(@PathVariable String fullName) {
-        return servicePojo.getListQuestionnaireByFullName(fullName);
-    }
-
-
-    //check
-    @GetMapping(ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_3)
-    Object getShareAreaFromHouseByFIO(@PathVariable String fullName) {
-        return servicePojo.getShareAreaFromHouseByFullName(fullName);
-    }
-
-    //check
-    @GetMapping(ApiConstants.SHARE + ApiConstants.TOTAL_AREA)
-    Object getListClientAndTotalArea() {
-        return servicePojo.getListClientAndTotalArea();
-    }
 
 }
