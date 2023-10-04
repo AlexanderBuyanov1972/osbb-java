@@ -44,9 +44,12 @@ public class QuestionnaireService implements IQuestionnaireService {
 
             // мапа для подсчёта голосов собственниками по квартирам
             // Map<Вопрос, Map<Ответ, Один голос>>
-            Map<String, Map<TypeOfAnswer, Long>> mapCountPeople = baseList.stream()
-                    .collect(Collectors.groupingBy(Questionnaire::getQuestion,
-                            Collectors.groupingBy(Questionnaire::getAnswer, Collectors.counting())));
+            Map<String, Map<TypeOfAnswer, Map<String, Long>>> mapCountPeople = baseList.stream()
+                    .collect(
+                            Collectors.groupingBy(Questionnaire::getQuestion,
+                                    Collectors.groupingBy(Questionnaire::getAnswer,
+                                            Collectors.groupingBy(Questionnaire::getFullName,
+                                                    Collectors.counting()))));
 
 
             // мапа для подсчёта голосов квадратными метрами по квартирам
@@ -59,13 +62,17 @@ public class QuestionnaireService implements IQuestionnaireService {
                                             Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
             // проверка если одна из мап пустая
             if (mapCountPeople.isEmpty() || mapCountArea.isEmpty()) {
-                messages.add("Нет данных для обработки результатов голосования.");
+                messages.addAll(List.of(
+                        "Нет данных для обработки результатов голосования",
+                        "Нужен хотя бы один проголосвавший"
+                ));
             }
-
             return messages.isEmpty() ? Response
                     .builder()
                     .data(List.of(mapCountPeople, mapCountArea))
-                    .messages(List.of("Результаты опроса " + title + " обработаны.", "Удачного дня!"))
+                    .messages(List.of(
+                            "Результаты опроса " + title + " обработаны.",
+                            "Удачного дня!"))
                     .build() : new ResponseMessages(messages);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -253,7 +260,10 @@ public class QuestionnaireService implements IQuestionnaireService {
             return Response
                     .builder()
                     .data(list)
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of(
+                            ServiceMessages.OK,
+                            "Получено " + list.size() + " записей"
+                    ))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));

@@ -25,4 +25,5 @@ public interface IShareService {
     public Object deleteAllShare();
     // other ----------------------
     public Object getShareByApartmentAndFullName(String apartment, String fullName);
+    public Object deleteShareByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId);
 }

@@ -7,6 +7,7 @@ import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.*;
 import com.example.osbb.dto.pojo.*;
 import com.example.osbb.dto.response.Response;
+import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.entity.Share;
@@ -36,17 +37,18 @@ public class RegistryService implements IRegistryService {
         List<ListRoomAndListClient> result = new ArrayList<>();
         Map<Long, List<Room>> map = recordDAO.findAll()
                 .stream()
-                .collect(Collectors.groupingBy(s -> s.getOwner().getId(),
-                        Collectors.filtering(s -> s.getOwnership() != null,
-                                Collectors.mapping(s ->
-                                                new Room(s.getOwnership(),
-                                                        getShareFromRecord(s)),
-                                        Collectors.toList()))));
+                .collect(Collectors.filtering(s -> s.getOwner().isActive(),
+                        Collectors.groupingBy(s -> s.getOwner().getId(),
+                                Collectors.filtering(s -> s.getOwnership() != null,
+                                        Collectors.mapping(s ->
+                                                        new Room(s.getOwnership(),
+                                                                getShareFromRecord(s)),
+                                                Collectors.toList())))));
         for (Long key : map.keySet()) {
             result.add(new ListRoomAndListClient(
                     map.get(key),
                     List.of(new Client(
-                            ownerDAO.findById(key).get(),
+                            ownerDAO.findById(key).orElse(new Owner()),
                             0.00))));
         }
         return Response
@@ -63,12 +65,13 @@ public class RegistryService implements IRegistryService {
                 .stream()
                 .collect(Collectors.groupingBy(s -> s.getOwnership().getId(),
                         Collectors.filtering(s -> s.getOwner() != null,
-                                Collectors.mapping(s -> new Client(s.getOwner(),
-                                                getShareFromRecord(s)),
-                                        Collectors.toList()))));
+                                Collectors.filtering(s -> s.getOwner().isActive(),
+                                        Collectors.mapping(s -> new Client(s.getOwner(),
+                                                        getShareFromRecord(s)),
+                                                Collectors.toList())))));
         for (Long key : map.keySet())
             result.add(new ListRoomAndListClient(List.of(new Room(
-                    ownershipDAO.findById(key).get()
+                    ownershipDAO.findById(key).orElse(new Ownership())
                     , 0.00)), map.get(key)));
         return Response
                 .builder()
@@ -107,15 +110,4 @@ public class RegistryService implements IRegistryService {
                 .build();
     }
 
-    // sorted -------------------
-    private List<Room> sortRoomsByApartment(List<Room> list) {
-        return list.stream().sorted((a, b) -> Integer.parseInt(a.getApartment())
-                        - Integer.parseInt(b.getApartment()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Client> sortClientsByLastName(List<Client> list) {
-        return list.stream().sorted((a, b) -> a.getLastName().compareToIgnoreCase(b.getLastName()))
-                .collect(Collectors.toList());
-    }
 }

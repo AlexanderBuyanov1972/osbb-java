@@ -3,12 +3,13 @@ package com.example.osbb.service.ownership;
 import com.example.osbb.dao.AddressDAO;
 import com.example.osbb.dao.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dao.RecordDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Room;
+import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Ownership;
-import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
@@ -26,11 +27,11 @@ public class OwnershipService implements IOwnershipService {
     @Autowired
     private OwnershipDAO ownershipDAO;
     @Autowired
-    private OwnerDAO ownerDAO;
+    private RecordDAO recordDAO;
     @Autowired
-    private AddressDAO addressDAO;
+    private OwnerDAO ownerDAO;
 
-    // ------------- one --------------------
+    // one --------------------------------------------
 
     @Override
     @Transactional
@@ -39,6 +40,8 @@ public class OwnershipService implements IOwnershipService {
             List<String> errors = new ArrayList<>();
             if (ownershipDAO.existsById(ownership.getId()))
                 errors.add(ServiceMessages.ALREADY_EXISTS);
+            if (ownershipDAO.existsByAddressApartment(ownership.getAddress().getApartment()))
+                errors.add("Помещение с таким APARTMENT уже существует");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(ownershipDAO.save(ownership))
@@ -53,18 +56,20 @@ public class OwnershipService implements IOwnershipService {
 
     @Override
     @Transactional
-    public Object updateOwnership(Ownership one) {
+    public Object updateOwnership(Ownership ownership) {
         try {
-            List<String> list = new ArrayList<>();
-            if (!ownershipDAO.existsById(one.getId()))
-                list.add(ServiceMessages.NOT_EXISTS);
-            return list.isEmpty() ? Response
+            List<String> errors = new ArrayList<>();
+            if (!ownershipDAO.existsById(ownership.getId()))
+                errors.add(ServiceMessages.NOT_EXISTS);
+            if (ownershipDAO.existsByAddressApartment(ownership.getAddress().getApartment()))
+                errors.add("Помещение с таким APARTMENT уже существует");
+            return errors.isEmpty() ? Response
                     .builder()
-                    .data(ownershipDAO.save(one))
+                    .data(ownershipDAO.save(ownership))
                     .messages(List.of(ServiceMessages.OK))
                     .build()
                     :
-                    new ResponseMessages(list);
+                    new ResponseMessages(errors);
 
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -78,7 +83,7 @@ public class OwnershipService implements IOwnershipService {
             return ownershipDAO.existsById(id) ?
                     Response
                             .builder()
-                            .data(ownershipDAO.findById(id).get())
+                            .data(ownershipDAO.findById(id).orElse(new Ownership()))
                             .messages(List.of(ServiceMessages.OK))
                             .build()
                     :
@@ -88,6 +93,19 @@ public class OwnershipService implements IOwnershipService {
 
         }
 
+    }
+
+    @Override
+    public Object getOwnershipByApartment(String apartment) {
+        try {
+            return Response
+                    .builder()
+                    .data(ownershipDAO.findByAddressApartment(apartment))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
     }
 
 
@@ -109,7 +127,7 @@ public class OwnershipService implements IOwnershipService {
         }
     }
 
-    // ------------------ all -------------------
+    // all -------------------------------------
 
     @Override
     @Transactional
@@ -126,7 +144,7 @@ public class OwnershipService implements IOwnershipService {
                     ServiceMessages.NOT_CREATED))
                     : Response
                     .builder()
-                    .data(returnListSortedById(result))
+                    .data(sortedById(result))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
@@ -149,7 +167,7 @@ public class OwnershipService implements IOwnershipService {
                     ServiceMessages.NOT_UPDATED))
                     : Response
                     .builder()
-                    .data(returnListSortedById(result))
+                    .data(sortedById(result))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
@@ -192,7 +210,7 @@ public class OwnershipService implements IOwnershipService {
         }
     }
 
-    // ------------------ summa ----------------------
+    // summa ----------------------
 
     @Override
     public Object summaAreaRooms() {
@@ -264,7 +282,7 @@ public class OwnershipService implements IOwnershipService {
 
     }
 
-    // --------------- count --------------------
+    // count --------------------
 
     @Override
     public Object countRooms() {
@@ -311,19 +329,8 @@ public class OwnershipService implements IOwnershipService {
 
     }
 
-    @Override
-    public Object getOwnershipByApartment(String apartment) {
-        try {
-            return Response
-                    .builder()
-                    .data(ownershipDAO.findByAddressApartment(apartment))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
-        }
-    }
 
+    // room --------------------------------
     @Override
     public Object getRoomByApartment(String apartment) {
         try {
@@ -337,23 +344,33 @@ public class OwnershipService implements IOwnershipService {
         }
     }
 
-    // sorted ************************************************************
-    private List<Ownership> returnListSortedById(List<Ownership> list) {
+    @Override
+    public Object getListApartmentsByFullName(String fullName) {
+        try {
+            String[] fios = fullName.split(" ");
+            Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
+
+            List<String> result = recordDAO.findAll().stream()
+                    .filter(s -> s.getOwner().getId() == owner.getId())
+                    .map(s -> "Квартира № " + s.getOwnership().getAddress().getApartment())
+                    .collect(Collectors.toList());
+
+
+            return Response
+                    .builder()
+                    .data(result.isEmpty() ?
+                            List.of("По данному собственнику не зарегистрировано ни одно помещение")
+                            : result)
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    // sorted -----------------------------------
+    private List<Ownership> sortedById(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
-    }
-
-    private Comparator<Ownership> comparatorById() {
-        return (p1, p2) -> Math.toIntExact(p1.getId() - p2.getId());
-    }
-
-    private List<Ownership> returnListSortedByApartment(List<Ownership> list) {
-        return list.stream().sorted((a, b) -> Integer.parseInt(a.getAddress().getApartment())
-                - Integer.parseInt(b.getAddress().getApartment())).collect(Collectors.toList());
-    }
-
-    private List<Room> returnListRoomSortedByApartment(List<Room> list) {
-        return list.stream().sorted((a, b) -> Integer.parseInt(a.getApartment())
-                - Integer.parseInt(b.getApartment())).collect(Collectors.toList());
     }
 
 }

@@ -98,7 +98,7 @@ public class RecordService implements IRecordService {
             }
             return list.isEmpty() ? Response
                     .builder()
-                    .data(recordDAO.findById(id).get())
+                    .data(recordDAO.findById(id).orElse(new Record()))
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(list);
         } catch (Exception e) {
@@ -198,12 +198,12 @@ public class RecordService implements IRecordService {
     @Override
     public Object getRoomsAndClientsByOwnershipId(Long id) {
         try {
-            List<Room> rooms = List.of(new Room(ownershipDAO.findById(id).get(),Double.parseDouble("0")));
+            List<Room> rooms = List.of(new Room(ownershipDAO.findById(id).orElse(new Ownership()), Double.parseDouble("0")));
             List<Client> clients = recordDAO.findAll()
                     .stream()
                     .filter(s -> s.getOwnership().getId() == id)
                     .map(s -> new Client(
-                            s.getOwner(),Double.parseDouble("0")))
+                            s.getOwner(), Double.parseDouble("0")))
                     .toList();
             return Response
                     .builder()
@@ -219,13 +219,13 @@ public class RecordService implements IRecordService {
     @Override
     public Object getRoomsAndClientsByOwnerId(Long id) {
         try {
-            List<Client> clients = List.of(new Client(ownerDAO.findById(id).get(), 0.00));
+            List<Client> clients = List.of(new Client(ownerDAO.findById(id).orElse(new Owner()), 0.00));
             List<Room> rooms = recordDAO.findAll()
                     .stream()
                     .filter(s -> s.getOwner().getId() == id)
                     .map(s -> new Room(
-                            s.getOwnership(),Double.parseDouble("0")
-                            ))
+                            s.getOwnership(), Double.parseDouble("0")
+                    ))
                     .toList();
             return Response
                     .builder()
@@ -257,6 +257,46 @@ public class RecordService implements IRecordService {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
+
+    @Override
+    public Object deleteRecordByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
+        try {
+            Record record = recordDAO.findAll().stream()
+                    .filter(s -> s.getOwner().getId() == ownerId)
+                    .filter(s -> s.getOwnership().getId() == ownershipId)
+                    .findFirst().orElse(null);
+            if (record == null) {
+                return Response
+                        .builder()
+                        .data(new Record())
+                        .messages(List.of("По данным ID собственника и ID помещения запись не существует"))
+                        .build();
+            }
+            recordDAO.deleteById(record.getId());
+
+            if (isRecordListEmptyByOwnerId(ownerId)) {
+                Owner owner = ownerDAO.findById(ownerId).get();
+                // деактивация собственника, по причине отсутствия долей с его участием
+                owner.setActive(false);
+                ownerDAO.save(owner);
+            }
+            return Response
+                    .builder()
+                    .data(record.getId())
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    public boolean isRecordListEmptyByOwnerId(Long id) {
+        return recordDAO.findAll()
+                .stream()
+                .filter(s -> s.getOwner().getId() == id)
+                .toList().isEmpty();
+    }
+
 
     // sorted ------------------------
     private List<Record> returnListSortedById(List<Record> list) {

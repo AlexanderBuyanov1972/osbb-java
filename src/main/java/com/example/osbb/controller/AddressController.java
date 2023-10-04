@@ -64,7 +64,7 @@ public class AddressController {
 
     // ----------- street, house and number apartment ------------
 
-    @GetMapping(ApiConstants.STREET + ApiConstants.HOUSE + ApiConstants.APARTMENT)
+    @GetMapping(ApiConstants.PARAM_STREET + ApiConstants.PARAM_HOUSE + ApiConstants.APARTMENT)
     public ResponseEntity<?> getAddress(
             @PathVariable String street,
             @PathVariable String house,

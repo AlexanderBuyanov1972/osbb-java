@@ -7,7 +7,6 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Client;
 import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Share;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +22,7 @@ public class OwnerService implements IOwnerService {
     @Autowired
     private OwnerDAO ownerDAO;
 
-    @Autowired
-    private OwnershipDAO ownershipDAO;
-
-    // ---------------- one -----------------
+    // one --------------------------------
     @Override
     @Transactional
     public Object createOwner(Owner owner) {
@@ -35,6 +31,14 @@ public class OwnerService implements IOwnerService {
             if (ownerDAO.existsById(owner.getId())) {
                 errors.add(ServiceMessages.ALREADY_EXISTS);
             }
+            if (ownerDAO.existsByLastNameAndFirstNameAndSecondName(
+                    owner.getLastName(),
+                    owner.getFirstName(),
+                    owner.getSecondName())) {
+                errors.add("Собственник с таким Ф.И.О. уже существует");
+            }
+            // активация собственника при создании
+            owner.setActive(true);
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
                     : Response.builder()
@@ -54,6 +58,12 @@ public class OwnerService implements IOwnerService {
             if (!ownerDAO.existsById(owner.getId())) {
                 errors.add(ServiceMessages.NOT_EXISTS);
             }
+            if (!ownerDAO.existsByLastNameAndFirstNameAndSecondName(
+                    owner.getLastName(),
+                    owner.getFirstName(),
+                    owner.getSecondName())) {
+                errors.add("Собственник с таким Ф.И.О. не существует");
+            }
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
                     : Response.builder()
@@ -71,13 +81,27 @@ public class OwnerService implements IOwnerService {
             return ownerDAO.existsById(id) ?
                     Response
                             .builder()
-                            .data(ownerDAO.findById(id).get())
+                            .data(ownerDAO.findById(id).orElse(new Owner()))
                             .messages(List.of(ServiceMessages.OK))
                             .build()
                     :
                     new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getOwnerByFullName(String fullName) {
+        try {
+            String[] fios = fullName.split(" ");
+            return Response
+                    .builder()
+                    .data(ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
 
@@ -100,17 +124,18 @@ public class OwnerService implements IOwnerService {
         }
     }
 
-    // ------------------ all -----------------------
+    // all -----------------------
 
     @Override
     @Transactional
     public Object createAllOwner(List<Owner> owners) {
         try {
             List<Owner> result = new ArrayList<>();
-            for (Owner contact : owners) {
-                if (!ownerDAO.existsById(contact.getId())) {
-                    ownerDAO.save(contact);
-                    result.add(contact);
+            for (Owner one : owners) {
+                if (!ownerDAO.existsById(one.getId())) {
+                    // активация собственников при создании
+                    one.setActive(true);
+                    result.add(ownerDAO.save(one));
                 }
             }
             return result.isEmpty() ?
@@ -118,7 +143,7 @@ public class OwnerService implements IOwnerService {
                             .of(ServiceMessages.NOT_CREATED))
                     : Response
                     .builder()
-                    .data(returnListSortedByLastName(result))
+                    .data(sortedByLastName(result))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception exception) {
@@ -144,7 +169,7 @@ public class OwnerService implements IOwnerService {
                     :
                     Response
                             .builder()
-                            .data(returnListSortedByLastName(result))
+                            .data(sortedByLastName(result))
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception exception) {
@@ -158,7 +183,8 @@ public class OwnerService implements IOwnerService {
         try {
             List<Client> result = ownerDAO.findAll()
                     .stream()
-                    .map(s-> new Client(s, Double.parseDouble("0")))
+                    .map(s -> new Client(s, Double.parseDouble("0")))
+//                    .filter(Client::isActive)
                     .sorted((a, b) -> a.getLastName().compareTo(b.getLastName()))
                     .toList();
             return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
@@ -183,6 +209,7 @@ public class OwnerService implements IOwnerService {
         }
     }
 
+    // count ------------------------------
     @Override
     public Object countOwners() {
         long count = ownerDAO.count();
@@ -198,22 +225,9 @@ public class OwnerService implements IOwnerService {
 
     }
 
-    @Override
-    public Object getOwnerByFullName(String fullName) {
-        try {
-            String[] fios = fullName.split(" ");
-            return Response
-                    .builder()
-                    .data(ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
-        }
-    }
 
-// sorted -------------------------------------------------------------
-    private List<Owner> returnListSortedByLastName(List<Owner> list) {
+    // sorted -------------------------------------------------------------
+    private List<Owner> sortedByLastName(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }
 

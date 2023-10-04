@@ -43,6 +43,8 @@ public class Owner {
     @Column(name = "beneficiary", nullable = false)
     @Enumerated(EnumType.STRING)
     private TypeOfBeneficiary beneficiary;
+    @Column(name="is_active")
+    private boolean isActive;
 
 
     // ----------- one to one -----------------

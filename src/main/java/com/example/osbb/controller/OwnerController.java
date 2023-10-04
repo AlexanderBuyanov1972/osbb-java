@@ -69,7 +69,7 @@ public class OwnerController {
     }
 
     // get owner by full name
-    @GetMapping(ApiConstants.FULLNAME +  ApiConstants.PARAM_3)
+    @GetMapping(ApiConstants.FULLNAME +  ApiConstants.PARAM_FULL_NAME)
     public ResponseEntity<?> getOwnerByFullName(@PathVariable String fullName) {
         return response.returnResponse(service.getOwnerByFullName(fullName));
     }

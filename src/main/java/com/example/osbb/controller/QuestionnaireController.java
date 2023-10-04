@@ -63,7 +63,7 @@ public class QuestionnaireController {
 
     // ------------------ results ----------------
 
-    @GetMapping(ApiConstants.RESULT + ApiConstants.PARAM_1)
+    @GetMapping(ApiConstants.RESULT + ApiConstants.PARAM_TITLE)
     public ResponseEntity<?> getResultOfQuestionnaireByTitle(@PathVariable String title) {
         return response.returnResponse(service.getResultOfQuestionnaireByTitle(title));
     }

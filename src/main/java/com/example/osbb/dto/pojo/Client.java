@@ -31,6 +31,7 @@ public class Client {
     private TypeOfBeneficiary beneficiary;
     private String photoName;
     private Double share;
+    private boolean isActive;
 
     public Client(Owner one, Double share) {
         this.id = one.getId();
@@ -45,5 +46,7 @@ public class Client {
         this.beneficiary = one.getBeneficiary();
         this.photoName = one.getPhoto().getName();
         this.share = share;
+        this.isActive = one.isActive();
+
     }
 }

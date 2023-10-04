@@ -52,17 +52,18 @@ public class ApiConstants {
 
     // ------------------ {} -----------------------
     public static final String ID = "/{id}";
-    public static final String STREET = "/{street}";
-    public static final String HOUSE = "/{house}";
-    public static final String PARAM_1 = "/{title}";
-    public static final String PARAM_2 = "/{question}";
-    public static final String PARAM_3 = "/{fullName}";
-    public static final String PARAM_4 = "/{apartment}";
-    public static final String PARAM_5 = "/{dateDispatch}";
-    public static final String PARAM_6 = "/{dateReceiving}";
+    public static final String PARAM_STREET = "/{street}";
+    public static final String PARAM_HOUSE = "/{house}";
+    public static final String PARAM_TITLE = "/{title}";
+    public static final String PARAM_QUESTION = "/{question}";
+    public static final String PARAM_FULL_NAME = "/{fullName}";
+    public static final String PARAM_APARTMENT = "/{apartment}";
+    public static final String PARAM_DATE_DISPATCH = "/{dateDispatch}";
+    public static final String PARAM_DATE_RECEIVING = "/{dateReceiving}";
+    public static final String PARAM_OWNER_ID = "/{ownerId}";
+    public static final String PARAM_OWNERSHIP_ID = "/{ownershipId}";
 
 
-    public static final String CHECK = "/check";
     public static final String SHARE = "/share";
     public static final String TOTAL_AREA = "/total_area";
     public static final String ROOM = "/room";

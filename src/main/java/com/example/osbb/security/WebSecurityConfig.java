@@ -46,10 +46,10 @@ public class WebSecurityConfig {
             ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
             // registry ---------------------
             ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS,
-            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_4,
-            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_3,
-            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.PARAM_3,
-            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_3,
+            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT,
+            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_FULL_NAME,
+            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.PARAM_FULL_NAME,
+            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_FULL_NAME,
             ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.TOTAL_AREA,
             // select -----------------------
             ApiConstants.SELECT, ApiConstants.SELECT + ApiConstants.SS,

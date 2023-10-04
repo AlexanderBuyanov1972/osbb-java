@@ -108,14 +108,19 @@ public class OwnershipController {
     }
 
     // get ownership by apartment -------------------------
-    @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_4)
+    @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getOwnershipByApartment(@PathVariable String apartment) {
         return response.returnResponse(service.getOwnershipByApartment(apartment));
     }
     // get room by apartment -------------------------
-    @GetMapping(ApiConstants.ROOM + ApiConstants.PARAM_4)
+    @GetMapping(ApiConstants.ROOM + ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getRoomByApartment(@PathVariable String apartment) {
         return response.returnResponse(service.getRoomByApartment(apartment));
+    }
+    // get list apartments by full name -----------------------
+    @GetMapping(ApiConstants.FULLNAME + ApiConstants.PARAM_FULL_NAME)
+    public ResponseEntity<?> getListApartmentsByFullName(@PathVariable String fullName) {
+        return response.returnResponse(service.getListApartmentsByFullName(fullName));
     }
 
 

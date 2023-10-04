@@ -55,4 +55,7 @@ public interface IOwnershipService {
 
     // get room by apartment -------------------------------
     public Object getRoomByApartment(String apartment);
+
+    // get list apartments by full name -------------------------------
+    public Object getListApartmentsByFullName(String fullName);
 }

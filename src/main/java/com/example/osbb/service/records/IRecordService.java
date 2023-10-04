@@ -31,4 +31,6 @@ public interface IRecordService {
     public Object getRoomsAndClientsByOwnerId(Long id);
 
     public Object getRecordByApartmentAndFullName(String apartment, String fullName);
+
+    public Object deleteRecordByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId);
 }

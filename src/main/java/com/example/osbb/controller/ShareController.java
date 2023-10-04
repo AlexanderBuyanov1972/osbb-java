@@ -35,7 +35,7 @@ public class ShareController {
         return response.returnResponse(service.getShare(id));
     }
 
-    @GetMapping(ApiConstants.PARAM_4 + ApiConstants.PARAM_3)
+    @GetMapping(ApiConstants.PARAM_APARTMENT + ApiConstants.PARAM_FULL_NAME)
     public ResponseEntity<?> getShareByApartmentAndFullName(
             @PathVariable String apartment,
             @PathVariable String fullName) {
@@ -67,6 +67,14 @@ public class ShareController {
     @DeleteMapping(ApiConstants.ALL)
     public ResponseEntity<?> deleteAllShare() {
         return response.returnResponse(service.deleteAllShare());
+    }
+
+    @DeleteMapping(ApiConstants.PARAM_OWNER_ID + ApiConstants.PARAM_OWNERSHIP_ID)
+    public ResponseEntity<?> deleteShareByOwnerIdAndOwnershipId(
+            @PathVariable Long ownerId,
+            @PathVariable Long ownershipId
+    ) {
+        return response.returnResponse(service.deleteShareByOwnerIdAndOwnershipId(ownerId, ownershipId));
     }
 
 

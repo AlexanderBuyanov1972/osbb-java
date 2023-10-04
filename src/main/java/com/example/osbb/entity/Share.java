@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode
 @Table(name = "shares")
 public class Share {
     @Id
@@ -28,9 +29,6 @@ public class Share {
     @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    public Share(Double value) {
-        this.value = value;
-    }
 }
 
 //    id

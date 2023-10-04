@@ -74,11 +74,18 @@ public class RecordController {
         return response.returnResponse(service.getRoomsAndClientsByOwnerId(id));
     }
 
-    @GetMapping(ApiConstants.PARAM_4 + ApiConstants.PARAM_3)
+    @GetMapping(ApiConstants.PARAM_APARTMENT + ApiConstants.PARAM_FULL_NAME)
     public ResponseEntity<?> getRecordByApartmentAndFullName(
             @PathVariable String apartment,
             @PathVariable String fullName) {
         return response.returnResponse(service.getRecordByApartmentAndFullName(apartment, fullName));
     }
+    @DeleteMapping(ApiConstants.PARAM_OWNER_ID + ApiConstants.PARAM_OWNERSHIP_ID)
+    public ResponseEntity<?> deleteRecordByOwnerIdAndOwnershipId(
+            @PathVariable Long ownerId,
+            @PathVariable Long ownershipId) {
+        return response.returnResponse(service.deleteRecordByOwnerIdAndOwnershipId(ownerId, ownershipId));
+    }
+
 
 }
