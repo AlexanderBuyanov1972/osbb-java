@@ -34,6 +34,10 @@ public class AddressController {
     public ResponseEntity<?> getAddress(@PathVariable Long id) {
         return response.returnResponse(service.getAddress(id));
     }
+    @GetMapping()
+    public ResponseEntity<?> getAddressStart() {
+        return response.returnResponse(service.getAddressStart());
+    }
 
     @DeleteMapping(ApiConstants.ID)
     public ResponseEntity<?> deleteAddress(@PathVariable Long id) {

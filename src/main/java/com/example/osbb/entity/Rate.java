@@ -16,11 +16,11 @@ public class Rate {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
-    private long id;
-    @Column(name = "period")
-    private LocalDate period;
+    private Long id;
+    @Column(name = "date")
+    private LocalDate date;
     @Column(name = "price")
-    private Double price;
+    private Double value;
 }
 
 

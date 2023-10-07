@@ -17,6 +17,6 @@ public interface ShareDAO extends JpaRepository<Share, Long> {
                                                                                                  String firstName,
                                                                                                  String secondName);
 
-    @Query(value = "SELECT * FROM SHARES WHERE OWNER_ID = ?1 AND OWNERSHIP_ID = ?2", nativeQuery = true)
-    Share findByOwnerOwnerIdAndOwnershipOwnershipId(long ownerId, long ownershipId);
+
+    Share findByOwnerIdAndOwnershipId(long ownerId, long ownershipId);
 }

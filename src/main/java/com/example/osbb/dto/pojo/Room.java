@@ -12,6 +12,7 @@ import lombok.*;
 @Builder
 public class Room {
     private long id;
+    private String personalAccount;
     private TypeOfRoom typeRoom;
     private double totalArea;
     private double livingArea;
@@ -33,6 +34,7 @@ public class Room {
 
     public Room(Ownership one, Double share) {
         this.id = one.getId();
+        this.personalAccount = one.getPersonalAccount();
         this.typeRoom = one.getTypeRoom();
         this.totalArea = one.getTotalArea();
         this.livingArea = one.getLivingArea();

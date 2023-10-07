@@ -37,7 +37,6 @@ public class RecordService implements IRecordService {
     ShareDAO shareDAO;
 
     @Override
-//    @Transactional
     public Object createRecord(Record record) {
         List<String> list = new ArrayList<>();
         try {
@@ -203,7 +202,10 @@ public class RecordService implements IRecordService {
                     .stream()
                     .filter(s -> s.getOwnership().getId() == id)
                     .map(s -> new Client(
-                            s.getOwner(), Double.parseDouble("0")))
+                            s.getOwner(), shareDAO.findByOwnerIdAndOwnershipId(
+                                    s.getOwner().getId(),
+                                    s.getOwnership().getId())
+                            .getValue()))
                     .toList();
             return Response
                     .builder()
@@ -275,7 +277,7 @@ public class RecordService implements IRecordService {
             recordDAO.deleteById(record.getId());
 
             if (isRecordListEmptyByOwnerId(ownerId)) {
-                Owner owner = ownerDAO.findById(ownerId).get();
+                Owner owner = ownerDAO.findById(ownerId).orElse(new Owner());
                 // деактивация собственника, по причине отсутствия долей с его участием
                 owner.setActive(false);
                 ownerDAO.save(owner);

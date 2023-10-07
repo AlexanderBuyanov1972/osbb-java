@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 @EnableJpaRepositories
 public interface RateDAO extends JpaRepository<Rate, Long> {
-    boolean existsByPeriod(LocalDate period);
-
-    Rate findByPeriod(LocalDate period);
+    boolean existsByDate(LocalDate date);
+    Rate findByDate(LocalDate date);
 }

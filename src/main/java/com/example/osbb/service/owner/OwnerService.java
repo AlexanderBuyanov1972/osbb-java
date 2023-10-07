@@ -31,13 +31,7 @@ public class OwnerService implements IOwnerService {
             if (ownerDAO.existsById(owner.getId())) {
                 errors.add(ServiceMessages.ALREADY_EXISTS);
             }
-            if (ownerDAO.existsByLastNameAndFirstNameAndSecondName(
-                    owner.getLastName(),
-                    owner.getFirstName(),
-                    owner.getSecondName())) {
-                errors.add("Собственник с таким Ф.И.О. уже существует");
-            }
-            // активация собственника при создании
+           // активация собственника при создании
             owner.setActive(true);
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
@@ -55,21 +49,11 @@ public class OwnerService implements IOwnerService {
     public Object updateOwner(Owner owner) {
         try {
             List<String> errors = new ArrayList<>();
-            if (!ownerDAO.existsById(owner.getId())) {
-                errors.add(ServiceMessages.NOT_EXISTS);
-            }
-            if (!ownerDAO.existsByLastNameAndFirstNameAndSecondName(
-                    owner.getLastName(),
-                    owner.getFirstName(),
-                    owner.getSecondName())) {
-                errors.add("Собственник с таким Ф.И.О. не существует");
-            }
-            return !errors.isEmpty() ?
-                    new ResponseMessages(errors)
-                    : Response.builder()
-                    .data(ownerDAO.save(owner))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build();
+            return ownerDAO.existsById(owner.getId()) ?
+                   Response.builder()
+                           .data(ownerDAO.save(owner))
+                           .messages(List.of(ServiceMessages.OK))
+                           .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class OwnershipService implements IOwnershipService {
-
     @Autowired
     private OwnershipDAO ownershipDAO;
     @Autowired
@@ -61,8 +60,8 @@ public class OwnershipService implements IOwnershipService {
             List<String> errors = new ArrayList<>();
             if (!ownershipDAO.existsById(ownership.getId()))
                 errors.add(ServiceMessages.NOT_EXISTS);
-            if (ownershipDAO.existsByAddressApartment(ownership.getAddress().getApartment()))
-                errors.add("Помещение с таким APARTMENT уже существует");
+            if (!ownershipDAO.existsByAddressApartment(ownership.getAddress().getApartment()))
+                errors.add("Помещение с таким APARTMENT не существует");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(ownershipDAO.save(ownership))

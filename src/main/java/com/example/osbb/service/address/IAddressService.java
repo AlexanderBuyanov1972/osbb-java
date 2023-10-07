@@ -12,6 +12,7 @@ public interface IAddressService {
     public Object updateAddress(Address address);
 
     public Object getAddress(Long id);
+    public Object getAddressStart();
 
     public Object deleteAddress(Long id);
 

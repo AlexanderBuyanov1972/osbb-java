@@ -66,9 +66,32 @@ public class AddressService implements IAddressService {
             }
             return errors.isEmpty() ? Response
                     .builder()
-                    .data(addressDAO.findById(id).get())
+                    .data(addressDAO.findById(id).orElse(new Address()))
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getAddressStart() {
+        try {
+            return Response
+                    .builder()
+                    .data(Address.builder()
+                            .zipCode("51931")
+                            .country("Украина")
+                            .region("Днепропетровская область")
+                            .city("Каменское")
+                            .street("Свободы")
+                            .house("51")
+                            .entrance("")
+                            .floor("")
+                            .apartment("")
+                            .build())
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

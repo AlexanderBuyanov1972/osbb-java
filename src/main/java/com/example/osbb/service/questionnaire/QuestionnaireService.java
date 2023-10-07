@@ -7,6 +7,7 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.Owner;
 import com.example.osbb.entity.Questionnaire;
+import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
@@ -34,32 +35,46 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     public Object getResultOfQuestionnaireByTitle(String title) {
         List<String> messages = new ArrayList<>();
+        List<Questionnaire> baseList = new ArrayList<>();
+        Map<String, Map<TypeOfAnswer, Map<String, Long>>> mapCountPeople = new HashMap<>();
+        Map<String, Map<TypeOfAnswer, Double>> mapCountArea = new HashMap<>();
         try {
             // базовый лист с которым работаем на счётчик голосов
-            List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
+            baseList = questionnaireDAO.findByTitle(title)
                     .stream()
                     .filter(x -> x.getDateReceiving() != null)
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of("Упали в базовом блоке при фолрмировании базового листа"));
+        }
+        try {
 
             // мапа для подсчёта голосов собственниками по квартирам
             // Map<Вопрос, Map<Ответ, Один голос>>
-            Map<String, Map<TypeOfAnswer, Map<String, Long>>> mapCountPeople = baseList.stream()
+            mapCountPeople = baseList.stream()
                     .collect(
                             Collectors.groupingBy(Questionnaire::getQuestion,
                                     Collectors.groupingBy(Questionnaire::getAnswer,
                                             Collectors.groupingBy(Questionnaire::getFullName,
                                                     Collectors.counting()))));
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of("Упали при формировании мапы для подсчёта голосов собственниками по квартирам"));
+        }
 
-
+        try {
             // мапа для подсчёта голосов квадратными метрами по квартирам
             // Map<Вопрос, Map<Ответ, Квадратные метры>>
-            Map<String, Map<TypeOfAnswer, Double>> mapCountArea =
+            mapCountArea =
                     generateShareTotalAreaQuestionAnswer(baseList)
                             .stream()
                             .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
                                     Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
                                             Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of("Упали при формировании мапы для для подсчёта голосов квадратными метрами по квартирам"));
+        }
+        try {
             // проверка если одна из мап пустая
             if (mapCountPeople.isEmpty() || mapCountArea.isEmpty()) {
                 messages.addAll(List.of(
@@ -87,14 +102,16 @@ public class QuestionnaireService implements IQuestionnaireService {
     private ShareTotalAreaQuestionAnswer computeShare(Questionnaire q) {
         String[] fios = q.getFullName().split(" ");
         return shareDAO.findAll().stream()
-                .filter(s -> s.getOwnership().getAddress().getApartment().equals(q.getApartment()))
+                .filter(Objects::nonNull)
                 .filter(s -> s.getOwner().getLastName().equals(fios[0]))
+                .filter(s -> s.getOwnership().getAddress().getApartment().equals(q.getApartment()))
                 .filter(s -> s.getOwner().getFirstName().equals(fios[1]))
                 .filter(s -> s.getOwner().getSecondName().equals(fios[2]))
                 .map(s -> new ShareTotalAreaQuestionAnswer(
                         q.getQuestion(),
                         q.getAnswer(),
-                        s.getValue() * s.getOwnership().getTotalArea())).findFirst().get();
+                        s.getValue() * s.getOwnership().getTotalArea())).findFirst().orElse(
+                        new ShareTotalAreaQuestionAnswer());
     }
 
     // one -----------------------------

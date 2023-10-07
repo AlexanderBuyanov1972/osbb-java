@@ -21,14 +21,13 @@ public class RateService implements IRateService {
     // ---------------- one -----------------
 
     @Override
-    @Transactional
     public Object createRate(Rate rate) {
         try {
             List<String> errors = new ArrayList<>();
             if (rateDAO.existsById(rate.getId()))
                 errors.add("Тариф с таким ID уже существует.");
-            if (rateDAO.existsByPeriod(rate.getPeriod()))
-                errors.add("Тариф с таким периодом уже существует.");
+            if (rateDAO.existsByDate(rate.getDate()))
+                errors.add("Тариф с такой датой уже существует.");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(rateDAO.save(rate))
@@ -41,18 +40,17 @@ public class RateService implements IRateService {
     }
 
     @Override
-    @Transactional
     public Object updateRate(Rate rate) {
         try {
             List<String> errors = new ArrayList<>();
-            if (rateDAO.existsById(rate.getId()))
+            if (!rateDAO.existsById(rate.getId()))
                 errors.add("Тариф с таким ID не существует.");
-            if (rateDAO.existsByPeriod(rate.getPeriod()))
-                errors.add("Тариф с таким периодом не существует.");
+            if (!rateDAO.existsByDate(rate.getDate()))
+                errors.add("Тариф с такой датой не существует.");
             return errors.isEmpty() ? Response
                     .builder()
                     .data(rateDAO.save(rate))
-                    .messages(List.of("Тариф создан успешно.", "Удачного дня!"))
+                    .messages(List.of("Тариф создан успешно."))
                     .build() : new ResponseMessages(errors);
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -67,8 +65,8 @@ public class RateService implements IRateService {
             if (rateDAO.existsById(id)) {
                 return Response
                         .builder()
-                        .data(rateDAO.findById(id).get())
-                        .messages(List.of("Тариф получен успешно.", "Удачного дня!"))
+                        .data(rateDAO.findById(id).orElse(new Rate()))
+                        .messages(List.of("Тариф получен успешно."))
                         .build();
             }
             return new ResponseMessages(List.of("Тариф с таким ID уже существует."));
@@ -79,7 +77,6 @@ public class RateService implements IRateService {
     }
 
     @Override
-    @Transactional
     public Object deleteRate(Long id) {
         try {
             if (rateDAO.existsById(id)) {
@@ -112,7 +109,7 @@ public class RateService implements IRateService {
             }
             return result.isEmpty() ? new ResponseMessages(List
                     .of("Ни один из тарифов создан не был. Тарифы с такими ID уже существуют."))
-                    :  Response
+                    : Response
                     .builder()
                     .data(returnListSorted(result))
                     .messages(List.of("Успешно создано " + result.size() + " тарифов из " + rates.size() + ".", "Удачного дня!"))
@@ -175,7 +172,7 @@ public class RateService implements IRateService {
 
     }
 
-    private List<Rate> returnListSorted(List<Rate> list){
+    private List<Rate> returnListSorted(List<Rate> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 

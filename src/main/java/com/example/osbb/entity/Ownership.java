@@ -54,6 +54,8 @@ public class Ownership {
     //тепловой счётчик
     @Column(name = "heat_meter")
     private String heatMeter;
+    @Column(name = "personal_account")
+    private String personalAccount;
 
     // one to one -------------------------
 
