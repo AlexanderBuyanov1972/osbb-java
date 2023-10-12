@@ -1,13 +1,15 @@
 package com.example.osbb.service.questionnaire;
 
 import com.example.osbb.dao.*;
+import com.example.osbb.dao.owner.OwnerDAO;
+import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.dao.polls.QuestionnaireDAO;
 import com.example.osbb.dto.polls.ShareTotalAreaQuestionAnswer;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Questionnaire;
-import com.example.osbb.entity.Share;
+import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.entity.polls.Questionnaire;
 import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;

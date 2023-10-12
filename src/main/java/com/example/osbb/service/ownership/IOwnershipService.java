@@ -1,6 +1,6 @@
 package com.example.osbb.service.ownership;
 
-import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.ownership.Ownership;
 
 import java.util.List;
 
@@ -53,9 +53,12 @@ public interface IOwnershipService {
     // get ownership by apartment -------------------------------
     public Object getOwnershipByApartment(String apartment);
 
+    public Object getPersonalAccountByApartment(String apartment);
+
     // get room by apartment -------------------------------
     public Object getRoomByApartment(String apartment);
 
     // get list apartments by full name -------------------------------
     public Object getListApartmentsByFullName(String fullName);
+
 }

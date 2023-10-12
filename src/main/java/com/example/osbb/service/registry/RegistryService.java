@@ -1,14 +1,14 @@
 package com.example.osbb.service.registry;
 
-import com.example.osbb.dao.OwnerDAO;
-import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dao.owner.OwnerDAO;
+import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
 import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.*;
 import com.example.osbb.dto.pojo.*;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;

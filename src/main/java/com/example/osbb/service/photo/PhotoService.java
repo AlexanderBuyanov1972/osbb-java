@@ -1,10 +1,10 @@
 package com.example.osbb.service.photo;
 
-import com.example.osbb.dao.PhotoDAO;
+import com.example.osbb.dao.owner.PhotoDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.Photo;
+import com.example.osbb.entity.owner.Photo;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +22,12 @@ public class PhotoService implements IPhotoService {
     @Override
     @Transactional
     public Object createPhoto(Photo photo) {
-        List<String> list = new ArrayList<>();
         try {
-            if (photoDAO.existsById(photo.getId())) {
-                list.add(ServiceMessages.ALREADY_EXISTS);
-            }
-            return list.isEmpty() ? Response
+            return Response
                     .builder()
                     .data(photoDAO.save(photo))
                     .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
+                    .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -64,7 +60,7 @@ public class PhotoService implements IPhotoService {
             }
             return list.isEmpty() ? Response
                     .builder()
-                    .data(photoDAO.findById(id).get())
+                    .data(photoDAO.findById(id).orElse(new Photo()))
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(list);
         } catch (Exception e) {
@@ -106,7 +102,7 @@ public class PhotoService implements IPhotoService {
                     .of(ServiceMessages.NOT_CREATED))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(listSorted(result))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {
@@ -128,7 +124,7 @@ public class PhotoService implements IPhotoService {
                     .of(ServiceMessages.NOT_UPDATED))
                     : Response
                     .builder()
-                    .data(returnListSorted(result))
+                    .data(listSorted(result))
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {
@@ -145,7 +141,7 @@ public class PhotoService implements IPhotoService {
                     :
                     Response
                             .builder()
-                            .data(returnListSorted(result))
+                            .data(listSorted(result))
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
@@ -165,7 +161,7 @@ public class PhotoService implements IPhotoService {
     }
 
     // sorted ------------------------
-    private List<Photo> returnListSorted(List<Photo> list) {
+    private List<Photo> listSorted(List<Photo> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 }

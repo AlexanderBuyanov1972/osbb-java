@@ -1,12 +1,12 @@
 package com.example.osbb.service.share;
 
-import com.example.osbb.dao.OwnerDAO;
+import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Ownership;
+import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Share;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;

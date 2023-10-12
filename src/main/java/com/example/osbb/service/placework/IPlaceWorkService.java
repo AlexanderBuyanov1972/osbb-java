@@ -1,8 +1,6 @@
 package com.example.osbb.service.placework;
 
-import com.example.osbb.entity.PlaceWork;
-import com.example.osbb.entity.Rate;
-import jakarta.transaction.Transactional;
+import com.example.osbb.entity.owner.PlaceWork;
 
 import java.util.List;
 

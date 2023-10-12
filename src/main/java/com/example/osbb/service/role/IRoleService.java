@@ -1,6 +1,5 @@
 package com.example.osbb.service.role;
 
-import com.example.osbb.entity.Rate;
 import com.example.osbb.entity.authorization.Role;
 
 import java.util.List;

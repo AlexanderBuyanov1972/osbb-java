@@ -1,8 +1,7 @@
 package com.example.osbb.service.questionnaire;
 
-import com.example.osbb.entity.Questionnaire;
+import com.example.osbb.entity.polls.Questionnaire;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface IQuestionnaireService {

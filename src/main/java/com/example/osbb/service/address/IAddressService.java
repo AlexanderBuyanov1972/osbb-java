@@ -1,6 +1,6 @@
 package com.example.osbb.service.address;
 
-import com.example.osbb.entity.Address;
+import com.example.osbb.entity.ownership.Address;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
 package com.example.osbb.dto.pojo;
 
-import com.example.osbb.entity.Ownership;
-import com.example.osbb.entity.Share;
+import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
 import lombok.*;
 

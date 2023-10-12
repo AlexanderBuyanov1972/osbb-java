@@ -1,7 +1,7 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.entity.Record;
-import com.example.osbb.service.records.IRecordService;
+import com.example.osbb.service.record.IRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,5 +1,7 @@
 package com.example.osbb.entity;
 
+import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.entity.ownership.Ownership;
 import jakarta.persistence.*;
 import lombok.*;
 

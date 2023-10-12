@@ -1,7 +1,6 @@
 package com.example.osbb.service.vehicle;
 
-import com.example.osbb.entity.Address;
-import com.example.osbb.entity.Vehicle;
+import com.example.osbb.entity.owner.Vehicle;
 
 import java.util.List;
 

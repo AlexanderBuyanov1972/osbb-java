@@ -1,10 +1,10 @@
 package com.example.osbb.service.rate;
 
-import com.example.osbb.dao.RateDAO;
+import com.example.osbb.dao.account.RateDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.Rate;
+import com.example.osbb.entity.account.Rate;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -97,18 +97,20 @@ public class RateService implements IRateService {
     // ------------------ all -----------------------
 
     @Override
-    @Transactional
     public Object createAllRate(List<Rate> rates) {
         try {
             List<Rate> result = new ArrayList<>();
             for (Rate rate : rates) {
-                if (!rateDAO.existsById(rate.getId())) {
+                if (!rateDAO.existsById(rate.getId()) &&
+                        !rateDAO.existsByDate(rate.getDate())) {
                     rateDAO.save(rate);
                     result.add(rate);
                 }
             }
             return result.isEmpty() ? new ResponseMessages(List
-                    .of("Ни один из тарифов создан не был. Тарифы с такими ID уже существуют."))
+                    .of("Ни один из тарифов создан не был",
+                        "Тарифы с такими ID уже существуют или...",
+                        "Тарифы с такими датами уже существуют"))
                     : Response
                     .builder()
                     .data(returnListSorted(result))

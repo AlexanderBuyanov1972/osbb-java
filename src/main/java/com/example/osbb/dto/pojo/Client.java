@@ -1,14 +1,9 @@
 package com.example.osbb.dto.pojo;
 
-import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Ownership;
-import com.example.osbb.entity.Share;
+import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.enums.TypeOfBeneficiary;
 import com.example.osbb.enums.TypeOfFamilyStatus;
 import com.example.osbb.enums.TypeOfGender;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.time.LocalDate;

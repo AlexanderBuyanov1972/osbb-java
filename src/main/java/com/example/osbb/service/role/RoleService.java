@@ -1,6 +1,6 @@
 package com.example.osbb.service.role;
 
-import com.example.osbb.dao.RoleDAO;
+import com.example.osbb.dao.authorization.RoleDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;

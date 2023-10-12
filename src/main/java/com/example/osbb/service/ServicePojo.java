@@ -1,22 +1,14 @@
 package com.example.osbb.service;
 
-import com.example.osbb.dao.OwnerDAO;
-import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dao.owner.OwnerDAO;
+import com.example.osbb.dao.ownership.OwnershipDAO;
 
-import com.example.osbb.dao.QuestionnaireDAO;
+import com.example.osbb.dao.polls.QuestionnaireDAO;
 import com.example.osbb.dao.RecordDAO;
-import com.example.osbb.dto.pojo.*;
-import com.example.osbb.entity.Owner;
-import com.example.osbb.entity.Ownership;
 
 import com.example.osbb.entity.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ServicePojo {

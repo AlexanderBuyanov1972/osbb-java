@@ -1,6 +1,12 @@
 package com.example.osbb.dto;
 
+import com.example.osbb.dto.response.BodyInvoiceNotification;
+import com.example.osbb.dto.response.HeaderInvoiceNotification;
+import com.example.osbb.entity.ownership.Address;
 import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -8,13 +14,23 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class InvoiceNotification {
-    private Double debtAtBeginningPeriod;
-    private Double rate;
-    private Double accrued;
-    private Double recalculationForServicesNotReceived;
-    private Double subsidyMonetization;
-    private Double monetizationBenefits;
-    private Double paid;
-    private Double finalDebtForPeriod;
+    private HeaderInvoiceNotification header;
+    private BodyInvoiceNotification body;
+
 
 }
+
+//    apartment
+//    personalAccount
+//    currentDateTime
+
+//    beginningPeriod
+//    debtAtBeginningPeriod;
+//    rate
+//    accrued
+//    recalculationForServicesNotReceived
+//    subsidyMonetization
+//    monetizationBenefits
+//    paid
+//    debtAtFinalizingPeriod
+//    finalizingPeriod

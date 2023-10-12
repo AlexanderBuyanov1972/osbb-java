@@ -14,7 +14,7 @@ import com.example.osbb.service.owner.IOwnerService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.osbb.dao.UserDAO;
+import com.example.osbb.dao.authorization.UserDAO;
 import com.example.osbb.entity.authorization.User;
 
 @Service

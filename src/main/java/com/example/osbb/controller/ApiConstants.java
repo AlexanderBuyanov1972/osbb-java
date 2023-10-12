@@ -1,31 +1,49 @@
 package com.example.osbb.controller;
 
 public class ApiConstants {
-    // -------------------- BASE -------------------
-    public static final String REGISTRY = "/registry";
-    public static final String ADDRESS = "/address";
-    public static final String APARTMENT = "/apartment";
+    // owner -----------------
     public static final String PASSPORT = "/passport";
     public static final String VEHICLE = "/vehicle";
-    public static final String USER = "/user";
-    public static final String ROLE = "/role";
     public static final String PHOTO = "/photo";
     public static final String OWNER = "/owner";
+    public static final String PLACE_WORK = "/place_work";
+    // ownership -------------
     public static final String OWNERSHIP = "/ownership";
+    public static final String ADDRESS = "/address";
+    public static final String APARTMENT = "/apartment";
+    public static final String ROOM = "/room";
+    public static final String CHARACTERISTICS = "/characteristics";
+
+    // payment ---------------
+    public static final String DETAILS = "/details";
+    public static final String DEBT = "/debt";
+    public static final String PAYMENT = "/payment";
+    public static final String PERSONAL_ACCOUNT = "/personal_account";
+    public static final String DATE = "/date";
+    public static final String RATE = "/rate";
+
+    // polls ------------------------
     public static final String QUESTIONNAIRE = "/questionnaire";
 
     public static final String SELECT = "/select";
-    public static final String RATE = "/rate";
     public static final String TITLE = "/title";
-    public static final String FULLNAME = "/full_name";
+    public static final String FULL_NAME = "/full_name";
     public static final String QUESTION = "/question";
     public static final String DATE_DISPATCH = "/date_dispatch";
     public static final String DATE_RECEIVING = "/date_receiving";
-    public static final String PLACE_WORK = "/place_work";
-//    public static final String GENERATION = "/generation";
-    public static final String CHARACTERISTICS = "/characteristics";
+    public static final String RESULT = "/result";
+
+    // authorization ----------------
+    public static final String USER = "/user";
+    public static final String ROLE = "/role";
+
+    // other ------------------------------
+    public static final String RECORD = "/record";
+    public static final String REGISTRY = "/registry";
+    public static final String SHARE = "/share";
 
     // --------------- summa ------------------
+    public static final String SUMMA = "/summa";
     public static final String SUMMA_AREA_ROOMS = "/summa_area_rooms";
     public static final String SUMMA_AREA_APARTMENT = "/summa_area_apartment";
     public static final String SUMMA_AREA_LIVING_APARTMENT = "/summa_area_living_apartment";
@@ -45,12 +63,9 @@ public class ApiConstants {
     // --------------------------------------------
     public static final String ALL = "/all";
     public static final String REGISTRATION_NUMBER = "/registration_number";
-    public static final String ONE_OWNERSHIP_LIST_OWNER = "/one_ownership_list_owner";
-    public static final String NAME = "/name";
-    public static final String RESULT = "/result";
     public static final String SS = "/**";
 
-    // ------------------ {} -----------------------
+    // params {} -----------------------
     public static final String ID = "/{id}";
     public static final String PARAM_STREET = "/{street}";
     public static final String PARAM_HOUSE = "/{house}";
@@ -62,10 +77,10 @@ public class ApiConstants {
     public static final String PARAM_DATE_RECEIVING = "/{dateReceiving}";
     public static final String PARAM_OWNER_ID = "/{ownerId}";
     public static final String PARAM_OWNERSHIP_ID = "/{ownershipId}";
+    public static final String PARAM_DATE = "/{date}";
+    public static final String PARAM_PERSONAL_ACCOUNT = "/{personalAccount}";
+    public static final String PARAM_FROM = "/{from}";
+    public static final String PARAM_TO = "/{to}";
 
 
-    public static final String SHARE = "/share";
-    public static final String TOTAL_AREA = "/total_area";
-    public static final String ROOM = "/room";
-    public static final String RECORD = "/record";
 }

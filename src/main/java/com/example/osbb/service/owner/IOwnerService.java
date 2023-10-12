@@ -1,6 +1,6 @@
 package com.example.osbb.service.owner;
 
-import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.owner.Owner;
 
 import java.util.List;
 

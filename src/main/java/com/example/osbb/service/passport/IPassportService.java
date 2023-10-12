@@ -1,6 +1,6 @@
 package com.example.osbb.service.passport;
 
-import com.example.osbb.entity.Passport;
+import com.example.osbb.entity.owner.Passport;
 
 import java.util.List;
 

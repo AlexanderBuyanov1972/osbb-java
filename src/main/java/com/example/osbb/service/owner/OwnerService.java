@@ -1,12 +1,11 @@
 package com.example.osbb.service.owner;
 
-import com.example.osbb.dao.OwnerDAO;
-import com.example.osbb.dao.OwnershipDAO;
+import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.dto.pojo.Client;
-import com.example.osbb.entity.Owner;
+import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

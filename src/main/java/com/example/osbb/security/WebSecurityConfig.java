@@ -24,6 +24,7 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
+            ApiConstants.PAYMENT, ApiConstants.PAYMENT + ApiConstants.SS,
             ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS,
             ApiConstants.SHARE, ApiConstants.SHARE + ApiConstants.SS,
             ApiConstants.USER, ApiConstants.USER + ApiConstants.SS,
@@ -34,35 +35,26 @@ public class WebSecurityConfig {
             ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS,
             ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS,
             ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS,
-            // questionnaire ----------------
             ApiConstants.QUESTIONNAIRE, ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
-            ApiConstants.QUESTIONNAIRE + ApiConstants.ALL,
-            ApiConstants.QUESTIONNAIRE + ApiConstants.RESULT + ApiConstants.SS,
-            // ownership --------------------
-            ApiConstants.OWNERSHIP,
-            ApiConstants.OWNERSHIP + ApiConstants.ID,
-            ApiConstants.OWNERSHIP + ApiConstants.SS,
-            ApiConstants.OWNERSHIP + ApiConstants.OWNER + ApiConstants.APARTMENT + ApiConstants.SS,
-            ApiConstants.OWNERSHIP + ApiConstants.NAME + ApiConstants.SS,
-            ApiConstants.OWNERSHIP + ApiConstants.ONE_OWNERSHIP_LIST_OWNER + ApiConstants.SS,
+            ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
             // registry ---------------------
             ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS,
-            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT,
-            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.ALL + ApiConstants.PARAM_FULL_NAME,
-            ApiConstants.REGISTRY + ApiConstants.FULLNAME + ApiConstants.PARAM_FULL_NAME,
-            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULLNAME + ApiConstants.PARAM_FULL_NAME,
-            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.TOTAL_AREA,
+//            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT,
+//            ApiConstants.REGISTRY + ApiConstants.FULL_NAME + ApiConstants.ALL + ApiConstants.PARAM_FULL_NAME,
+//            ApiConstants.REGISTRY + ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME,
+//            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME,
+//            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.TOTAL_AREA,
             // select -----------------------
             ApiConstants.SELECT, ApiConstants.SELECT + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.FULLNAME + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.ALL,
-            ApiConstants.SELECT + ApiConstants.QUESTION + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.FULLNAME + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.APARTMENT + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.DATE_DISPATCH + ApiConstants.SS,
-            ApiConstants.SELECT + ApiConstants.DATE_RECEIVING + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.FULL_NAME + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.ALL,
+//            ApiConstants.SELECT + ApiConstants.QUESTION + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.FULL_NAME + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.APARTMENT + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.DATE_DISPATCH + ApiConstants.SS,
+//            ApiConstants.SELECT + ApiConstants.DATE_RECEIVING + ApiConstants.SS,
     };
     private final String[] publicPath = new String[]{ApiConstants.REGISTRATION, ApiConstants.LOGIN};
 
