@@ -198,9 +198,9 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
     }
 
     @Override
-    public Object selectAllQuestionnaireByFullNameAndApartment(String fullname, String apartment) {
+    public Object selectAllQuestionnaireByFullNameAndApartment(String fullName, String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByFullNameAndApartment(fullname, apartment)
+            List<Questionnaire> list = questionnaireDAO.findByFullNameAndApartment(fullName, apartment)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
@@ -249,9 +249,9 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
     // three ------------------------------------------
 
     @Override
-    public Object selectAllQuestionnaireByTitleAndFullNameAndApartment(String title, String fullname, String apartment) {
+    public Object selectAllQuestionnaireByTitleAndFullNameAndApartment(String title, String fullName, String apartment) {
         try {
-            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullNameAndApartment(title, fullname, apartment)
+            List<Questionnaire> list = questionnaireDAO.findByTitleAndFullNameAndApartment(title, fullName, apartment)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();

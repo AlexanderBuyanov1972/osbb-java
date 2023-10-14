@@ -23,7 +23,7 @@ public class ApiConstants {
     public static final String RATE = "/rate";
 
     // polls ------------------------
-    public static final String QUESTIONNAIRE = "/questionnaire";
+    public static final String QUESTIONNAIRES = "/questionnaires";
 
     public static final String SELECT = "/select";
     public static final String TITLE = "/title";

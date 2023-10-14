@@ -36,24 +36,37 @@ public class RecordService implements IRecordService {
 
     @Override
     public Object createRecord(Record record) {
-        List<String> list = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
         try {
+            if (record.getOwnership() == null)
+                errors.add("В этой записи помещение не существует");
+            if (record.getOwner() == null)
+                errors.add("В этой записи собственник не существует");
             if (recordDAO.existsById(record.getId())) {
-                list.add(ServiceMessages.ALREADY_EXISTS);
+                errors.add(ServiceMessages.ALREADY_EXISTS);
             }
             if (recordDAO.existsByOwnershipIdAndOwnerId(record.getOwnership().getId(), record.getOwner().getId())) {
-                list.addAll(List.of(
+                errors.addAll(List.of(
                         "Запись с таким номером помещения и с таким Ф.И.О. обственника уже существует.",
                         "Проверьте правильность заполнения данных.",
                         "Не может быть две записи одинаковых записи по номеру помещения и Ф.И.О. обственника одновременно."
                 ));
             }
-            record.setCreateAt(LocalDateTime.now());
-            return list.isEmpty() ? Response
+            if (errors.isEmpty()) {
+                Owner owner = record.getOwner();
+                owner.setActive(true);
+                record.setOwner(owner);
+                ownerDAO.save(owner);
+                record.setCreateAt(LocalDateTime.now());
+            }
+
+
+
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(recordDAO.save(record))
                     .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -62,13 +75,17 @@ public class RecordService implements IRecordService {
     @Override
 //    @Transactional
     public Object updateRecord(Record record) {
-        List<String> list = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
         try {
+            if (record.getOwnership() == null)
+                errors.add("В этой записи помещение не существует");
+            if (record.getOwner() == null)
+                errors.add("В этой записи собственник не существует");
             if (!recordDAO.existsById(record.getId())) {
-                list.add(ServiceMessages.NOT_EXISTS);
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
             if (!recordDAO.existsByOwnershipIdAndOwnerId(record.getOwnership().getId(), record.getOwner().getId())) {
-                list.addAll(List.of(
+                errors.addAll(List.of(
                         "Запись с таким номером помещения и с таким Ф.И.О. обственника отсутствует.",
                         "Проверьте правильность заполнения данных.",
                         "Невозможно обновить запись, которая не существует в базе данных."
@@ -76,11 +93,11 @@ public class RecordService implements IRecordService {
             }
             record.setUpdateAt(LocalDateTime.now());
 
-            return list.isEmpty() ? Response
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(recordDAO.save(record))
                     .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }

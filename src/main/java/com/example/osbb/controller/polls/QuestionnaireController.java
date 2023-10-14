@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.QUESTIONNAIRE)
+@RequestMapping(value = ApiConstants.QUESTIONNAIRES)
 public class QuestionnaireController {
 
     @Autowired
@@ -19,54 +19,44 @@ public class QuestionnaireController {
 
     @Autowired
     private HelpMethodsForController response;
-    // -------------- one ----------------
-
-    @PostMapping
-    public ResponseEntity<?> createQuestionnaire(@RequestBody Questionnaire questionnaire) {
-        return response.returnResponse(service.createQuestionnaire(questionnaire));
-    }
-
-    @PutMapping
-    public ResponseEntity<?> updateQuestionnaire(@RequestBody Questionnaire questionnaire) {
-        return response.returnResponse(service.updateQuestionnaire(questionnaire));
-    }
-
-    @GetMapping(ApiConstants.ID)
-    public ResponseEntity<?> getQuestionnaire(@PathVariable Long id) {
-        return response.returnResponse(service.getQuestionnaire(id));
-    }
-
-    @DeleteMapping(ApiConstants.ID)
-    public ResponseEntity<?> deleteQuestionnaire(@PathVariable Long id) {
-        return response.returnResponse(service.deleteQuestionnaire(id));
-    }
 
     // ------------------- all ---------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping
     public ResponseEntity<?> createAllQuestionnaire(@RequestBody List<Questionnaire> list) {
         return response.returnResponse(service.createAllQuestionnaire(list));
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping
     public ResponseEntity<?> updateQuestionnaire(@RequestBody List<Questionnaire> list) {
         return response.returnResponse(service.updateAllQuestionnaire(list));
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping
     public ResponseEntity<?> getAllQuestionnaire() {
         return response.returnResponse(service.getAllQuestionnaire());
     }
 
-    @DeleteMapping(ApiConstants.ALL)
-    public ResponseEntity<?> deleteAllQuestionnaire() {
-        return response.returnResponse(service.deleteAllQuestionnaire());
+    @DeleteMapping(value = ApiConstants.PARAM_TITLE)
+    public ResponseEntity<?> deleteAllQuestionnaire(@PathVariable String title) {
+        return response.returnResponse(service.deleteAllQuestionnaireByTitle(title));
     }
 
-    // ------------------ results ----------------
+    // delete all by owner id and ownership id ----------------------------------
+    @DeleteMapping(ApiConstants.PARAM_OWNER_ID + ApiConstants.PARAM_OWNERSHIP_ID)
+    public ResponseEntity<?> deleteAllQuestionnaireByOwnerIdAndOwnershipId(
+            @PathVariable Long ownerId,
+            @PathVariable Long ownershipId
+    ) {
+        return response.returnResponse(service.deleteAllQuestionnaireByOwnerIdAndOwnershipId(ownerId, ownershipId));
+    }
+
+    // results -------------------------------------------------------------------
 
     @GetMapping(ApiConstants.RESULT + ApiConstants.PARAM_TITLE)
     public ResponseEntity<?> getResultOfQuestionnaireByTitle(@PathVariable String title) {
         return response.returnResponse(service.getResultOfQuestionnaireByTitle(title));
     }
+
+
 }

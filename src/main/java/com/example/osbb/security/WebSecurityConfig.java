@@ -35,7 +35,7 @@ public class WebSecurityConfig {
             ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS,
             ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS,
             ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS,
-            ApiConstants.QUESTIONNAIRE, ApiConstants.QUESTIONNAIRE + ApiConstants.SS,
+            ApiConstants.QUESTIONNAIRES, ApiConstants.QUESTIONNAIRES + ApiConstants.SS,
             ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
             // registry ---------------------
             ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS,

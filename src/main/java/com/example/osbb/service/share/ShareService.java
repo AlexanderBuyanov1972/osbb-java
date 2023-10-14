@@ -27,11 +27,22 @@ public class ShareService implements IShareService {
     public Object createShare(Share share) {
         List<String> errors = new ArrayList<>();
         try {
+            if (share.getOwnership() == null)
+                errors.add("В этой доле помещение не существует");
+            if (share.getOwner() == null)
+                errors.add("В этой доле собственник не существует");
             if (shareDAO.existsById(share.getId()))
                 errors.add(ServiceMessages.ALREADY_EXISTS);
             if (isContentShare(share))
                 errors.addAll(List.of("Не может быть двух долей для одной пары собственник-собственность",
                         "Проверте правильность заполнения данных"));
+            if(errors.isEmpty()){
+                Owner owner = share.getOwner();
+                owner.setActive(true);
+                share.setOwner(owner);
+                ownerDAO.save(owner);
+            }
+
             return errors.isEmpty() ? Response
                     .builder()
                     .data(shareDAO.save(share))
@@ -51,6 +62,7 @@ public class ShareService implements IShareService {
         }
         return false;
     }
+
     public Share getShareByOwnerAndOwnership(Owner owner, Ownership ownership) {
         for (Share one : shareDAO.findAll()) {
             if (one.getOwner().getId() == owner.getId() &&
@@ -65,6 +77,10 @@ public class ShareService implements IShareService {
     public Object updateShare(Share share) {
         List<String> errors = new ArrayList<>();
         try {
+            if (share.getOwnership() == null)
+                errors.add("В этой доле помещение не существует");
+            if (share.getOwner() == null)
+                errors.add("В этой доле собственник не существует");
             if (!shareDAO.existsById(share.getId()))
                 errors.add(ServiceMessages.NOT_EXISTS);
             if (!isContentShare(share))
@@ -214,7 +230,7 @@ public class ShareService implements IShareService {
                     .filter(s -> s.getOwner().getId() == ownerId)
                     .filter(s -> s.getOwnership().getId() == ownershipId)
                     .findFirst().orElse(null);
-            if(share == null){
+            if (share == null) {
                 return Response
                         .builder()
                         .data(new Share())
@@ -222,8 +238,8 @@ public class ShareService implements IShareService {
                         .build();
             }
             shareDAO.deleteById(share.getId());
-            if(isShareListEmptyByOwnerId(ownerId)){
-                Owner owner =  ownerDAO.findById(ownerId).get();
+            if (isShareListEmptyByOwnerId(ownerId)) {
+                Owner owner = ownerDAO.findById(ownerId).get();
                 // деактивация собственника, по причине отсутствия записей с его участием
                 owner.setActive(false);
                 ownerDAO.save(owner);
@@ -238,6 +254,7 @@ public class ShareService implements IShareService {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
+
     public boolean isShareListEmptyByOwnerId(Long id) {
         return shareDAO.findAll()
                 .stream()

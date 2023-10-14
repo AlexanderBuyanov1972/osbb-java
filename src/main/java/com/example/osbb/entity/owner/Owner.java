@@ -77,8 +77,8 @@ public class Owner {
     @JsonIgnore
     private List<Share> shares;
 
-
 }
+// деактивация собственника - это удаление всех записей и долей (доли равны 0) с его участием, но он остаётся в базе данных
 
 //    id
 //    firstName

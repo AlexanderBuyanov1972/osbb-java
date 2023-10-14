@@ -25,13 +25,13 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Autowired
     QuestionnaireDAO questionnaireDAO;
     @Autowired
-    OwnershipDAO ownershipDAO;
-    @Autowired
-    OwnerDAO ownerDAO;
-    @Autowired
     RecordDAO recordDAO;
     @Autowired
     ShareDAO shareDAO;
+    @Autowired
+    OwnerDAO ownerDAO;
+    @Autowired
+    OwnershipDAO ownershipDAO;
 
     //  result --------------------------------
     @Override
@@ -116,101 +116,24 @@ public class QuestionnaireService implements IQuestionnaireService {
                         new ShareTotalAreaQuestionAnswer());
     }
 
-    // one -----------------------------
-    @Override
-    @Transactional
-    public Object createQuestionnaire(Questionnaire questionnaire) {
-        List<String> errors = new ArrayList<>();
-        Questionnaire one = null;
-        try {
-            if (questionnaireDAO.existsById(questionnaire.getId())) {
-                if (questionnaire.getAnswer() != null) {
-                    // устанавливаем время создания опроса в базе данных, опрос не пройден ещё
-                    questionnaire.setDateDispatch(LocalDate.now());
-                    one = questionnaireDAO.save(questionnaire);
-                } else {
-                    errors.add("Опрос в системе уже был создан," +
-                            " но он был уже пройден собственником," +
-                            " поэтому создать его нельзя," +
-                            " можно только обновить");
-                }
-            } else {
-                errors.add("Опрос в системе не был сгенерирован, его создать нельзя");
-            }
-            return errors.isEmpty() ?
-                    Response.builder()
-                            .data(one)
-                            .messages(List.of(ServiceMessages.OK))
-                            .build()
-                    : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
-        }
-    }
-
-    @Override
-    @Transactional
-    public Object updateQuestionnaire(Questionnaire questionnaire) {
-        List<String> errors = new ArrayList<>();
-        try {
-            if (!questionnaireDAO.existsById(questionnaire.getId()))
-                errors.add("Опрос не был создан, его нет в базе данных");
-            else
-                // устанавливаем дату прохождения опроса, опрос пройден
-                questionnaire.setDateReceiving(LocalDate.now());
-            return errors.isEmpty() ?
-                    Response.builder()
-                            .data(questionnaireDAO.save(questionnaire))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build()
-                    : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
-        }
-    }
-
-    @Override
-    public Object getQuestionnaire(Long id) {
-        List<String> errors = new ArrayList<>();
-        try {
-            if (!questionnaireDAO.existsById(id))
-                errors.add(ServiceMessages.NOT_EXISTS);
-            return errors.isEmpty() ?
-                    Response.builder()
-                            .data(questionnaireDAO.findById(id))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build()
-                    : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
-        }
-    }
-
-    @Override
-    @Transactional
-    public Object deleteQuestionnaire(Long id) {
-        List<String> list = new ArrayList<>();
-        try {
-            if (questionnaireDAO.existsById(id))
-                questionnaireDAO.deleteById(id);
-            else
-                list.add(ServiceMessages.NOT_EXISTS);
-            return list.isEmpty() ? Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
-        }
-
-    }
-
     // all -------------------------------
 
     @Override
     @Transactional
     public Object createAllQuestionnaire(List<Questionnaire> questionnaires) {
+        long count = questionnaireDAO.findByTitle(questionnaires.get(0).getTitle()).size();
+        if (count != 0)
+            return Response
+                    .builder()
+                    .data(count)
+                    .messages(List.of(
+                            "Создать опрос с данной темой не представляется возможным",
+                            "Такой опрос был создан ранее",
+                            "Измените наименование темы "
+                    ))
+                    .build();
+
+
         try {
             recordDAO.findAll()
                     .forEach(el -> {
@@ -291,10 +214,29 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     @Override
     @Transactional
-    public Object deleteAllQuestionnaire() {
+    public Object deleteAllQuestionnaireByTitle(String title) {
         try {
-            questionnaireDAO.deleteAll();
+            questionnaireDAO.deleteByTitle(title);
             return new ResponseMessages(List.of(ServiceMessages.OK));
+        } catch (Exception exception) {
+            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        }
+    }
+
+    @Override
+    public Object deleteAllQuestionnaireByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
+        try {
+            String fullName = mapNamesToFullName(ownerDAO.findById(ownerId).get());
+            String apartment = ownershipDAO.findById(ownershipId).get().getAddress().getApartment();
+            questionnaireDAO.deleteByFullNameAndApartment(fullName, apartment);
+            List<String> list = questionnaireDAO.findAll()
+                    .stream()
+                    .map(Questionnaire::getTitle)
+                    .distinct()
+                    .toList();
+
+
+            return Response.builder().data(list).messages(List.of(ServiceMessages.OK)).build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }

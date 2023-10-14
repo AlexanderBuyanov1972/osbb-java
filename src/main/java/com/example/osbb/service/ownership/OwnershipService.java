@@ -197,7 +197,7 @@ public class OwnershipService implements IOwnershipService {
                     : Response
                     .builder()
                     .data(result)
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of(ServiceMessages.OK, "Получено " + result.size() + " помещений"))
                     .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
@@ -365,6 +365,10 @@ public class OwnershipService implements IOwnershipService {
                     .filter(s -> s.getOwner().getId() == owner.getId())
                     .map(s -> "Квартира № " + s.getOwnership().getAddress().getApartment())
                     .collect(Collectors.toList());
+            if(result.isEmpty()){
+                owner.setActive(false);
+                ownerDAO.save(owner);
+            }
 
 
             return Response

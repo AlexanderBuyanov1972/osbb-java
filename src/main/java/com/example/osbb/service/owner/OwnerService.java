@@ -27,11 +27,17 @@ public class OwnerService implements IOwnerService {
     public Object createOwner(Owner owner) {
         try {
             List<String> errors = new ArrayList<>();
+            if(ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
+                    owner.getLastName(),
+                    owner.getFirstName(),
+                    owner.getSecondName(),
+                    owner.getDateBirth()))
+                errors.add("Собственник с таким Ф.И.О. и датой рождения уже существует");
             if (ownerDAO.existsById(owner.getId())) {
                 errors.add(ServiceMessages.ALREADY_EXISTS);
             }
            // активация собственника при создании
-            owner.setActive(true);
+            owner.setActive(false);
             return !errors.isEmpty() ?
                     new ResponseMessages(errors)
                     : Response.builder()
@@ -167,14 +173,13 @@ public class OwnerService implements IOwnerService {
             List<Client> result = ownerDAO.findAll()
                     .stream()
                     .map(s -> new Client(s, Double.parseDouble("0")))
-//                    .filter(Client::isActive)
                     .sorted((a, b) -> a.getLastName().compareTo(b.getLastName()))
                     .toList();
             return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     : Response
                     .builder()
                     .data(result)
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of(ServiceMessages.OK, "Получено " + result.size()+ " собственников"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
