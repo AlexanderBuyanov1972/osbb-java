@@ -1,4 +1,4 @@
-package com.example.osbb.dto;
+package com.example.osbb.dto.response;
 
 import com.example.osbb.dto.response.BodyInvoiceNotification;
 import com.example.osbb.dto.response.HeaderInvoiceNotification;

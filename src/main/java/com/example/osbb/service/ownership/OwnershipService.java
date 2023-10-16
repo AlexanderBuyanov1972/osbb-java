@@ -107,11 +107,11 @@ public class OwnershipService implements IOwnershipService {
     }
 
     @Override
-    public Object getPersonalAccountByApartment(String apartment) {
+    public Object getBillByApartment(String apartment) {
         try {
             return Response
                     .builder()
-                    .data(ownershipDAO.findByAddressApartment(apartment).getPersonalAccount())
+                    .data(ownershipDAO.findByAddressApartment(apartment).getBill())
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {
@@ -204,10 +204,6 @@ public class OwnershipService implements IOwnershipService {
         }
     }
 
-    private Comparator<Room> comparatorByApartment() {
-        return (a, b) -> Integer.parseInt(a.getApartment())
-                - Integer.parseInt(b.getApartment());
-    }
 
 
     @Override
@@ -387,5 +383,12 @@ public class OwnershipService implements IOwnershipService {
     private List<Ownership> sortedById(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
+
+     //.sorted(comparatorByApartment())
+    private Comparator<Room> comparatorByApartment() {
+        return (a, b) -> Integer.parseInt(a.getApartment())
+                - Integer.parseInt(b.getApartment());
+    }
+
 
 }

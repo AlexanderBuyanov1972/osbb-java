@@ -3,9 +3,12 @@ package com.example.osbb.service.payment;
 import com.example.osbb.dao.account.PaymentDAO;
 import com.example.osbb.dao.account.RateDAO;
 import com.example.osbb.dao.ownership.OwnershipDAO;
-import com.example.osbb.dto.InvoiceNotification;
+import com.example.osbb.dto.pojo.Room;
+import com.example.osbb.dto.response.InvoiceNotification;
 import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.account.Payment;
+import com.example.osbb.entity.ownership.Ownership;
+import com.example.osbb.enums.TypeOfBill;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +30,6 @@ public class PaymentService implements IPaymentService {
     RateDAO rateDAO;
 
     // one ------------------------
-
     @Override
     public Object createPayment(Payment payment) {
         try {
@@ -43,16 +46,16 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public Object getPayment(Long id) {
-        List<String> list = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
         try {
             if (!paymentDAO.existsById(id)) {
-                list.add(ServiceMessages.NOT_EXISTS);
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
-            return list.isEmpty() ? Response
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(paymentDAO.findById(id).orElse(new Payment()))
                     .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -60,25 +63,24 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public Object deletePayment(Long id) {
-        List<String> list = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
         try {
             if (paymentDAO.existsById(id)) {
                 paymentDAO.deleteById(id);
             } else {
-                list.add(ServiceMessages.NOT_EXISTS);
+                errors.add(ServiceMessages.NOT_EXISTS);
             }
-            return list.isEmpty() ? Response
+            return errors.isEmpty() ? Response
                     .builder()
                     .data(id)
                     .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
+                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
 
     // all ------------------------------
-
     @Override
     public Object createAllPayment(List<Payment> payments) {
         List<Payment> result = new ArrayList<>();
@@ -127,11 +129,12 @@ public class PaymentService implements IPaymentService {
         }
     }
 
+
     // sorted ------------------------
     @Override
-    public Object getAllPaymentByPersonalAccount(String personalAccount) {
+    public Object getAllPaymentByBill(String bill) {
         try {
-            List<Payment> result = paymentDAO.findAllByPersonalAccount(personalAccount);
+            List<Payment> result = paymentDAO.findAllByBill(bill);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -146,9 +149,30 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getAllPaymentByPersonalAccountAndDateLessThan(String personalAccount, LocalDateTime date) {
+    public Object getAllPaymentByDescription(String description) {
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByPersonalAccountAndDateLessThan(personalAccount, date);
+            List<Payment> result = paymentDAO.findAllByDescription(description);
+            return result.isEmpty() ?
+                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
+                    :
+                    Response
+                            .builder()
+                            .data(listSortedByDate(result))
+                            .messages(List.of(ServiceMessages.OK))
+                            .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+
+    @Override
+    public Object getAllPaymentByBillAndDateBetween(String bill, LocalDateTime from, LocalDateTime to) {
+        try {
+            List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(
+                    bill,
+                    from,
+                    to);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -163,13 +187,10 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getAllPaymentByPersonalAccountAndDateBetween(
-            String personalAccount,
-            LocalDateTime from,
-            LocalDateTime to) {
+    public Object getAllPaymentByDescriptionAndDateBetween(String description, LocalDateTime from, LocalDateTime to) {
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByPersonalAccountAndDateBetween(
-                    personalAccount,
+            List<Payment> result = paymentDAO.findAllPaymentByDescriptionAndDateBetween(
+                    description,
                     from,
                     to);
             return result.isEmpty() ?
@@ -187,9 +208,63 @@ public class PaymentService implements IPaymentService {
 
     // summa ------------------------------------
     @Override
-    public Object getSummaAllPayment() {
+    public Object getBalanceAllPayment() {
         try {
-            List<Payment> result = paymentDAO.findAll();
+            return Response
+                    .builder()
+                    .data(getSummaFromListPayment(
+                            paymentDAO.findAllByTypeBill(TypeOfBill.COMING))
+                            - getSummaFromListPayment(paymentDAO.findAllByTypeBill(TypeOfBill.CONSUMPTION)))
+                    .messages(List.of(ServiceMessages.OK))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getBalanceHouse() {
+        try {
+            List<EntryBalanceHouse> result = new ArrayList();
+            LocalDate from = LocalDate.of(2021, 1, 1);
+            LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1);
+            // cycle -------------------
+            ownershipDAO.findAll().forEach(el -> {
+                String bill = el.getBill();
+                String apartment = el.getAddress().getApartment();
+                Double totalAreaRoom = el.getTotalArea();
+                Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
+                Double summaAccrued = getSummaAccrued(totalAreaRoom, from);
+                Double debtAtBeginningPeriod = 0.00;
+                Double recalculationForServicesNotReceived = 0.00;
+                Double subsidyMonetization = 0.00;
+                Double monetizationBenefits = 0.00;
+                Double debt = debtAtBeginningPeriod + summaAccrued
+                        - summaPaid
+                        - monetizationBenefits
+                        - subsidyMonetization
+                        - recalculationForServicesNotReceived;
+                result.add(EntryBalanceHouse
+                        .builder()
+                        .bill(bill)
+                        .apartment(apartment)
+                        .summa(formatDoubleValue(debt))
+                        .build());
+            });
+            return Response
+                    .builder()
+                    .data(listSortedByApartment(result))
+                    .messages(List.of(ServiceMessages.OK, "Получено " + result.size() + " записей"))
+                    .build();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    @Override
+    public Object getSummaAllPaymentByBill(String bill) {
+        try {
+            List<Payment> result = paymentDAO.findAllByBill(bill);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -204,9 +279,9 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getSummaAllPaymentByPersonalAccount(String personalAccount) {
+    public Object getSummaAllPaymentByDescription(String description) {
         try {
-            List<Payment> result = paymentDAO.findAllByPersonalAccount(personalAccount);
+            List<Payment> result = paymentDAO.findAllByDescription(description);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -221,9 +296,9 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getSummaAllPaymentByPersonalAccountAndDateLessThan(String personalAccount, LocalDateTime date) {
+    public Object getSummaAllPaymentByBillAndDateBetween(String bill, LocalDateTime from, LocalDateTime to) {
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByPersonalAccountAndDateLessThan(personalAccount, date);
+            List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -238,12 +313,9 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getSummaAllPaymentByPersonalAccountAndDateBetween(String personalAccount, LocalDateTime from, LocalDateTime to) {
+    public Object getSummaAllPaymentByDescriptionAndDateBetween(String description, LocalDateTime from, LocalDateTime to) {
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByPersonalAccountAndDateBetween(
-                    personalAccount,
-                    from,
-                    to);
+            List<Payment> result = paymentDAO.findAllPaymentByDescriptionAndDateBetween(description, from, to);
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -264,9 +336,9 @@ public class PaymentService implements IPaymentService {
         LocalDate from = LocalDate.of(2021, 1, 1);
         LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1);
         //
-        String personalAccount = ownershipDAO.findByAddressApartment(apartment).getPersonalAccount();
+        String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
         Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
-        Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByPersonalAccount(personalAccount));
+        Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
         Double summaAccrued = getSummaAccrued(totalAreaRoom, from);
         Double debtAtBeginningPeriod = 0.00;
         Double recalculationForServicesNotReceived = 0.00;
@@ -281,9 +353,9 @@ public class PaymentService implements IPaymentService {
         HeaderInvoiceNotification header = HeaderInvoiceNotification
                 .builder()
                 .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
-                .personalAccount(personalAccount)
-                .totalArea(formatDoubleValue(totalAreaRoom))
-                .currentDateTime(LocalDateTime.now())
+                .bill(bill)
+                .area(formatDoubleValue(totalAreaRoom))
+                .currentTime(LocalDateTime.now())
                 .build();
 
         BodyInvoiceNotification body = BodyInvoiceNotification
@@ -309,14 +381,14 @@ public class PaymentService implements IPaymentService {
     @Override
     public Object getDetailsDebtByApartment(String apartment) {
         // header --------------------------
-        String personalAccount = ownershipDAO.findByAddressApartment(apartment).getPersonalAccount();
+        String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
         Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
         HeaderInvoiceNotification header = HeaderInvoiceNotification
                 .builder()
                 .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
-                .personalAccount(personalAccount)
-                .totalArea(formatDoubleValue(totalAreaRoom))
-                .currentDateTime(LocalDateTime.now())
+                .bill(bill)
+                .area(formatDoubleValue(totalAreaRoom))
+                .currentTime(LocalDateTime.now())
                 .build();
         // body const ---------------------
         Double debtAtBeginningPeriod = 0.00;
@@ -330,11 +402,11 @@ public class PaymentService implements IPaymentService {
 
 
         // begin cycle --------------------------------------------
-       while (from.isBefore(dateFinish)) {
+        while (from.isBefore(dateFinish)) {
             LocalDateTime fromLDT = mapLocalDateToLocaldateTime(from);
             LocalDateTime toLDT = mapLocalDateToLocaldateTime(to);
             Double summaPaid = getSummaFromListPayment(paymentDAO
-                    .findAllPaymentByPersonalAccountAndDateBetween(personalAccount, fromLDT, toLDT));
+                    .findAllPaymentByBillAndDateBetween(bill, fromLDT, toLDT));
             Double summaAccrued = getSummaAccruedByDate(totalAreaRoom, from);
             Double debt = debtAtBeginningPeriod + summaAccrued
                     - summaPaid
@@ -352,7 +424,7 @@ public class PaymentService implements IPaymentService {
                     .monetizationBenefits(formatDoubleValue(monetizationBenefits))
                     .paid(summaPaid)
                     .debtAtFinalizingPeriod(formatDoubleValue(debt))
-                    .finalizingPeriod(to)
+                    .finalizingPeriod(to.minusDays(1))
                     .build();
 
             list.add(body);
@@ -369,16 +441,19 @@ public class PaymentService implements IPaymentService {
                 .build();
     }
 
+    // help functions ------------------------------------
     private LocalDateTime mapLocalDateToLocaldateTime(LocalDate date) {
         return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0, 0);
     }
 
     private Double getSummaAccrued(Double area, LocalDate date) {
-        return formatDoubleValue(rateDAO.findAll()
-                .stream()
-                .filter(el -> el.getDate().isAfter(date))
-                .map(el -> el.getValue() * area)
-                .reduce(0.00, Double::sum));
+        return formatDoubleValue(
+                rateDAO.findAll()
+                        .stream()
+                        .filter(el -> el.getDate().isAfter(date.minusDays(1)) && el.getDate().isBefore(LocalDate.now()))
+                        .map(el -> el.getValue() * area)
+                        .mapToDouble(Double::doubleValue).sum()
+        );
     }
 
     private Double getSummaAccruedByDate(Double totalAreaRoom, LocalDate date) {
@@ -404,7 +479,20 @@ public class PaymentService implements IPaymentService {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
+    private List<EntryBalanceHouse> listSortedByApartment(List<EntryBalanceHouse> list) {
+        return list.stream().sorted((a, b) -> Integer.parseInt(a.getApartment())
+                - Integer.parseInt(b.getApartment())).collect(Collectors.toList());
+    }
+
     private List<Payment> listSortedByDate(List<Payment> list) {
         return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
     }
+
+    //.sorted(comparatorByApartment())
+    private Comparator<EntryBalanceHouse> comparatorByApartment() {
+        return (a, b) -> Integer.parseInt(a.getApartment())
+                - Integer.parseInt(b.getApartment());
+    }
+
+
 }

@@ -15,10 +15,11 @@ public class ApiConstants {
     public static final String CHARACTERISTICS = "/characteristics";
 
     // payment ---------------
+    public static final String BALANCE = "/balance";
     public static final String DETAILS = "/details";
     public static final String DEBT = "/debt";
     public static final String PAYMENT = "/payment";
-    public static final String PERSONAL_ACCOUNT = "/personal_account";
+    public static final String BILL = "/bill";
     public static final String DATE = "/date";
     public static final String RATE = "/rate";
 
@@ -78,7 +79,7 @@ public class ApiConstants {
     public static final String PARAM_OWNER_ID = "/{ownerId}";
     public static final String PARAM_OWNERSHIP_ID = "/{ownershipId}";
     public static final String PARAM_DATE = "/{date}";
-    public static final String PARAM_PERSONAL_ACCOUNT = "/{personalAccount}";
+    public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";
 

@@ -37,24 +37,8 @@ public class WebSecurityConfig {
             ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS,
             ApiConstants.QUESTIONNAIRES, ApiConstants.QUESTIONNAIRES + ApiConstants.SS,
             ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
-            // registry ---------------------
             ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS,
-//            ApiConstants.REGISTRY + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT,
-//            ApiConstants.REGISTRY + ApiConstants.FULL_NAME + ApiConstants.ALL + ApiConstants.PARAM_FULL_NAME,
-//            ApiConstants.REGISTRY + ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME,
-//            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME,
-//            ApiConstants.REGISTRY + ApiConstants.SHARE + ApiConstants.TOTAL_AREA,
-            // select -----------------------
             ApiConstants.SELECT, ApiConstants.SELECT + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.FULL_NAME + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.TITLE + ApiConstants.ALL,
-//            ApiConstants.SELECT + ApiConstants.QUESTION + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.FULL_NAME + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.APARTMENT + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.DATE_DISPATCH + ApiConstants.SS,
-//            ApiConstants.SELECT + ApiConstants.DATE_RECEIVING + ApiConstants.SS,
     };
     private final String[] publicPath = new String[]{ApiConstants.REGISTRATION, ApiConstants.LOGIN};
 

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class HeaderInvoiceNotification {
     private Address address;
-    private String personalAccount;
-    private Double totalArea;
-    private LocalDateTime currentDateTime;
+    private String bill;
+    private Double area;
+    private LocalDateTime currentTime;
 }

@@ -1,5 +1,7 @@
 package com.example.osbb.entity.account;
 
+import com.example.osbb.enums.TypeOfBill;
+import com.example.osbb.enums.TypeOfRoom;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,8 +20,14 @@ public class Payment {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "personal_account")
-    private String personalAccount;
+    @Column(name = "bill")
+    private String bill;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "remark")
+    private String remark;
 
     @Column(name = "date")
     private LocalDateTime date;
@@ -27,4 +35,15 @@ public class Payment {
     @Column(name = "summa")
     private Double summa;
 
+    @Column(name = "type_bill", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TypeOfBill typeBill;
 }
+
+//id
+//description
+//remark
+//bill
+//summa
+//typeBill
+

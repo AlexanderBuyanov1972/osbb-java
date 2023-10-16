@@ -47,6 +47,9 @@ public class Owner {
     private TypeOfBeneficiary beneficiary;
     @Column(name="is_active")
     private boolean isActive;
+    @Column(name="additional_information")
+    private String additionalInformation;
+
 
 
     // ----------- one to one -----------------

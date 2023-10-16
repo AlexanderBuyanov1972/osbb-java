@@ -1,6 +1,7 @@
 package com.example.osbb.dao.account;
 
 import com.example.osbb.entity.account.Payment;
+import com.example.osbb.enums.TypeOfBill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -9,10 +10,20 @@ import java.util.List;
 
 @EnableJpaRepositories
 public interface PaymentDAO extends JpaRepository<Payment, Long> {
-    List<Payment> findAllByPersonalAccount(String personalAccount);
-    List<Payment> findAllPaymentByPersonalAccountAndDateLessThan(String personalAccount, LocalDateTime date);
-    List<Payment> findAllPaymentByPersonalAccountAndDateBetween(
-            String personalAccount,
+    List<Payment> findAllByBill(String bill);
+
+    List<Payment> findAllByDescription(String description);
+
+    List<Payment> findAllByTypeBill(TypeOfBill typeBill);
+
+    List<Payment> findAllPaymentByBillAndDateBetween(
+            String bill,
+            LocalDateTime from,
+            LocalDateTime to
+    );
+
+    List<Payment> findAllPaymentByDescriptionAndDateBetween(
+            String description,
             LocalDateTime from,
             LocalDateTime to
     );
