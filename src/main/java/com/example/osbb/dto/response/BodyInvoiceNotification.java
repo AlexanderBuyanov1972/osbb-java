@@ -21,3 +21,14 @@ public class BodyInvoiceNotification {
     private Double debtAtFinalizingPeriod;
     private LocalDate finalizingPeriod;
 }
+
+//    beginningPeriod
+//    debtAtBeginningPeriod
+//    rate
+//    accrued
+//    recalculationForServicesNotReceived
+//    subsidyMonetization
+//    monetizationBenefits
+//    paid
+//    debtAtFinalizingPeriod
+//    finalizingPeriod

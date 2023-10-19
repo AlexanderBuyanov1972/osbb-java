@@ -16,3 +16,7 @@ public class HeaderInvoiceNotification {
     private Double area;
     private LocalDateTime currentTime;
 }
+//address
+//bill
+//area
+//currentTime

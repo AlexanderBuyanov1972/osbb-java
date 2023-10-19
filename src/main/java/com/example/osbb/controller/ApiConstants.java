@@ -15,6 +15,7 @@ public class ApiConstants {
     public static final String CHARACTERISTICS = "/characteristics";
 
     // payment ---------------
+    public static final String PRINT = "/print";
     public static final String BALANCE = "/balance";
     public static final String DETAILS = "/details";
     public static final String DEBT = "/debt";
@@ -82,6 +83,5 @@ public class ApiConstants {
     public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";
-
 
 }

@@ -130,7 +130,7 @@ public class PaymentService implements IPaymentService {
     }
 
 
-    // sorted ------------------------
+    // getAllPaymentByBill ------------------------
     @Override
     public Object getAllPaymentByBill(String bill) {
         try {
@@ -206,7 +206,7 @@ public class PaymentService implements IPaymentService {
         }
     }
 
-    // summa ------------------------------------
+    // получить текущее сальдо платёжных операций ---------------------
     @Override
     public Object getBalanceAllPayment() {
         try {
@@ -222,10 +222,11 @@ public class PaymentService implements IPaymentService {
         }
     }
 
+    // получить сальдо платежей по помещениям всего дома
     @Override
     public Object getBalanceHouse() {
         try {
-            List<EntryBalanceHouse> result = new ArrayList();
+            List<EntryBalanceHouse> result = new ArrayList<>();
             LocalDate from = LocalDate.of(2021, 1, 1);
             LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1);
             // cycle -------------------
@@ -234,7 +235,7 @@ public class PaymentService implements IPaymentService {
                 String apartment = el.getAddress().getApartment();
                 Double totalAreaRoom = el.getTotalArea();
                 Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
-                Double summaAccrued = getSummaAccrued(totalAreaRoom, from);
+                Double summaAccrued = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, from);
                 Double debtAtBeginningPeriod = 0.00;
                 Double recalculationForServicesNotReceived = 0.00;
                 Double subsidyMonetization = 0.00;
@@ -261,6 +262,7 @@ public class PaymentService implements IPaymentService {
         }
     }
 
+    // получить сумму платежей по данному лицевому счёту
     @Override
     public Object getSummaAllPaymentByBill(String bill) {
         try {
@@ -278,6 +280,7 @@ public class PaymentService implements IPaymentService {
         }
     }
 
+    // получить сумму платежей посредством описания
     @Override
     public Object getSummaAllPaymentByDescription(String description) {
         try {
@@ -332,19 +335,39 @@ public class PaymentService implements IPaymentService {
     // get invoice notification by apartment --------------
     @Override
     public Object getDebtByApartment(String apartment) {
-        // dates --------------
+        return Response
+                .builder()
+                .data(getDebtInvoiceNotificationByApartment(apartment))
+                .messages(List.of(ServiceMessages.OK))
+                .build();
+    }
+
+    @Override
+    public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment) {
+        // начальная точка времени 2021-01-01
         LocalDate from = LocalDate.of(2021, 1, 1);
-        LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1);
-        //
+        // первое число прошлого месяца  2021-09-01
+        LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth().minus(1), 1);
+        // получаем лицевой счёт по номеру помещения
         String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
+        // получаем общую площадь по номеру помещения
         Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
-        Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
-        Double summaAccrued = getSummaAccrued(totalAreaRoom, from);
-        Double debtAtBeginningPeriod = 0.00;
+        // получаем уплоченную сумму за всё время по данному счёту
+        Double summaPaid = getSummaFromListPayment(paymentDAO.findAllPaymentByBillAndDateBetween(
+                bill,
+                mapLocalDateToLocaldateTime(from),
+                mapLocalDateToLocaldateTime(to.minusMonths(1))));
+        // получаем начисленную сумму за промежуток времени от начальная точка времени  до первого числа прошлого месяца
+        Double debtAtBeginningPeriod = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, from);
+        // получаем начисленную сумму за промежуток времени от первого числа прошлого месяца  до сегодняшнего дня минус один месяц
+        Double summaAccrued = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, to.minusMonths(1));
+
+        //---------------------------------------------------------------------------
         Double recalculationForServicesNotReceived = 0.00;
         Double subsidyMonetization = 0.00;
         Double monetizationBenefits = 0.00;
-        Double debt = debtAtBeginningPeriod + summaAccrued
+        Double debt = debtAtBeginningPeriod
+                + summaAccrued
                 - summaPaid
                 - monetizationBenefits
                 - subsidyMonetization
@@ -360,7 +383,7 @@ public class PaymentService implements IPaymentService {
 
         BodyInvoiceNotification body = BodyInvoiceNotification
                 .builder()
-                .beginningPeriod(from)
+                .beginningPeriod(to)
                 .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
                 .rate(formatDoubleValue(rateDAO.findByDate(to).getValue()))
                 .accrued(summaAccrued)
@@ -369,20 +392,19 @@ public class PaymentService implements IPaymentService {
                 .monetizationBenefits(formatDoubleValue(monetizationBenefits))
                 .paid(summaPaid)
                 .debtAtFinalizingPeriod(formatDoubleValue(debt))
-                .finalizingPeriod(LocalDate.now())
+                .finalizingPeriod(to.plusMonths(1).minusDays(1))
                 .build();
-        return Response
-                .builder()
-                .data(new InvoiceNotification(header, body))
-                .messages(List.of(ServiceMessages.OK))
-                .build();
+        return new InvoiceNotification(header, body);
     }
 
     @Override
     public Object getDetailsDebtByApartment(String apartment) {
         // header --------------------------
+        // находим лицевой счёт по номеру помещения
         String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
+        // по номеру помещения получаем его общую площадь
         Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
+        // заполняем заголовок ответа
         HeaderInvoiceNotification header = HeaderInvoiceNotification
                 .builder()
                 .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
@@ -395,24 +417,32 @@ public class PaymentService implements IPaymentService {
         Double recalculationForServicesNotReceived = 0.00;
         Double subsidyMonetization = 0.00;
         Double monetizationBenefits = 0.00;
+        // подготовка к циклу по дате, интервал - один месяц
+        // начальная точка -------------------
         LocalDate from = LocalDate.of(2021, 1, 1);
+        // шаг
         LocalDate to = from.plusMonths(1);
+        // финишная дата ---------------------
         LocalDate dateFinish = LocalDate.now();
+        // лист для тела ответа ----------------
         List<BodyInvoiceNotification> list = new ArrayList<>();
-
-
-        // begin cycle --------------------------------------------
+        // начало цикла  --------------------------------------------
+        // проверка условия
         while (from.isBefore(dateFinish)) {
-            LocalDateTime fromLDT = mapLocalDateToLocaldateTime(from);
-            LocalDateTime toLDT = mapLocalDateToLocaldateTime(to);
+            // получаем сумму платёжек за циклический месяц
             Double summaPaid = getSummaFromListPayment(paymentDAO
-                    .findAllPaymentByBillAndDateBetween(bill, fromLDT, toLDT));
+                    .findAllPaymentByBillAndDateBetween(bill,
+                            mapLocalDateToLocaldateTime(from),
+                            mapLocalDateToLocaldateTime(to)));
+            // получаем начисленную сумму за оплату услуг за месяц
             Double summaAccrued = getSummaAccruedByDate(totalAreaRoom, from);
+            // получаем месячное сально долга
             Double debt = debtAtBeginningPeriod + summaAccrued
                     - summaPaid
                     - monetizationBenefits
                     - subsidyMonetization
                     - recalculationForServicesNotReceived;
+            // создаём элемента тела для ответа (возвращаем лист)
             BodyInvoiceNotification body = BodyInvoiceNotification
                     .builder()
                     .beginningPeriod(from)
@@ -426,14 +456,13 @@ public class PaymentService implements IPaymentService {
                     .debtAtFinalizingPeriod(formatDoubleValue(debt))
                     .finalizingPeriod(to.minusDays(1))
                     .build();
-
+            // добавляем элемент ответа в лист тела ответа
             list.add(body);
+            // подготовка для следующей итерации
             debtAtBeginningPeriod = debt;
             from = to;
             to = to.plusMonths(1);
         }
-
-
         return Response
                 .builder()
                 .data(List.of(header, list))
@@ -441,21 +470,24 @@ public class PaymentService implements IPaymentService {
                 .build();
     }
 
-    // help functions ------------------------------------
+    // help functions
     private LocalDateTime mapLocalDateToLocaldateTime(LocalDate date) {
         return LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0, 0);
     }
 
-    private Double getSummaAccrued(Double area, LocalDate date) {
+    // получить начисленную сумму за промежуток времени от date до сегодняшнего дня минус один месяц
+    private Double getSummaAccruedBetweenDateAndDateNow(Double area, LocalDate date) {
         return formatDoubleValue(
                 rateDAO.findAll()
                         .stream()
-                        .filter(el -> el.getDate().isAfter(date.minusDays(1)) && el.getDate().isBefore(LocalDate.now()))
+                        .filter(el -> el.getDate().isAfter(date.minusDays(1))
+                                && el.getDate().isBefore(LocalDate.now().minusMonths(2)))
                         .map(el -> el.getValue() * area)
                         .mapToDouble(Double::doubleValue).sum()
         );
     }
 
+    // получить начисленную сумму за один месяц по тарифу за конкретную дату
     private Double getSummaAccruedByDate(Double totalAreaRoom, LocalDate date) {
         return formatDoubleValue(rateDAO.findAll()
                 .stream()
@@ -464,26 +496,29 @@ public class PaymentService implements IPaymentService {
                 .findFirst().orElse(0.00));
     }
 
-    // getSummaFromListPayment ------------------
+    // получить общую сумму всех платёжек в переданном листе
 
     private Double getSummaFromListPayment(List<Payment> list) {
         return formatDoubleValue(list.stream().mapToDouble(Payment::getSumma).sum());
     }
 
+    //Округление дробной части до 2-х запятых
     private Double formatDoubleValue(Double var) {
         return Math.rint(100.0 * var) / 100.0;
     }
 
-    // sorted ------------------------
+    // sorted by id ------------------------
     private List<Payment> listSortedById(List<Payment> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
+    // sorted by apartment --------------------
     private List<EntryBalanceHouse> listSortedByApartment(List<EntryBalanceHouse> list) {
         return list.stream().sorted((a, b) -> Integer.parseInt(a.getApartment())
                 - Integer.parseInt(b.getApartment())).collect(Collectors.toList());
     }
 
+    // sorted by Date -------------------
     private List<Payment> listSortedByDate(List<Payment> list) {
         return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
     }

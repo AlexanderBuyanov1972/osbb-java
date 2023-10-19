@@ -319,4 +319,9 @@ public class RecordService implements IRecordService {
     private List<Record> returnListSortedById(List<Record> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
+    boolean isEqualsRecordByFullname(Record s, String fullName) {
+        return (s.getOwner().getLastName()
+                + " " + s.getOwner().getFirstName()
+                + " " + s.getOwner().getSecondName()).equals(fullName);
+    }
 }

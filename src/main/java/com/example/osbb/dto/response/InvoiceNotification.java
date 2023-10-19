@@ -20,12 +20,12 @@ public class InvoiceNotification {
 
 }
 
-//    apartment
-//    personalAccount
-//    currentDateTime
-
+//address
+//bill
+//area
+//currentTime
 //    beginningPeriod
-//    debtAtBeginningPeriod;
+//    debtAtBeginningPeriod
 //    rate
 //    accrued
 //    recalculationForServicesNotReceived
