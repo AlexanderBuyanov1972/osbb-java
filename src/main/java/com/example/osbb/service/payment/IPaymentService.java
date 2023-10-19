@@ -1,6 +1,7 @@
 package com.example.osbb.service.payment;
 
-import com.example.osbb.dto.response.InvoiceNotification;
+import com.example.osbb.dto.DebtDetails;
+import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.entity.account.Payment;
 
 import java.time.LocalDateTime;
@@ -60,6 +61,8 @@ public interface IPaymentService {
 
     // get invoice notification by apartment and last month --------
     public Object getDetailsDebtByApartment(String apartment);
+
+    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
 
 
 }

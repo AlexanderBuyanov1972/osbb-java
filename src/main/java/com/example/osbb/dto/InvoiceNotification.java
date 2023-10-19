@@ -1,12 +1,8 @@
-package com.example.osbb.dto.response;
+package com.example.osbb.dto;
 
-import com.example.osbb.dto.response.BodyInvoiceNotification;
-import com.example.osbb.dto.response.HeaderInvoiceNotification;
-import com.example.osbb.entity.ownership.Address;
+import com.example.osbb.dto.BodyInvoiceNotification;
+import com.example.osbb.dto.HeaderInvoiceNotification;
 import lombok.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

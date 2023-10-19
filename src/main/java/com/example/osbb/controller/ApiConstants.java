@@ -64,6 +64,7 @@ public class ApiConstants {
 
     // --------------------------------------------
     public static final String ALL = "/all";
+    public static final String ALL_IN_ONE = "/all_in_one";
     public static final String REGISTRATION_NUMBER = "/registration_number";
     public static final String SS = "/**";
 
@@ -83,5 +84,6 @@ public class ApiConstants {
     public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";
+
 
 }

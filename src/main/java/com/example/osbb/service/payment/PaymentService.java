@@ -3,11 +3,12 @@ package com.example.osbb.service.payment;
 import com.example.osbb.dao.account.PaymentDAO;
 import com.example.osbb.dao.account.RateDAO;
 import com.example.osbb.dao.ownership.OwnershipDAO;
-import com.example.osbb.dto.pojo.Room;
-import com.example.osbb.dto.response.InvoiceNotification;
+import com.example.osbb.dto.BodyInvoiceNotification;
+import com.example.osbb.dto.DebtDetails;
+import com.example.osbb.dto.HeaderInvoiceNotification;
+import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.account.Payment;
-import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfBill;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -399,7 +400,15 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public Object getDetailsDebtByApartment(String apartment) {
-        // header --------------------------
+        return Response
+                .builder()
+                .data(getDetailsDebtInvoiceNotificationByApartment(apartment))
+                .messages(List.of(ServiceMessages.OK))
+                .build();
+    }
+
+    @Override
+    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment) {
         // находим лицевой счёт по номеру помещения
         String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
         // по номеру помещения получаем его общую площадь
@@ -463,11 +472,7 @@ public class PaymentService implements IPaymentService {
             from = to;
             to = to.plusMonths(1);
         }
-        return Response
-                .builder()
-                .data(List.of(header, list))
-                .messages(List.of(ServiceMessages.OK))
-                .build();
+        return new DebtDetails(header, list);
     }
 
     // help functions

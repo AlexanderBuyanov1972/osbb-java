@@ -1,4 +1,4 @@
-package com.example.osbb.dto.response;
+package com.example.osbb.dto;
 
 import lombok.*;
 

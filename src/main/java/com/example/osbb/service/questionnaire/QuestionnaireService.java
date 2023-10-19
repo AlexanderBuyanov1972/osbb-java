@@ -4,7 +4,7 @@ import com.example.osbb.dao.*;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dao.polls.QuestionnaireDAO;
-import com.example.osbb.dto.polls.ShareTotalAreaQuestionAnswer;
+import com.example.osbb.dto.ShareTotalAreaQuestionAnswer;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;

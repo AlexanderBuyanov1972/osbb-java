@@ -1,4 +1,4 @@
-package com.example.osbb.dto.polls;
+package com.example.osbb.dto;
 
 import com.example.osbb.enums.TypeOfAnswer;
 import lombok.*;
