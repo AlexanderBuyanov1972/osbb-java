@@ -156,7 +156,7 @@ public class OwnershipService implements IOwnershipService {
                     : Response
                     .builder()
                     .data(sortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Создано " + result.size() + "объектов"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -179,7 +179,7 @@ public class OwnershipService implements IOwnershipService {
                     : Response
                     .builder()
                     .data(sortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Обновлено " + result.size() + "объектов"))
                     .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
@@ -191,27 +191,25 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Room> result = ownershipDAO.findAll().stream()
                     .map(s -> new Room(s, 0.00))
-                    .sorted(comparatorByApartment())
+                    .sorted(comparatorRoomByApartment())
                     .toList();
             return result.isEmpty() ? new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     : Response
                     .builder()
                     .data(result)
-                    .messages(List.of(ServiceMessages.OK, "Получено " + result.size() + " помещений"))
+                    .messages(List.of(ServiceMessages.OK, "Получено " + result.size() + " объектов"))
                     .build();
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
 
-
-
     @Override
     @Transactional
     public Object deleteAllOwnership() {
         try {
             ownershipDAO.deleteAll();
-            return new ResponseMessages(List.of(ServiceMessages.OK));
+            return new ResponseMessages(List.of("Удаление объектов прошло успешно"));
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
@@ -336,7 +334,6 @@ public class OwnershipService implements IOwnershipService {
 
     }
 
-
     // room --------------------------------
     @Override
     public Object getRoomByApartment(String apartment) {
@@ -361,7 +358,7 @@ public class OwnershipService implements IOwnershipService {
                     .filter(s -> s.getOwner().getId() == owner.getId())
                     .map(s -> "Квартира № " + s.getOwnership().getAddress().getApartment())
                     .collect(Collectors.toList());
-            if(result.isEmpty()){
+            if (result.isEmpty()) {
                 owner.setActive(false);
                 ownerDAO.save(owner);
             }
@@ -384,11 +381,14 @@ public class OwnershipService implements IOwnershipService {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
-     //.sorted(comparatorByApartment())
-    private Comparator<Room> comparatorByApartment() {
+    //.sorted(comparatorByApartment())
+    private Comparator<Room> comparatorRoomByApartment() {
         return (a, b) -> Integer.parseInt(a.getApartment())
                 - Integer.parseInt(b.getApartment());
     }
 
-
+    private Comparator<Ownership> comparatorOwnershipByApartment() {
+        return (a, b) -> Integer.parseInt(a.getAddress().getApartment())
+                - Integer.parseInt(b.getAddress().getApartment());
+    }
 }
