@@ -14,4 +14,7 @@ public interface IPdfService {
     public Object printPdfDebtDetailsByApartment(String apartment);
 
     public Object printPdfDebtDetailsAllApartment();
+
+    // balance house -------------
+    public Object printPdfBalanceHouse();
 }

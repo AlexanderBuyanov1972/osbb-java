@@ -120,7 +120,7 @@ public class OwnershipController {
     @GetMapping(ApiConstants.APARTMENT +
             ApiConstants.BILL +
             ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getPersonalAccountByApartment(@PathVariable String apartment) {
+    public ResponseEntity<?> getBillByApartment(@PathVariable String apartment) {
         return response.returnResponse(service.getBillByApartment(apartment));
     }
 

@@ -47,6 +47,12 @@ public class PrintController {
     public ResponseEntity<?> printPdfDebtDetailsAllApartment() {
         return response.returnResponse(service.printPdfDebtDetailsAllApartment());
     }
+    // balance -------------------
+    // печатать баланса
+    @GetMapping(ApiConstants.DEBT + ApiConstants.PRINT + ApiConstants.BALANCE)
+    public ResponseEntity<?> printPdfBalanceHouse() {
+        return response.returnResponse(service.printPdfBalanceHouse());
+    }
 
 
 }

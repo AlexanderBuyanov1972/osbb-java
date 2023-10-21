@@ -2,6 +2,7 @@ package com.example.osbb.service.payment;
 
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.InvoiceNotification;
+import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.entity.account.Payment;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public interface IPaymentService {
     // select ------------------------
 
     public Object getAllPaymentByBill(String bill);
+
     public Object getAllPaymentByDescription(String description);
 
 
@@ -34,20 +36,27 @@ public interface IPaymentService {
             LocalDateTime from,
             LocalDateTime to
     );
+
     public Object getAllPaymentByDescriptionAndDateBetween(
             String description,
             LocalDateTime from,
             LocalDateTime to
     );
+
     // summa -------------------------
     public Object getBalanceAllPayment();
+
     public Object getBalanceHouse();
+
     public Object getSummaAllPaymentByBill(String bill);
+
     public Object getSummaAllPaymentByDescription(String description);
+
     public Object getSummaAllPaymentByBillAndDateBetween(
             String bill,
             LocalDateTime from,
             LocalDateTime to);
+
     public Object getSummaAllPaymentByDescriptionAndDateBetween(
             String description,
             LocalDateTime from,
@@ -63,6 +72,8 @@ public interface IPaymentService {
     public Object getDetailsDebtByApartment(String apartment);
 
     public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
+
+    public List<EntryBalanceHouse> getListEntryBalanceHouse();
 
 
 }
