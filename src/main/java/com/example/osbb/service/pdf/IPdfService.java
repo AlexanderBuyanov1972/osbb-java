@@ -17,4 +17,7 @@ public interface IPdfService {
 
     // balance house -------------
     public Object printPdfBalanceHouse();
+
+    // result questionnaire -------------
+    public Object printResultQuestionnaire(String title);
 }

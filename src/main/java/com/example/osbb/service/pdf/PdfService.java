@@ -24,6 +24,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -70,8 +71,9 @@ public class PdfService implements IPdfService {
     @Override
     public Object printAllTInOnePdfDebtAllApartment() {
         try {
+            checkDir("D:/pdf/allInOne");
             AtomicInteger count = new AtomicInteger(1);
-            PdfWriter writer = new PdfWriter("D:/pdf/paymentAllToOne.pdf");
+            PdfWriter writer = new PdfWriter("D:/pdf/allInOne/paymentAllInOne.pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
             ownershipDAO.findAll()
@@ -122,6 +124,7 @@ public class PdfService implements IPdfService {
         try {
             List<EntryBalanceHouse> list = iPaymentService.getListEntryBalanceHouse();
             Double summa = formatDoubleValue(list.stream().mapToDouble(EntryBalanceHouse::getSumma).reduce(0, (a, b) -> a + b));
+            checkDir("D:/pdf/balance");
             PdfWriter writer = new PdfWriter("D:/pdf/balance/balance_house.pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
@@ -160,9 +163,16 @@ public class PdfService implements IPdfService {
         return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
     }
 
+    // questionnaire result print -------------------
+    @Override
+    public Object printResultQuestionnaire(String title) {
+        return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+    }
+
     // private help functions -----------------
     private void printPdfFile(InvoiceNotification in) {
         try {
+            checkDir("D:/pdf/payments");
             PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_" + in.getHeader().getBill() + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
@@ -175,6 +185,7 @@ public class PdfService implements IPdfService {
 
     private void printPdfDetailsFile(DebtDetails details) {
         try {
+            checkDir("D:/pdf/payments_details");
             PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_" + details.getHeader().getBill() + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
@@ -333,5 +344,24 @@ public class PdfService implements IPdfService {
 
     private String getString(Double summa) {
         return summa > 0 ? "Задолженость : " + summa : "Переплата : " + summa;
+    }
+
+    //    private void checkDir(String path) {
+//        File folder = new File("D:/pdf");
+//        if (!folder.exists())
+//            folder.mkdir();
+//        folder = new File(path);
+//        if (!folder.exists())
+//            folder.mkdir();
+//    }
+    private void checkDir(String str) {
+        String[] lines = str.split("/");
+        String path = lines[0];
+        for (int i = 1; i < lines.length; i++) {
+            path = path + "/" + lines[i];
+            File folder = new File(path);
+            if (!folder.exists())
+                folder.mkdir();
+        }
     }
 }

@@ -24,6 +24,7 @@ public class WebSecurityConfig {
     private String secret;
 
     private final String[] paths = new String[]{
+            ApiConstants.PRINT, ApiConstants.PRINT + ApiConstants.SS,
             ApiConstants.PAYMENT, ApiConstants.PAYMENT + ApiConstants.SS,
             ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS,
             ApiConstants.SHARE, ApiConstants.SHARE + ApiConstants.SS,
