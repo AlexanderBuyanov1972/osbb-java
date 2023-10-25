@@ -1,5 +1,6 @@
 package com.example.osbb.service.questionnaire;
 
+import com.example.osbb.dto.ResultQuestionnaire;
 import com.example.osbb.entity.polls.Questionnaire;
 
 import java.util.List;
@@ -8,6 +9,7 @@ public interface IQuestionnaireService {
 
     // results ---------------------------
     public Object getResultOfQuestionnaireByTitle(String title);
+    public ResultQuestionnaire getResultPoolByTitle(String title);
 
     // all --------------------------------
 

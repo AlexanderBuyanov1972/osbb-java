@@ -10,5 +10,6 @@ public class OsbbJavaApplication {
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(OsbbJavaApplication.class, args);
+        System.out.println("Start program OSBB");
     }
 }

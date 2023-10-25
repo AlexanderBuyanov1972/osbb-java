@@ -11,10 +11,12 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class ResultQuestionnaire {
+    // owner ----------------
     private Double processingPercentageOwner;
     private Long ownerVoted;
     private Long countOwner;
     private Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner;
+    // area -----------------
     private Double processingPercentageArea;
     private Double areaVoted;
     private Double summaArea;

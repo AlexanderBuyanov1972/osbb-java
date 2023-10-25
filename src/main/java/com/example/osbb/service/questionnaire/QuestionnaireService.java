@@ -38,133 +38,109 @@ public class QuestionnaireService implements IQuestionnaireService {
     //  result --------------------------------
     @Override
     public Object getResultOfQuestionnaireByTitle(String title) {
-        List<String> messages = new ArrayList<>();
-        List<Questionnaire> baseList = new ArrayList<>();
-        Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner = new HashMap<>();
-        Map<String, Map<TypeOfAnswer, Double>> mapVotedArea = new HashMap<>();
         try {
-            // базовый лист с которым работаем на счётчик голосов
-            baseList = questionnaireDAO.findByTitle(title)
-                    .stream()
-                    .filter(x -> x.getDateReceiving() != null)
-                    .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
-                    .toList();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of("Упали в базовом блоке при фолрмировании базового листа"));
-        }
-        try {
-
-            // мапа для подсчёта голосов собственниками по квартирам
-            // Map<Вопрос, Map<Ответ, Один голос>>
-            mapVotedOwner = baseList.stream()
-                    .collect(
-                            Collectors.groupingBy(Questionnaire::getQuestion,
-                                    Collectors.groupingBy(Questionnaire::getAnswer,
-                                            Collectors.counting())));
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of("Упали при формировании мапы для подсчёта голосов собственниками по квартирам"));
-        }
-
-        try {
-            // мапа для подсчёта голосов квадратными метрами по квартирам
-            // Map<Вопрос, Map<Ответ, Квадратные метры>>
-            mapVotedArea =
-                    generateShareTotalAreaQuestionAnswer(baseList)
-                            .stream()
-                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
-                                    Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
-                                            Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of("Упали при формировании мапы для для подсчёта голосов квадратными метрами по квартирам"));
-        }
-        try {
-            // проверка если одна из мап пустая
-            if (mapVotedOwner.isEmpty() || mapVotedArea.isEmpty()) {
-                messages.addAll(List.of(
-                        "Нет данных для обработки результатов голосования",
-                        "Нужен хотя бы один проголосвавший"
-                ));
-            }
-
-            String question = new ArrayList<>(mapVotedArea.keySet()).get(0);
-
-            Double areaVoted = resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.BEHIND) +
-                    resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.AGAINST) +
-                    resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.ABSTAINED);
-
-            Long ownerVoted = resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.BEHIND) +
-                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.AGAINST) +
-                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.ABSTAINED);
-            Long countOwner = ownerDAO.count();
-            Double summaArea = ownershipDAO.findAll().stream()
-                    .mapToDouble(Ownership::getTotalArea)
-                    .sum();
-
-            List<TypeOfAnswer> list = List.of(TypeOfAnswer.BEHIND, TypeOfAnswer.AGAINST, TypeOfAnswer.ABSTAINED);
-
-            for (String key : mapVotedArea.keySet()) {
-                Map<TypeOfAnswer, Double> map = mapVotedArea.get(key);
-                for (TypeOfAnswer one : list) {
-                    if (map.get(one) == null) {
-                        map.put(one, 0.00);
-                        mapVotedArea.put(key, map);
-                    }
-                }
-            }
-            for (String key : mapVotedOwner.keySet()) {
-                Map<TypeOfAnswer, Long> map = mapVotedOwner.get(key);
-                for (TypeOfAnswer one : list) {
-                    if (map.get(one) == null) {
-                        map.put(one, 0L);
-                        mapVotedOwner.put(key, map);
-                    }
-                }
-            }
-
-
-            return messages.isEmpty() ? Response
-                    .builder()
-                    .data(ResultQuestionnaire
-                            .builder()
-                            .processingPercentageOwner(formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)))
-                            .processingPercentageArea(formatDoubleValue(areaVoted * 100 / summaArea))
-                            .ownerVoted(ownerVoted)
-                            .countOwner(countOwner)
-                            .areaVoted(formatDoubleValue(areaVoted))
-                            .summaArea(formatDoubleValue(summaArea))
-                            .mapVotedOwner(mapVotedOwner)
-                            .mapVotedArea(mapVotedArea)
-                            .build())
+            return Response.builder()
+                    .data(getResultPoolByTitle(title))
                     .messages(List.of(
-                            "Результаты опроса " + title + " обработаны.",
-                            "Удачного дня!"))
-                    .build() : new ResponseMessages(messages);
+                            "Результаты опроса " + title + " обработаны"))
+                    .build();
         } catch (Exception exception) {
             return new ErrorResponseMessages(List.of(exception.getMessage()));
         }
 
     }
 
-    private Double resultAnswerDouble(Map<String, Map<TypeOfAnswer, Double>> map, String key, TypeOfAnswer answer) {
-        return map.get(key).get(answer) == null ? 0 : map.get(key).get(answer);
+    @Override
+    public ResultQuestionnaire getResultPoolByTitle(String title) {
+        List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
+                .stream()
+                .filter(x -> x.getDateReceiving() != null)
+                .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
+                .toList();
+        Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner = createMapVotedOwner(baseList);
+        Map<String, Map<TypeOfAnswer, Double>> mapVotedArea = createMapVotedArea(baseList);
+        String question = new ArrayList<>(mapVotedArea.keySet()).get(0);
+        Double areaVoted = resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.BEHIND) +
+                resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.AGAINST) +
+                resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.ABSTAINED);
+        Long ownerVoted = resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.BEHIND) +
+                resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.AGAINST) +
+                resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.ABSTAINED);
+        Long countOwner = ownerDAO.count();
+        Double summaArea = ownershipDAO.findAll().stream()
+                .mapToDouble(Ownership::getTotalArea)
+                .sum();
+        List<TypeOfAnswer> list = List.of(TypeOfAnswer.BEHIND, TypeOfAnswer.AGAINST, TypeOfAnswer.ABSTAINED);
+        fillMapVotedOwnerFromNull(list, mapVotedOwner);
+        fillMapVotedAreaFromNull(list, mapVotedArea);
+        return ResultQuestionnaire
+                .builder()
+                .processingPercentageOwner(formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)))
+                .processingPercentageArea(formatDoubleValue(areaVoted * 100 / summaArea))
+                .ownerVoted(ownerVoted)
+                .countOwner(countOwner)
+                .areaVoted(formatDoubleValue(areaVoted))
+                .summaArea(formatDoubleValue(summaArea))
+                .mapVotedOwner(mapVotedOwner)
+                .mapVotedArea(mapVotedArea)
+                .build();
     }
 
-    private Long resultAnswerLong(Map<String, Map<TypeOfAnswer,Long>> map, String key, TypeOfAnswer answer) {
+    private void fillMapVotedOwnerFromNull(List<TypeOfAnswer> list, Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner) {
+        for (String key : mapVotedOwner.keySet()) {
+            Map<TypeOfAnswer, Long> map = mapVotedOwner.get(key);
+            for (TypeOfAnswer one : list) {
+                if (map.get(one) == null) {
+                    map.put(one, 0L);
+                    mapVotedOwner.put(key, map);
+                }
+            }
+        }
+    }
+
+    private void fillMapVotedAreaFromNull(List<TypeOfAnswer> list, Map<String, Map<TypeOfAnswer, Double>> mapVotedArea) {
+        for (String key : mapVotedArea.keySet()) {
+            Map<TypeOfAnswer, Double> map = mapVotedArea.get(key);
+            for (TypeOfAnswer one : list) {
+                if (map.get(one) == null) {
+                    map.put(one, 0.00);
+                    mapVotedArea.put(key, map);
+                }
+            }
+        }
+    }
+
+    private Map<String, Map<TypeOfAnswer, Long>> createMapVotedOwner(List<Questionnaire> baseList) {
+        return baseList.stream()
+                .collect(
+                        Collectors.groupingBy(Questionnaire::getQuestion,
+                                Collectors.groupingBy(Questionnaire::getAnswer,
+                                        Collectors.counting())));
+    }
+
+    private Map<String, Map<TypeOfAnswer, Double>> createMapVotedArea(List<Questionnaire> baseList) {
+        return baseList
+                .stream()
+                .map(this::computeShare)
+                .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
+                        Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
+                                Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
+    }
+
+    private Double resultAnswerDouble(Map<String, Map<TypeOfAnswer, Double>> map, String key, TypeOfAnswer answer) {
+        return map.get(key).get(answer) == null ? 0.00 : map.get(key).get(answer);
+    }
+
+    private Long resultAnswerLong(Map<String, Map<TypeOfAnswer, Long>> map, String key, TypeOfAnswer answer) {
         return map.get(key).get(answer) == null ? 0L : map.get(key).get(answer);
     }
 
-    private List<ShareTotalAreaQuestionAnswer> generateShareTotalAreaQuestionAnswer(List<Questionnaire> list) {
-        return list.stream().map(this::computeShare).collect(Collectors.toList());
-    }
 
     private ShareTotalAreaQuestionAnswer computeShare(Questionnaire q) {
-        String[] fios = q.getFullName().split(" ");
         return shareDAO.findAll().stream()
                 .filter(Objects::nonNull)
-                .filter(s -> s.getOwner().getLastName().equals(fios[0]))
                 .filter(s -> s.getOwnership().getAddress().getApartment().equals(q.getApartment()))
-                .filter(s -> s.getOwner().getFirstName().equals(fios[1]))
-                .filter(s -> s.getOwner().getSecondName().equals(fios[2]))
+                .filter(s -> mapOwnerToFullName(s.getOwner()).equals(q.getFullName()))
                 .map(s -> new ShareTotalAreaQuestionAnswer(
                         q.getQuestion(),
                         q.getAnswer(),
@@ -308,71 +284,4 @@ public class QuestionnaireService implements IQuestionnaireService {
     private Double formatDoubleValue(Double var) {
         return Math.rint(100.0 * var) / 100.0;
     }
-
-//    @Override
-//    public Object getResultOfQuestionnaireByTitle(String title) {
-//        ResultQuestionnaire resultQuestionnaire = new ResultQuestionnaire();
-//        List<String> messages = new ArrayList<>();
-//        List<Questionnaire> baseList = new ArrayList<>();
-//        Map<String, Map<TypeOfAnswer, Map<String, Long>>> mapCountPeople = new HashMap<>();
-//        Map<String, Map<TypeOfAnswer, Double>> mapCountArea = new HashMap<>();
-//        Long totalCountArea = ownershipDAO.count();
-//        Long totalCountOwner = ownerDAO.count();
-//        try {
-//            // базовый лист с которым работаем на счётчик голосов
-//            baseList = questionnaireDAO.findByTitle(title)
-//                    .stream()
-//                    .filter(x -> x.getDateReceiving() != null)
-//                    .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
-//                    .toList();
-//        } catch (Exception exception) {
-//            return new ErrorResponseMessages(List.of("Упали в базовом блоке при фолрмировании базового листа"));
-//        }
-//        try {
-//
-//            // мапа для подсчёта голосов собственниками по квартирам
-//            // Map<Вопрос, Map<Ответ, Один голос>>
-//            mapCountPeople = baseList.stream()
-//                    .collect(
-//                            Collectors.groupingBy(Questionnaire::getQuestion,
-//                                    Collectors.groupingBy(Questionnaire::getAnswer,
-//                                            Collectors.groupingBy(Questionnaire::getFullName,
-//                                                    Collectors.counting()))));
-//        } catch (Exception exception) {
-//            return new ErrorResponseMessages(List.of("Упали при формировании мапы для подсчёта голосов собственниками по квартирам"));
-//        }
-//
-//        try {
-//            // мапа для подсчёта голосов квадратными метрами по квартирам
-//            // Map<Вопрос, Map<Ответ, Квадратные метры>>
-//            mapCountArea =
-//                    generateShareTotalAreaQuestionAnswer(baseList)
-//                            .stream()
-//                            .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
-//                                    Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
-//                                            Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
-//        } catch (Exception exception) {
-//            return new ErrorResponseMessages(List.of("Упали при формировании мапы для для подсчёта голосов квадратными метрами по квартирам"));
-//        }
-//        try {
-//            // проверка если одна из мап пустая
-//            if (mapCountPeople.isEmpty() || mapCountArea.isEmpty()) {
-//                messages.addAll(List.of(
-//                        "Нет данных для обработки результатов голосования",
-//                        "Нужен хотя бы один проголосвавший"
-//                ));
-//            }
-//            return messages.isEmpty() ? Response
-//                    .builder()
-//                    .data(List.of(mapCountPeople, mapCountArea))
-//                    .messages(List.of(
-//                            "Результаты опроса " + title + " обработаны.",
-//                            "Удачного дня!"))
-//                    .build() : new ResponseMessages(messages);
-//        } catch (Exception exception) {
-//            return new ErrorResponseMessages(List.of(exception.getMessage()));
-//        }
-//
-//    }
-
 }

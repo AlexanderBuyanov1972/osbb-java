@@ -3,12 +3,15 @@ package com.example.osbb.service.pdf;
 import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
+import com.example.osbb.dto.ResultQuestionnaire;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
+import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.payment.IPaymentService;
+import com.example.osbb.service.questionnaire.IQuestionnaireService;
 import com.itextpdf.kernel.color.Color;
 import com.itextpdf.kernel.color.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -37,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PdfService implements IPdfService {
     @Autowired
     IPaymentService iPaymentService;
+    @Autowired
+    IQuestionnaireService iQuestionnaireService;
     @Autowired
     OwnershipDAO ownershipDAO;
 
@@ -118,6 +123,7 @@ public class PdfService implements IPdfService {
         }
     }
 
+    // balance ------------------------------------------------------------------------------------------------
     // печатать баланс дома по помещениям (задолженность/переплата)
     @Override
     public Object printPdfBalanceHouse() {
@@ -163,13 +169,87 @@ public class PdfService implements IPdfService {
         return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
     }
 
+    // questionnaire ------------------------------------------------------------------------------------------
     // questionnaire result print -------------------
     @Override
     public Object printResultQuestionnaire(String title) {
+        try {
+            ResultQuestionnaire result = iQuestionnaireService.getResultPoolByTitle(title);
+            checkDir("D:/pdf/questionnaire_result");
+            PdfWriter writer = new PdfWriter("D:/pdf/questionnaire_result/" + title + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+            Color teal = new DeviceRgb(0, 128, 128);
+            Color blueviolet = new DeviceRgb(138,43,226);
+            // start ------------------
+            createHeaderBlueviolet("Тема опроса : " + title, doc, font);
+            // 1 ---------------
+            createHeader("Обработано " + result.getProcessingPercentageArea()
+                    + "% в метрах квадратных", doc, font);
+            createHeader("Всего проголосовало : " + result.getAreaVoted()
+                    + " из " + result.getSummaArea()
+                    + " метров квадратных", doc, font);
+            for (String key : result.getMapVotedArea().keySet()) {
+                Paragraph header = new Paragraph(key);
+                header.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(12).setFontColor(teal);
+                doc.add(header);
+
+                String text = "ЗА : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.BEHIND));
+                Paragraph line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+                text = "ПРОТИВ : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.AGAINST));
+                line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+                text = "ВОЗДЕРЖАЛИСЬ : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.ABSTAINED));
+                line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+
+            }
+
+
+            // 2 ------------
+            createHeader("Обработано " + result.getProcessingPercentageOwner()
+                    + "% в голосах собственников", doc, font);
+            createHeader("Всего проголосовало : " + result.getOwnerVoted()
+                    + " из " + result.getCountOwner()
+                    + " собственников", doc, font);
+            for (String key : result.getMapVotedOwner().keySet()) {
+                Paragraph header = new Paragraph(key);
+                header.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(12).setFontColor(teal);
+                doc.add(header);
+
+                String text = "ЗА : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.BEHIND);
+                Paragraph line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+                text = "ПРОТИВ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.AGAINST);
+                line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+                text = "ВОЗДЕРЖАЛИСЬ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.ABSTAINED);
+                line = new Paragraph(text);
+                line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
+                doc.add(line);
+
+            }
+            // finish -----------------
+            doc.close();
+        } catch (Exception e) {
+            return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
         return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
     }
 
-    // private help functions -----------------
+    // private help functions *******************************************************************
     private void printPdfFile(InvoiceNotification in) {
         try {
             checkDir("D:/pdf/payments");
@@ -293,6 +373,12 @@ public class PdfService implements IPdfService {
         header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13);
         doc.add(header);
     }
+    private void createHeaderBlueviolet(String text, Document doc, PdfFont font) {
+        Color blueviolet = new DeviceRgb(138,43,226);
+        Paragraph header = new Paragraph(text);
+        header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13).setFontColor(blueviolet);
+        doc.add(header);
+    }
 
     // font
     private PdfFont createFont() {
@@ -346,14 +432,6 @@ public class PdfService implements IPdfService {
         return summa > 0 ? "Задолженость : " + summa : "Переплата : " + summa;
     }
 
-    //    private void checkDir(String path) {
-//        File folder = new File("D:/pdf");
-//        if (!folder.exists())
-//            folder.mkdir();
-//        folder = new File(path);
-//        if (!folder.exists())
-//            folder.mkdir();
-//    }
     private void checkDir(String str) {
         String[] lines = str.split("/");
         String path = lines[0];
