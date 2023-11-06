@@ -1,6 +1,6 @@
 package com.example.osbb.service.rate;
 
-import com.example.osbb.entity.account.Rate;
+import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
 
 import java.util.List;

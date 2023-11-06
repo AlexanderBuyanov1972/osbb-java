@@ -3,7 +3,7 @@ package com.example.osbb.service.payment;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.EntryBalanceHouse;
-import com.example.osbb.entity.account.Payment;
+import com.example.osbb.entity.Payment;
 
 import java.time.LocalDateTime;
 import java.util.List;

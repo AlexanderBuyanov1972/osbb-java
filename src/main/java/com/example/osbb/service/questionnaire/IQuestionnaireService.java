@@ -1,7 +1,7 @@
 package com.example.osbb.service.questionnaire;
 
 import com.example.osbb.dto.ResultQuestionnaire;
-import com.example.osbb.entity.polls.Questionnaire;
+import com.example.osbb.entity.Questionnaire;
 
 import java.util.List;
 

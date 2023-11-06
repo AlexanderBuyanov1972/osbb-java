@@ -2,10 +2,10 @@ package com.example.osbb.service.questionnaire;
 
 import com.example.osbb.dao.ownership.AddressDAO;
 import com.example.osbb.dao.ownership.OwnershipDAO;
-import com.example.osbb.dao.polls.QuestionnaireDAO;
+import com.example.osbb.dao.QuestionnaireDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.entity.polls.Questionnaire;
+import com.example.osbb.entity.Questionnaire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

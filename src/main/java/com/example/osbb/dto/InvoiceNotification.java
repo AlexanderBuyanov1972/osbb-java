@@ -12,21 +12,4 @@ import lombok.*;
 public class InvoiceNotification {
     private HeaderInvoiceNotification header;
     private BodyInvoiceNotification body;
-
-
 }
-
-//address
-//bill
-//area
-//currentTime
-//    beginningPeriod
-//    debtAtBeginningPeriod
-//    rate
-//    accrued
-//    recalculationForServicesNotReceived
-//    subsidyMonetization
-//    monetizationBenefits
-//    paid
-//    debtAtFinalizingPeriod
-//    finalizingPeriod

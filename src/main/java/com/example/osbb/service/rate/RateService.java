@@ -1,10 +1,10 @@
 package com.example.osbb.service.rate;
 
-import com.example.osbb.dao.account.RateDAO;
+import com.example.osbb.dao.RateDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.account.Rate;
+import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

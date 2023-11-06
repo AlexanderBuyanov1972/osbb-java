@@ -2,7 +2,7 @@ package com.example.osbb.controller.polls;
 
 import com.example.osbb.controller.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
-import com.example.osbb.entity.polls.Questionnaire;
+import com.example.osbb.entity.Questionnaire;
 import com.example.osbb.service.questionnaire.IQuestionnaireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

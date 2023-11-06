@@ -2,7 +2,7 @@ package com.example.osbb.controller.account;
 
 import com.example.osbb.controller.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
-import com.example.osbb.entity.account.Rate;
+import com.example.osbb.entity.Rate;
 import com.example.osbb.service.rate.IRateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

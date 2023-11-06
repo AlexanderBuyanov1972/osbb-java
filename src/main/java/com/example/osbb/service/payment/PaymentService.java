@@ -1,14 +1,14 @@
 package com.example.osbb.service.payment;
 
-import com.example.osbb.dao.account.PaymentDAO;
-import com.example.osbb.dao.account.RateDAO;
+import com.example.osbb.dao.PaymentDAO;
+import com.example.osbb.dao.RateDAO;
 import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dto.BodyInvoiceNotification;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.*;
-import com.example.osbb.entity.account.Payment;
+import com.example.osbb.entity.Payment;
 import com.example.osbb.enums.TypeOfBill;
 import com.example.osbb.service.ServiceMessages;
 import org.springframework.beans.factory.annotation.Autowired;
