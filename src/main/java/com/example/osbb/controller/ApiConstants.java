@@ -1,18 +1,18 @@
 package com.example.osbb.controller;
 
 public class ApiConstants {
-    public static final  String URL_SERVER = "http://localhost:9000";
+    public static final String URL_SERVER = "http://localhost:9000";
     // authentication --------
+    public static final String AUTH = "/auth";
     public static final String USER = "/user";
-    public static final String ROLE = "/role";
-    public static final  String LINK = "/{link}";
-    public static final  String EMAIL = "/{email}";
-    public static final  String REGISTRATION = "/registration";
-    public static final  String LOGIN = "/login";
-    public static final  String LOGOUT = "/exit";
-    public static final  String ACTIVATE = "/activate";
-    public static final  String REFRESH = "/refresh";
-    public static final  String CHECK = "/check";
+    public static final String REGISTRATION = "/registration";
+    public static final String LOGIN = "/login";
+    public static final String LOGOUT = "/logout";
+    public static final String ACTIVATE = "/activate";
+    public static final String REFRESH = "/refresh";
+    public static final String CHECK = "/check";
+    public static final String LINK = "/{link}";
+    public static final String EMAIL = "/{email}";
     // owner -----------------
     public static final String PASSPORT = "/passport";
     public static final String VEHICLE = "/vehicle";
@@ -33,6 +33,7 @@ public class ApiConstants {
     public static final String DEBT = "/debt";
     public static final String PAYMENT = "/payment";
     public static final String BILL = "/bill";
+    public static final String NEW_BILL = "/new_bill";
     public static final String DATE = "/date";
     public static final String RATE = "/rate";
 
@@ -87,6 +88,4 @@ public class ApiConstants {
     public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";
-
-
 }

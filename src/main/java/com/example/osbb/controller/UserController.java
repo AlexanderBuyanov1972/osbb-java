@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.entity.User;
+import com.example.osbb.dto.UserDto;
 import com.example.osbb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,34 +16,16 @@ public class UserController {
     @Autowired
     private HelpMethodsForController response;
 
-    @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        return response.returnResponse(service.createUser(user));
-    }
-
-    @PutMapping
-    public ResponseEntity<?> updateUser(@RequestBody User user) {
-        return response.returnResponse(service.updateUser(user));
-    }
 
     @GetMapping(ApiConstants.ID)
     public ResponseEntity<?> getUser(@PathVariable Long id) {
-        return response.returnResponse(service.getUser(id));
+        return response.returnResponse(service.getUserForController(id));
     }
 
     @DeleteMapping(ApiConstants.ID)
-    public void deleteUser(@PathVariable Long id) {
-        service.deleteUser(id);
+    public Object deleteUser(@PathVariable Long id) {
+        return response.returnResponse(service.deleteUserForController(id));
     }
 
-    @GetMapping(ApiConstants.ALL)
-    public ResponseEntity<?> getAllUser() {
-        return response.returnResponse(service.getAllUser());
-    }
-
-    @DeleteMapping(ApiConstants.ALL)
-    public void deleteAllUser() {
-        service.deleteAllUser();
-    }
 
 }

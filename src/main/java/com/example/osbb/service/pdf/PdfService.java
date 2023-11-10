@@ -19,10 +19,8 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.property.Property;
 import com.itextpdf.layout.property.TextAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -69,6 +68,19 @@ public class PdfService implements IPdfService {
             return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    private void printPdfFile(InvoiceNotification in) {
+        try {
+            checkDir("D:/pdf/payments");
+            PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_" + in.getHeader().getBill() + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            writeOnePdfObject(in, doc);
+            doc.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -120,6 +132,19 @@ public class PdfService implements IPdfService {
             return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
         } catch (Exception e) {
             return new ErrorResponseMessages(List.of(e.getMessage()));
+        }
+    }
+
+    private void printPdfDetailsFile(DebtDetails details) {
+        try {
+            checkDir("D:/pdf/payments_details");
+            PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_" + details.getHeader().getBill() + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            writeOnePdfObjectDetails(details, doc);
+            doc.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -181,7 +206,7 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             PdfFont font = createFont();
             Color teal = new DeviceRgb(0, 128, 128);
-            Color blueviolet = new DeviceRgb(138,43,226);
+            Color blueviolet = new DeviceRgb(138, 43, 226);
             // start ------------------
             createHeaderBlueviolet("Тема опроса : " + title, doc, font);
             // 1 ---------------
@@ -249,32 +274,6 @@ public class PdfService implements IPdfService {
         return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
     }
 
-    // private help functions *******************************************************************
-    private void printPdfFile(InvoiceNotification in) {
-        try {
-            checkDir("D:/pdf/payments");
-            PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_" + in.getHeader().getBill() + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            writeOnePdfObject(in, doc);
-            doc.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void printPdfDetailsFile(DebtDetails details) {
-        try {
-            checkDir("D:/pdf/payments_details");
-            PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_" + details.getHeader().getBill() + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            writeOnePdfObjectDetails(details, doc);
-            doc.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     // формирование объекта задолженности
     private void writeOnePdfObject(InvoiceNotification in, Document doc) {
@@ -373,20 +372,12 @@ public class PdfService implements IPdfService {
         header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13);
         doc.add(header);
     }
+
     private void createHeaderBlueviolet(String text, Document doc, PdfFont font) {
-        Color blueviolet = new DeviceRgb(138,43,226);
+        Color blueviolet = new DeviceRgb(138, 43, 226);
         Paragraph header = new Paragraph(text);
         header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13).setFontColor(blueviolet);
         doc.add(header);
-    }
-
-    // font
-    private PdfFont createFont() {
-        try {
-            return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251", true);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     // заголовки в таблице debt
@@ -442,4 +433,97 @@ public class PdfService implements IPdfService {
                 folder.mkdir();
         }
     }
+
+    @Override
+    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
+    public Object fillPdfNewBillForPayServiceOSBB() {
+        printPdfNewBillForPayServiceOSBB();
+        return Response
+                .builder()
+                .data(null)
+                .messages(List.of("PDF файл напечатан успешно."))
+                .build();
+    }
+
+    private void printPdfNewBillForPayServiceOSBB() {
+        try {
+            checkDir("D:/pdf/for_all");
+            PdfWriter writer = new PdfWriter("D:/pdf/for_all/" + "new_bill" + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+            List<Paragraph> list = new ArrayList<>();
+            list.add(new Paragraph("Голова правління ОСББ \"Свободи 51\" ___________________________ Олена ПАСЬКО"));
+            list.add(new Paragraph("М.П.")
+                    .setTextAlignment(TextAlignment.RIGHT)
+                    .setMarginTop(20)
+                    .setMarginRight(30)
+                    .setMarginBottom(10)
+                    .setFontSize(12));
+            list.add(new Paragraph("Реквізити:")
+                    .setFontSize(12)
+                    .setUnderline()
+                    .setBold());
+
+            Paragraph p1 = new Paragraph();
+            p1.add(new Text("Отримувач: ").setFontSize(12).setBold());
+            p1.add("ОСББ \"Свободи 51\"");
+            list.add(p1);
+
+            Paragraph p2 = new Paragraph();
+            p2.add("Код ЄДРПОУ: ");
+            p2.add(new Text("44987443,").setUnderline());
+            list.add(p2);
+            list.add(new Paragraph("МФО 305299"));
+
+            Paragraph p3 = new Paragraph();
+            p3.add("р/р ");
+            p3.add(new Text("UA 9130 5299 0000 0260 0005 0586 588    в АТ КБ \"ПРИВАТ БАНК\"").setUnderline());
+            list.add(p3);
+
+            list.add(new Paragraph("Призначення: ")
+                    .setFontSize(12)
+                    .setMarginBottom(0)
+                    .setBold()
+            );
+
+            list.add(new Paragraph("Внесок за утримання/управління будинку та прибудинкової територїї, кв.№ ____ або ")
+                    .setMarginTop(0).setMarginBottom(0));
+            list.add(new Paragraph(" № __________________ (особового рахунку).").setMarginTop(0));
+
+            list.add(new Paragraph("Телефон цілодобової аварійної служби ОСББ \"Свободи 51\": ").setFontSize(12)
+                    .setMarginBottom(0));
+
+            list.add(new Paragraph("097-659-29-10")
+                    .setFontSize(14)
+                    .setUnderline()
+                    .setMarginTop(0)
+                    .setBold());
+            for (Paragraph paragraph : list) {
+                paragraph.setFont(font);
+                doc.add(paragraph);
+            }
+            doc.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    // font
+    private PdfFont createFont() {
+        try {
+            return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251", true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+//    Paragraph p = new Paragraph();
+//p.add("The beginning of the line ");
+//p.add(new Text("          (fill in your name)          ").setTextRise(-10).setUnderline().setFontSize(8));
+//p.add(" end of the line");
+
 }

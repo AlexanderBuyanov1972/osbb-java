@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
-
 import java.io.IOException;
 import java.util.Collections;
 
@@ -45,7 +44,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         this.tokenService = tokenService;
         this.cookieService = cookieService;
         this.objectMapper = new ObjectMapper();
-        setLoginPath(ApiConstants.LOGIN);
+        setLoginPath(ApiConstants.AUTH + ApiConstants.LOGIN);
     }
 
     private void setLoginPath(String path) {
@@ -80,7 +79,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         log.info("Enter in successfulAuthentication");
         log.info("auth : " + auth);
         String email = auth.getName();
-        log.info("auth.getCredentials() : " + auth.getCredentials());
         String password = request.getAttribute("password").toString();
         User user = userService.getUserByEmail(email);
         if (user != null) {
@@ -91,7 +89,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             response.addCookie(cookieRefresh);
         }
         request.setAttribute("email", email);
-        request.setAttribute("password","*****");
+        request.setAttribute("password", "*****");
         chain.doFilter(request, response);
     }
 

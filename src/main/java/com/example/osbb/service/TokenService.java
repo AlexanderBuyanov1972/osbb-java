@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
@@ -18,12 +20,15 @@ public class TokenService {
     @Autowired
     private TokenDAO tokenDAO;
     private final String AUTHORIZATION = "Authorization";
+
     @Value("$(jwt.secret.access)")
     private String secretAccessToken;
-    @Value("#{T(Long).parseLong('${lifetime.token.access}')}")
-    private long expirationAccessToken;
     @Value("$(jwt.secret.refresh)")
     private String secretRefreshToken;
+
+    @Value("#{T(Long).parseLong('${lifetime.token.access}')}")
+    private long expirationAccessToken;
+
     @Value("#{T(Long).parseLong('${lifetime.token.refresh}')}")
     private long expirationRefreshToken;
     private Long time = 24 * 60 * 60 * 1000L;
@@ -59,7 +64,7 @@ public class TokenService {
                 .claim(AUTHORIZATION, authorities)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationAccessToken * time))
-                .signWith(SignatureAlgorithm.HS256, secretAccessToken)
+                .signWith(SignatureAlgorithm.HS256, secretAccessToken.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -68,12 +73,13 @@ public class TokenService {
         long now = System.currentTimeMillis();
         List<String> authorities = List.of(user.getRole().toString());
         return Jwts.builder()
+                .setIssuer("Stormpath")
                 .setSubject(user.getEmail())
                 .claim(AUTHORIZATION, authorities)
                 .claim("password", password)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationRefreshToken * time))
-                .signWith(SignatureAlgorithm.HS256, secretRefreshToken)
+                .signWith(SignatureAlgorithm.HS256, secretRefreshToken.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -84,14 +90,14 @@ public class TokenService {
 
     public Claims getClaimsAccess(String token) {
         return Jwts.parser()
-                .setSigningKey(secretAccessToken)
+                .setSigningKey(secretAccessToken.getBytes(StandardCharsets.UTF_8))
                 .parseClaimsJws(token)
                 .getBody();
     }
 
     public Claims getClaimsRefresh(String token) {
         return Jwts.parser()
-                .setSigningKey(secretRefreshToken)
+                .setSigningKey(secretRefreshToken.getBytes(StandardCharsets.UTF_8))
                 .parseClaimsJws(token)
                 .getBody();
     }

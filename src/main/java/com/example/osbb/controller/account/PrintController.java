@@ -58,6 +58,11 @@ public class PrintController {
     public ResponseEntity<?> printPdfBalanceHouse() {
         return response.returnResponse(service.printPdfBalanceHouse());
     }
+    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
+    @GetMapping(ApiConstants.PAYMENT + ApiConstants.NEW_BILL)
+    public ResponseEntity<?> fillPdfNewBillForPayServiceOSBB() {
+        return response.returnResponse(service.fillPdfNewBillForPayServiceOSBB());
+    }
 
 
 }

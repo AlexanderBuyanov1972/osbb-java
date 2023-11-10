@@ -40,24 +40,7 @@ public class WebSecurityConfig {
     private final TokenService tokenService;
     private final CookieService cookieService;
     private final UserService userService;
-    private final String[] paths = new String[]{
-            ApiConstants.PRINT, ApiConstants.PRINT + ApiConstants.SS,
-            ApiConstants.PAYMENT, ApiConstants.PAYMENT + ApiConstants.SS,
-            ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS,
-            ApiConstants.SHARE, ApiConstants.SHARE + ApiConstants.SS,
-            ApiConstants.USER, ApiConstants.USER + ApiConstants.SS,
-            ApiConstants.OWNER, ApiConstants.OWNER + ApiConstants.SS,
-            ApiConstants.PHOTO, ApiConstants.PHOTO + ApiConstants.SS,
-            ApiConstants.PASSPORT, ApiConstants.PASSPORT + ApiConstants.SS,
-            ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS,
-            ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS,
-            ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS,
-            ApiConstants.QUESTIONNAIRES, ApiConstants.QUESTIONNAIRES + ApiConstants.SS,
-            ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS,
-            ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS,
-            ApiConstants.SELECT, ApiConstants.SELECT + ApiConstants.SS,
-    };
-    private final String[] publicPath = new String[]{ApiConstants.REGISTRATION, ApiConstants.LOGIN};
+//    private final String[] publicPath = new String[]{ApiConstants.REGISTRATION, ApiConstants.LOGIN};
 
     public WebSecurityConfig(CustomUserDetailsService customUserDetailsService,
                              TokenService tokenService,
@@ -92,22 +75,32 @@ public class WebSecurityConfig {
             return config;
         }));
 
-//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//        http.exceptionHandling().authenticationEntryPoint(unauthorizedResponse());
         http.authorizeHttpRequests((requests) -> requests
                 // -------------------- permitAll() ----------------------------------------------------
-                .requestMatchers(HttpMethod.POST, ApiConstants.REGISTRATION).permitAll()
-                .requestMatchers(HttpMethod.POST, ApiConstants.LOGIN).permitAll()
-                .requestMatchers(HttpMethod.GET, ApiConstants.ACTIVATE + "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, ApiConstants.CHECK + "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, ApiConstants.REFRESH).permitAll()
+                .requestMatchers(HttpMethod.POST, ApiConstants.AUTH + ApiConstants.REGISTRATION).permitAll()
+                .requestMatchers(HttpMethod.POST, ApiConstants.AUTH + ApiConstants.LOGIN).permitAll()
+                .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.ACTIVATE + "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.CHECK + "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.REFRESH).permitAll()
                 // ------------------- hasAnyRole("ADMIN", "USER") -------------------------------------
-                .requestMatchers(HttpMethod.GET, ApiConstants.LOGOUT).hasAnyRole("ADMIN", "USER")
-                //-------------------------------------------------
-                .requestMatchers(HttpMethod.POST, paths).permitAll()
-                .requestMatchers(HttpMethod.PUT, paths).permitAll()
-                .requestMatchers(HttpMethod.GET, paths).permitAll()
-                .requestMatchers(HttpMethod.DELETE, paths).permitAll()
+                .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.LOGOUT).hasAnyRole("ADMIN", "MANAGER")
+                //--------------------------------------------------
+                .requestMatchers(ApiConstants.REGISTRY, ApiConstants.REGISTRY + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.SELECT, ApiConstants.SELECT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.PRINT, ApiConstants.PRINT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.PAYMENT, ApiConstants.PAYMENT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.SHARE, ApiConstants.SHARE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.USER, ApiConstants.USER + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.OWNER, ApiConstants.OWNER + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.PHOTO, ApiConstants.PHOTO + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.PASSPORT, ApiConstants.PASSPORT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.QUESTIONNAIRES, ApiConstants.QUESTIONNAIRES + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+
                 .anyRequest().authenticated());
 
         // filters
@@ -121,11 +114,6 @@ public class WebSecurityConfig {
     private AuthenticationEntryPoint unauthorizedResponse() {
         return (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
-
-//    @Bean
-//    public AuthenticationManager authenticationManagerBean() throws Exception {
-//        return super.authenticationManagerBean();
-//    }
 
     @Bean
     AuthenticationManager authenticationManagerBean() {
@@ -146,7 +134,6 @@ public class WebSecurityConfig {
             return new UsernamePasswordAuthenticationToken(username, null, user.getAuthorities());
         };
     }
-
 
 
     @Bean

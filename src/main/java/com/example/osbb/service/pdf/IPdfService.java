@@ -20,4 +20,5 @@ public interface IPdfService {
 
     // result questionnaire -------------
     public Object printResultQuestionnaire(String title);
+    public Object fillPdfNewBillForPayServiceOSBB();
 }

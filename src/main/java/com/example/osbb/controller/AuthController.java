@@ -1,51 +1,64 @@
 package com.example.osbb.controller;
 
+import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping()
+@RequestMapping(ApiConstants.AUTH)
 public class AuthController {
     @Autowired
     private AuthService authService;
+    @Autowired
+    private HelpMethodsForController response;
 
     @PostMapping(value = ApiConstants.REGISTRATION)
     @ResponseBody
-    public Object registration(HttpServletRequest request) {
-        return authService.registration(request);
+    public ResponseEntity<?> registration(HttpServletRequest request) {
+        return response.returnResponse(authService.registration(request));
     }
 
     @PostMapping(value = ApiConstants.LOGIN)
     @ResponseBody
-    public Object login(HttpServletRequest request) {
-        return authService.login(request);
+    public ResponseEntity<?> login(HttpServletRequest request) {
+        return response.returnResponse(authService.login(request));
     }
 
     @GetMapping(value = ApiConstants.LOGOUT)
     @ResponseBody
-    public Object logout(HttpServletRequest request, HttpServletResponse response) {
-        return authService.logout(request, response);
+    public  ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        Object object = authService.logout(request, response);
+        return object.getClass().equals(ErrorResponseMessages.class) ?
+                ResponseEntity.badRequest()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(object)
+                :
+                ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(object);
     }
 
     @GetMapping(value = ApiConstants.ACTIVATE + ApiConstants.LINK)
     @ResponseBody
-    public Object activate(HttpServletRequest request) {
-        return authService.activate(request);
+    public ResponseEntity<?> activate(HttpServletRequest request) {
+        return response.returnResponse(authService.activate(request));
     }
 
     @GetMapping(value = ApiConstants.REFRESH)
     @ResponseBody
-    public Object refresh(HttpServletRequest request) {
-        return authService.refresh(request);
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        return response.returnResponse(authService.refresh(request));
     }
 
-    @GetMapping(value = ApiConstants.CHECK + ApiConstants.EMAIL)
+    @GetMapping(value = ApiConstants.CHECK + ApiConstants.LINK)
     @ResponseBody
-    public Object check(HttpServletRequest request) {
-        return authService.check(request);
+    public ResponseEntity<?> check(HttpServletRequest request) {
+        return response.returnResponse(authService.check(request));
     }
 }

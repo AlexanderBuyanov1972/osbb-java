@@ -4,6 +4,9 @@ import com.example.osbb.controller.ApiConstants;
 import com.example.osbb.dto.RegistrationRequest;
 import com.example.osbb.dto.TokensUserDto;
 import com.example.osbb.dto.UserDto;
+import com.example.osbb.dto.response.ErrorResponseMessages;
+import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.User;
 import com.example.osbb.enums.TypoOfRoles;
 import jakarta.servlet.http.Cookie;
@@ -28,6 +31,7 @@ import java.util.*;
 @Service
 public class AuthService {
     private static final Logger log = LogManager.getLogger("AppService");
+
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -47,40 +51,33 @@ public class AuthService {
 
     public Object registration(HttpServletRequest request) {
         log.info("Entered the registration method.");
-        User userDB = null;
         try {
             RegistrationRequest body = objectMapper.readValue(request.getInputStream(), RegistrationRequest.class);
-            if (body != null) {
-                userDB = userService.getUserByEmail(body.getEmail());
-                if (userDB == null) {
-                    String hashPassword = passwordEncoder.encode(body.getPassword());
-                    String activationLink = UUID.randomUUID().toString().replace("-", "");
-                    String path = ApiConstants.URL_SERVER + ApiConstants.ACTIVATE + "/" + activationLink;
-                    User user = User
-                            .builder()
-                            .username(body.getUsername())
-                            .email(body.getEmail())
-                            .role(TypoOfRoles.valueOf(body.getRole()))
-                            .activationLink(activationLink)
-                            .password(hashPassword)
-                            .activated(false)
-                            .build();
-                    userService.createUser(user);
-                    mailService.sendActivationMail(path);
-                    log.info("Registration completed successfully.");
-                    return new UserDto(user);
-                }
-            } else {
-                log.info("Request is not contains body.");
-                return List.of("Request is not contains body.");
-            }
+            String hashPassword = passwordEncoder.encode(body.getPassword());
+            String activationLink = UUID.randomUUID().toString().replace("-", "");
+            String path = ApiConstants.URL_SERVER + ApiConstants.ACTIVATE + "/" + activationLink;
+            User user = User
+                    .builder()
+                    .username(body.getUsername())
+                    .email(body.getEmail())
+                    .role(TypoOfRoles.valueOf(body.getRole()))
+                    .activationLink(activationLink)
+                    .password(hashPassword)
+                    .activated(false)
+                    .build();
+            userService.createUser(user);
+            mailService.sendActivationMail(path);
+            log.info("Registration completed successfully.");
+            return Response
+                    .builder()
+                    .data(new UserDto(user))
+                    .messages(List.of("Регистрация прошла успешно"))
+                    .build();
 
         } catch (Exception error) {
             log.error("Unexpected server error.");
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
-        log.info("You have already been registered.");
-        return List.of("You have already been registered.");
     }
 
     public Object login(HttpServletRequest request) {
@@ -92,7 +89,7 @@ public class AuthService {
         } catch (Exception error) {
             log.error("Unexpected server error.");
             log.error(error.getMessage());
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
 
     }
@@ -107,23 +104,23 @@ public class AuthService {
                 String email = claims.getSubject();
                 if (email == null) {
                     log.error("Email invalid or is not exists.");
-                    return List.of("Email invalid or is not exists.");
+                    return new ErrorResponseMessages(List.of("Email invalid or is not exists."));
                 }
                 tokenService.removeTokenByEmail(email);
-                Cookie cookie = cookieService.getCookie("refreshToken", request);
-                if (cookie == null) {
-                    log.info("Cookie file is missing or damaged.");
-                    return List.of("Cookie file is missing or damaged.");
-                }
-                cookie.setMaxAge(0);
-                response.addCookie(cookie);
+//                Cookie cookie = cookieService.getCookie("refreshToken", request);
+//                if (cookie == null) {
+//                    log.info("Cookie file is missing or damaged.");
+//                    return new ErrorResponseMessages(List.of("Cookie file is missing or damaged."));
+//                }
+//                cookie.setMaxAge(0);
+//                response.addCookie(cookie);
                 log.error("Logout successfully");
-                return List.of("Logout successfully");
+                return new ResponseMessages(List.of("Выход из системы осуществлён успешно"));
             }
-            return List.of("Access token invalid or is not exists");
+            return new ErrorResponseMessages(List.of("Access token invalid or is not exists"));
         } catch (Exception error) {
             log.error("Unexpected server error.");
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
     }
 
@@ -139,13 +136,16 @@ public class AuthService {
                 userService.updateUser(user);
                 log.info("user : " + user);
                 log.error("Activation was successful.");
-                return new UserDto(user);
+                return Response.builder()
+                        .data(new UserDto(user))
+                        .messages(List.of("Activation was successful."))
+                        .build();
             }
         } catch (Exception error) {
             log.error("Unexpected server error.");
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
-        return List.of("The user for this activation link does not exist");
+        return new ErrorResponseMessages(List.of("The user for this activation link does not exist"));
     }
 
     public Object refresh(HttpServletRequest request) {
@@ -155,7 +155,7 @@ public class AuthService {
             return doMain(email);
         } catch (Exception error) {
             log.error("Unexpected server error.");
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
     }
 
@@ -163,11 +163,14 @@ public class AuthService {
         log.info("Entered user verification method.");
         try {
             String url = new URL(request.getRequestURL().toString()).toString();
-            String email = url.substring(url.lastIndexOf("/") + 1).trim();
-            return doMain(email);
+            String link = url.substring(url.lastIndexOf("/") + 1).trim();
+            log.info("link : " + link);
+            User user = userService.getUserByActivationLink(link);
+            log.info("email : " + user.getEmail());
+            return doMain(user.getEmail());
         } catch (Exception error) {
             log.error("Unexpected server error.");
-            return List.of("Unexpected server error.", error.getMessage());
+            return new ErrorResponseMessages(List.of("Unexpected server error.", error.getMessage()));
         }
     }
 
@@ -185,7 +188,7 @@ public class AuthService {
                 Claims claimsRefreshToken = tokenService.getClaimsRefresh(refreshToken.substring(7));
                 log.info("claimsRefreshToken : " + claimsRefreshToken);
                 log.info("Authorization completed successfully.");
-                return TokensUserDto
+                TokensUserDto tudto = TokensUserDto
                         .builder()
                         .accessToken(accessToken)
                         .accessTokenIssuedAt(claimsAccessToken.getIssuedAt())
@@ -195,11 +198,17 @@ public class AuthService {
                         .refreshTokenExpiredAt(claimsRefreshToken.getExpiration())
                         .userDto(new UserDto(user))
                         .build();
+                return Response.builder()
+                        .data(tudto)
+                        .messages(List.of("Авторизация прошла успешно"))
+                        .build();
             }
             log.error("The user is not authorized.");
-            return List.of("The user is not authorized.");
+            return new ErrorResponseMessages(List.of("The user is not authorized."));
         }
         log.info("User with that email is not exists.");
-        return List.of("User with that email is not exists.");
+        return new ErrorResponseMessages(List.of("User with that email is not exists."));
     }
+
+
 }

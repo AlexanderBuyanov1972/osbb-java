@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
-
 import java.io.IOException;
 
 public class RefreshFilter extends UsernamePasswordAuthenticationFilter {
@@ -41,7 +40,7 @@ public class RefreshFilter extends UsernamePasswordAuthenticationFilter {
         this.tokenService = tokenService;
         this.cookieService = cookieService;
         this.userService = userService;
-        setRefreshPath(ApiConstants.REFRESH);
+        setRefreshPath(ApiConstants.AUTH + ApiConstants.REFRESH);
 
     }
 
@@ -69,7 +68,7 @@ public class RefreshFilter extends UsernamePasswordAuthenticationFilter {
             }
             User user = userService.getUserByEmail(email);
             log.info("user : " + user);
-            request.setAttribute("password",password);
+            request.setAttribute("password", password);
             CustomUserDetails customUserDetails = CustomUserDetails.fromUserEntityToCustomUserDetails(user);
             return authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(
