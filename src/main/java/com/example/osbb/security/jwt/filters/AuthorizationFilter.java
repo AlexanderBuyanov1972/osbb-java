@@ -9,15 +9,15 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 public class AuthorizationFilter extends OncePerRequestFilter {
-    private static final Logger log = LogManager.getLogger("Class - AuthorizationFilter");
+private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
     private final TokenService tokenService;
     private final UserService userService;
 
@@ -36,11 +36,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         if (tokenService.validateToken(valueHeader)) {
             try {
                 Claims claims = tokenService.getClaimsAccess(valueHeader.substring(7));
-                log.info(claims);
+                log.info(String.valueOf(claims));
                 String email = claims.getSubject();
                 log.info(email);
                 User user = userService.getUserByEmail(email);
-                log.info(user);
+                log.info(String.valueOf(user));
                 CustomUserDetails customUserDetails = CustomUserDetails.fromUserEntityToCustomUserDetails(user);
                 SecurityContextHolder.getContext().setAuthentication(
                         new UsernamePasswordAuthenticationToken(

@@ -30,7 +30,6 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-
 import java.util.List;
 
 @Configuration
@@ -82,6 +81,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.ACTIVATE + "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.CHECK + "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.REFRESH).permitAll()
+                // ---------------- actuator -------------------------
+                .requestMatchers(ApiConstants.ACTUATOR, ApiConstants.ACTUATOR + ApiConstants.SS).permitAll()
                 // ------------------- hasAnyRole("ADMIN", "USER") -------------------------------------
                 .requestMatchers(HttpMethod.GET, ApiConstants.AUTH + ApiConstants.LOGOUT).hasAnyRole("ADMIN", "MANAGER")
                 //--------------------------------------------------

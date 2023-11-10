@@ -2,6 +2,7 @@ package com.example.osbb.controller;
 
 public class ApiConstants {
     public static final String URL_SERVER = "http://localhost:9000";
+    public static final String ACTUATOR = "/actuator";
     // authentication --------
     public static final String AUTH = "/auth";
     public static final String USER = "/user";
@@ -88,4 +89,5 @@ public class ApiConstants {
     public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";
+
 }
