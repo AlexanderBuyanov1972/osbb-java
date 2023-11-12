@@ -40,7 +40,6 @@ private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
                 String email = claims.getSubject();
                 log.info(email);
                 User user = userService.getUserByEmail(email);
-                log.info(String.valueOf(user));
                 CustomUserDetails customUserDetails = CustomUserDetails.fromUserEntityToCustomUserDetails(user);
                 SecurityContextHolder.getContext().setAuthentication(
                         new UsernamePasswordAuthenticationToken(

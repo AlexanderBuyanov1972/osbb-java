@@ -1,4 +1,4 @@
-package com.example.osbb.controller.polls;
+package com.example.osbb;
 
 import com.example.osbb.controller.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
