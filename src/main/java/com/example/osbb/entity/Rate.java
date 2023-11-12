@@ -14,15 +14,10 @@ import java.time.LocalDate;
 @Table(name = "rates")
 public class Rate {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
     @Column(name = "date")
     private LocalDate date;
-    @Column(name = "price")
+    @Column(name = "value")
     private Double value;
 }
-//    id
-//    date
-//    value
-

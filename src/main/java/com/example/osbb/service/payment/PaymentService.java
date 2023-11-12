@@ -11,36 +11,49 @@ import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.Payment;
 import com.example.osbb.enums.TypeOfBill;
 import com.example.osbb.service.ServiceMessages;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
 public class PaymentService implements IPaymentService {
+    private static final Logger log = Logger.getLogger(PaymentService.class);
     @Autowired
     PaymentDAO paymentDAO;
     @Autowired
     OwnershipDAO ownershipDAO;
     @Autowired
     RateDAO rateDAO;
+    @Value("${start.date.rate}")
+    private String startLocalDateRate;
 
     // one ------------------------
     @Override
     public Object createPayment(Payment payment) {
         try {
+            log.info("Create method : enter");
             payment.setDate(LocalDateTime.now());
+            payment = paymentDAO.save(payment);
+            log.info("Платёж создан успешно");
+            log.info("Create method : exit");
             return Response
                     .builder()
-                    .data(paymentDAO.save(payment))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(payment)
+                    .messages(List.of("Платёж создан успешно"))
                     .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -50,7 +63,7 @@ public class PaymentService implements IPaymentService {
         List<String> errors = new ArrayList<>();
         try {
             if (!paymentDAO.existsById(id)) {
-                errors.add(ServiceMessages.NOT_EXISTS);
+                errors.add("Платёж с id= " + id + " не существует");
             }
             return errors.isEmpty() ? Response
                     .builder()
@@ -58,6 +71,8 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -69,7 +84,7 @@ public class PaymentService implements IPaymentService {
             if (paymentDAO.existsById(id)) {
                 paymentDAO.deleteById(id);
             } else {
-                errors.add(ServiceMessages.NOT_EXISTS);
+                errors.add("Платёж с id= " + id + " не существует");
             }
             return errors.isEmpty() ? Response
                     .builder()
@@ -77,6 +92,8 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(ServiceMessages.OK))
                     .build() : new ResponseMessages(errors);
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -99,6 +116,8 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -116,6 +135,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -126,6 +147,8 @@ public class PaymentService implements IPaymentService {
             paymentDAO.deleteAll();
             return new ResponseMessages(List.of(ServiceMessages.OK));
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -145,6 +168,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -162,6 +187,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -183,6 +210,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -203,6 +232,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -210,6 +241,7 @@ public class PaymentService implements IPaymentService {
     // получить текущее сальдо платёжных операций ---------------------
     @Override
     public Object getBalanceAllPayment() {
+
         try {
             return Response
                     .builder()
@@ -219,6 +251,8 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(ServiceMessages.OK))
                     .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -226,13 +260,18 @@ public class PaymentService implements IPaymentService {
     // получить сальдо платежей по помещениям всего дома
     @Override
     public Object getBalanceHouse() {
+        log.info("Method getBalanceHouse : enter");
         try {
+            log.info("Баланс сформирован успешно");
+            log.info("Method getBalanceHouse : exit");
             return Response
                     .builder()
                     .data(getListEntryBalanceHouse())
-                    .messages(List.of(ServiceMessages.OK, "Баланс сформирован успешно."))
+                    .messages(List.of("Баланс сформирован успешно"))
                     .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -240,8 +279,10 @@ public class PaymentService implements IPaymentService {
     // получить сумму платежей по данному лицевому счёту
     @Override
     public Object getSummaAllPaymentByBill(String bill) {
+        log.info("Method getSummaAllPaymentByBill : enter");
         try {
             List<Payment> result = paymentDAO.findAllByBill(bill);
+            log.info("Method getSummaAllPaymentByBill : exit");
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -251,6 +292,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -258,8 +301,10 @@ public class PaymentService implements IPaymentService {
     // получить сумму платежей посредством описания
     @Override
     public Object getSummaAllPaymentByDescription(String description) {
+        log.info("Method getSummaAllPaymentByDescription : enter");
         try {
             List<Payment> result = paymentDAO.findAllByDescription(description);
+            log.info("Method getSummaAllPaymentByDescription : exit");
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -269,14 +314,18 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
 
     @Override
     public Object getSummaAllPaymentByBillAndDateBetween(String bill, LocalDateTime from, LocalDateTime to) {
+        log.info("Method getSummaAllPaymentByBillAndDateBetween : enter");
         try {
             List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to);
+            log.info("Method getSummaAllPaymentByBillAndDateBetween : exit");
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -286,14 +335,18 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
 
     @Override
     public Object getSummaAllPaymentByDescriptionAndDateBetween(String description, LocalDateTime from, LocalDateTime to) {
+        log.info("Method getSummaAllPaymentByDescriptionAndDateBetween : enter");
         try {
             List<Payment> result = paymentDAO.findAllPaymentByDescriptionAndDateBetween(description, from, to);
+            log.info("Method getSummaAllPaymentByDescriptionAndDateBetween : exit");
             return result.isEmpty() ?
                     new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
                     :
@@ -303,6 +356,8 @@ public class PaymentService implements IPaymentService {
                             .messages(List.of(ServiceMessages.OK))
                             .build();
         } catch (Exception e) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
     }
@@ -319,57 +374,67 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment) {
-        // начальная точка времени 2021-01-01
-        LocalDate from = LocalDate.of(2021, 1, 1);
-        // первое число прошлого месяца  2021-09-01
-        LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth().minus(1), 1);
-        // получаем лицевой счёт по номеру помещения
-        String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
-        // получаем общую площадь по номеру помещения
-        Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
-        // получаем уплоченную сумму за всё время по данному счёту
-        Double summaPaid = getSummaFromListPayment(paymentDAO.findAllPaymentByBillAndDateBetween(
-                bill,
-                mapLocalDateToLocaldateTime(from),
-                mapLocalDateToLocaldateTime(to.minusMonths(1))));
-        // получаем начисленную сумму за промежуток времени от начальная точка времени  до первого числа прошлого месяца
-        Double debtAtBeginningPeriod = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, from);
-        // получаем начисленную сумму за промежуток времени от первого числа прошлого месяца  до сегодняшнего дня минус один месяц
-        Double summaAccrued = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, to.minusMonths(1));
+        try {
+            log.info("Method getDebtInvoiceNotificationByApartment : enter");
+            log.info("startLocalDateRate = " + startLocalDateRate);
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+            LocalDate from = LocalDate.parse(startLocalDateRate, df);
+            log.info("Начальная дата начисления (2023-11-01) LocalDate from= " + from);
+            LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth().minus(1), 1);
+            log.info("Первое число прошлого месяца от текущей даты LocalDate to= " + to);
+            String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
+            log.info("Номер лицевого счёта по номеру помещения = " + bill);
+            Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
+            log.info("Общая площадь по номеру помещения = " + totalAreaRoom);
+            Double summaPaid = getSummaFromListPayment(paymentDAO.findAllPaymentByBillAndDateBetween(
+                    bill,
+                    mapLocalDateToLocaldateTime(from),
+                    mapLocalDateToLocaldateTime(to.minusMonths(1))));
+            log.info("Уплоченная сумма за всё время по данному счёту = " + summaPaid);
+            Double debtAtBeginningPeriod = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, from);
+            log.info("Начисленная сумма от начальной точки начисления  до первого числа прошлого месяца текущего года = " + debtAtBeginningPeriod);
+            Double summaAccrued = getSummaAccruedBetweenDateAndDateNow(totalAreaRoom, to.minusMonths(1));
+            log.info("Начисленная сумма за промежуток времени от заданой даты до сегодняшнего дня минус один месяц = " + summaAccrued);
+            //---------------------------------------------------------------------------
+            Double recalculationForServicesNotReceived = 0.00;
+            Double subsidyMonetization = 0.00;
+            Double monetizationBenefits = 0.00;
+            Double debt = debtAtBeginningPeriod
+                    + summaAccrued
+                    - summaPaid
+                    - monetizationBenefits
+                    - subsidyMonetization
+                    - recalculationForServicesNotReceived;
+            log.info("Итого долг составляет = " + debt);
+            HeaderInvoiceNotification header = HeaderInvoiceNotification
+                    .builder()
+                    .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
+                    .bill(bill)
+                    .area(formatDoubleValue(totalAreaRoom))
+                    .currentTime(LocalDateTime.now())
+                    .build();
 
-        //---------------------------------------------------------------------------
-        Double recalculationForServicesNotReceived = 0.00;
-        Double subsidyMonetization = 0.00;
-        Double monetizationBenefits = 0.00;
-        Double debt = debtAtBeginningPeriod
-                + summaAccrued
-                - summaPaid
-                - monetizationBenefits
-                - subsidyMonetization
-                - recalculationForServicesNotReceived;
+            BodyInvoiceNotification body = BodyInvoiceNotification
+                    .builder()
+                    .beginningPeriod(to)
+                    .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
+                    .rate(formatDoubleValue(rateDAO.findByDate(to).getValue()))
+                    .accrued(summaAccrued)
+                    .recalculationForServicesNotReceived(formatDoubleValue(recalculationForServicesNotReceived))
+                    .subsidyMonetization(formatDoubleValue(subsidyMonetization))
+                    .monetizationBenefits(formatDoubleValue(monetizationBenefits))
+                    .paid(summaPaid)
+                    .debtAtFinalizingPeriod(formatDoubleValue(debt))
+                    .finalizingPeriod(to.plusMonths(1).minusDays(1))
+                    .build();
+            log.info("Method getDebtInvoiceNotificationByApartment : exit");
+            return new InvoiceNotification(header, body);
+        } catch (Exception error) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(error.getMessage());
+            throw new RuntimeException(error);
+        }
 
-        HeaderInvoiceNotification header = HeaderInvoiceNotification
-                .builder()
-                .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
-                .bill(bill)
-                .area(formatDoubleValue(totalAreaRoom))
-                .currentTime(LocalDateTime.now())
-                .build();
-
-        BodyInvoiceNotification body = BodyInvoiceNotification
-                .builder()
-                .beginningPeriod(to)
-                .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
-                .rate(formatDoubleValue(rateDAO.findByDate(to).getValue()))
-                .accrued(summaAccrued)
-                .recalculationForServicesNotReceived(formatDoubleValue(recalculationForServicesNotReceived))
-                .subsidyMonetization(formatDoubleValue(subsidyMonetization))
-                .monetizationBenefits(formatDoubleValue(monetizationBenefits))
-                .paid(summaPaid)
-                .debtAtFinalizingPeriod(formatDoubleValue(debt))
-                .finalizingPeriod(to.plusMonths(1).minusDays(1))
-                .build();
-        return new InvoiceNotification(header, body);
     }
 
     @Override
@@ -383,100 +448,114 @@ public class PaymentService implements IPaymentService {
 
     @Override
     public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment) {
-        // находим лицевой счёт по номеру помещения
-        String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
-        // по номеру помещения получаем его общую площадь
-        Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
-        // заполняем заголовок ответа
-        HeaderInvoiceNotification header = HeaderInvoiceNotification
-                .builder()
-                .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
-                .bill(bill)
-                .area(formatDoubleValue(totalAreaRoom))
-                .currentTime(LocalDateTime.now())
-                .build();
-        // body const ---------------------
-        Double debtAtBeginningPeriod = 0.00;
-        Double recalculationForServicesNotReceived = 0.00;
-        Double subsidyMonetization = 0.00;
-        Double monetizationBenefits = 0.00;
-        // подготовка к циклу по дате, интервал - один месяц
-        // начальная точка -------------------
-        LocalDate from = LocalDate.of(2021, 1, 1);
-        // шаг
-        LocalDate to = from.plusMonths(1);
-        // финишная дата ---------------------
-        LocalDate dateFinish = LocalDate.now();
-        // лист для тела ответа ----------------
-        List<BodyInvoiceNotification> list = new ArrayList<>();
-        // начало цикла  --------------------------------------------
-        // проверка условия
-        while (from.isBefore(dateFinish)) {
-            // получаем сумму платёжек за циклический месяц
-            Double summaPaid = getSummaFromListPayment(paymentDAO
-                    .findAllPaymentByBillAndDateBetween(bill,
-                            mapLocalDateToLocaldateTime(from),
-                            mapLocalDateToLocaldateTime(to)));
-            // получаем начисленную сумму за оплату услуг за месяц
-            Double summaAccrued = getSummaAccruedByDate(totalAreaRoom, from);
-            // получаем месячное сально долга
-            Double debt = debtAtBeginningPeriod + summaAccrued
-                    - summaPaid
-                    - monetizationBenefits
-                    - subsidyMonetization
-                    - recalculationForServicesNotReceived;
-            // создаём элемента тела для ответа (возвращаем лист)
-            BodyInvoiceNotification body = BodyInvoiceNotification
+        try {
+            log.info("Method getDetailsDebtInvoiceNotificationByApartment : enter");
+            String bill = ownershipDAO.findByAddressApartment(apartment).getBill();
+            log.info("Лицевой счёт по номеру помещения = " + bill);
+            Double totalAreaRoom = ownershipDAO.findByAddressApartment(apartment).getTotalArea();
+            log.info("Общая площадь по номеру помещения = " + totalAreaRoom);
+            HeaderInvoiceNotification header = HeaderInvoiceNotification
                     .builder()
-                    .beginningPeriod(from)
-                    .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
-                    .rate(formatDoubleValue(rateDAO.findByDate(from).getValue()))
-                    .accrued(summaAccrued)
-                    .recalculationForServicesNotReceived(formatDoubleValue(recalculationForServicesNotReceived))
-                    .subsidyMonetization(formatDoubleValue(subsidyMonetization))
-                    .monetizationBenefits(formatDoubleValue(monetizationBenefits))
-                    .paid(summaPaid)
-                    .debtAtFinalizingPeriod(formatDoubleValue(debt))
-                    .finalizingPeriod(to.minusDays(1))
+                    .address(ownershipDAO.findByAddressApartment(apartment).getAddress())
+                    .bill(bill)
+                    .area(formatDoubleValue(totalAreaRoom))
+                    .currentTime(LocalDateTime.now())
                     .build();
-            // добавляем элемент ответа в лист тела ответа
-            list.add(body);
-            // подготовка для следующей итерации
-            debtAtBeginningPeriod = debt;
-            from = to;
-            to = to.plusMonths(1);
-        }
-        return new DebtDetails(header, list);
-    }
-    @Override
-    public List<EntryBalanceHouse> getListEntryBalanceHouse() {
-        List<EntryBalanceHouse> result = new ArrayList<>();
-        LocalDate from = LocalDate.of(2021, 1, 1);
-        LocalDate to = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonth(), 1);
-        // cycle -------------------
-        ownershipDAO.findAll().forEach(el -> {
-            String bill = el.getBill();
-            String apartment = el.getAddress().getApartment();
-            Double totalAreaRoom = el.getTotalArea();
-            Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
-            Double summaAccrued = getSummaAccrued(totalAreaRoom);
             Double debtAtBeginningPeriod = 0.00;
             Double recalculationForServicesNotReceived = 0.00;
             Double subsidyMonetization = 0.00;
             Double monetizationBenefits = 0.00;
-            Double debt = debtAtBeginningPeriod + summaAccrued
-                    - summaPaid
-                    - monetizationBenefits
-                    - subsidyMonetization
-                    - recalculationForServicesNotReceived;
-            result.add(EntryBalanceHouse
-                    .builder()
-                    .bill(bill)
-                    .apartment(apartment)
-                    .summa(formatDoubleValue(debt))
-                    .build());
-        });
-        return listSortedByApartment(result);
+            log.info("Подготовка к циклу по дате, интервал - один месяц");
+            log.info("startLocalDateRate = " + startLocalDateRate);
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+            LocalDate from = LocalDate.parse(startLocalDateRate, df);
+            log.info("Начальная дата начисления (2023-11-01) LocalDate from= " + from);
+            LocalDate to = from.plusMonths(1);
+            log.info("Шаг to = " + to);
+            LocalDate dateFinish = LocalDate.now();
+            log.info("Конечная дата начисления = " + dateFinish);
+            List<BodyInvoiceNotification> list = new ArrayList<>();
+            log.info("Начало цикла");
+            log.info("Проверка условия : " + from.isBefore(dateFinish));
+            while (from.isBefore(dateFinish)) {
+                Double summaPaid = getSummaFromListPayment(paymentDAO
+                        .findAllPaymentByBillAndDateBetween(bill,
+                                mapLocalDateToLocaldateTime(from),
+                                mapLocalDateToLocaldateTime(to)));
+                log.info("Сумма платёжек за циклический месяц = " + summaPaid);
+                Double summaAccrued = getSummaAccruedByDate(totalAreaRoom, from);
+                log.info("Начисленная сумма за оплату услуг за месяц = " + summaAccrued);
+                Double debt = debtAtBeginningPeriod + summaAccrued
+                        - summaPaid
+                        - monetizationBenefits
+                        - subsidyMonetization
+                        - recalculationForServicesNotReceived;
+                log.info(" Месячное сально долга : " + debt);
+                BodyInvoiceNotification body = BodyInvoiceNotification
+                        .builder()
+                        .beginningPeriod(from)
+                        .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
+                        .rate(formatDoubleValue(rateDAO.findByDate(from).getValue()))
+                        .accrued(summaAccrued)
+                        .recalculationForServicesNotReceived(formatDoubleValue(recalculationForServicesNotReceived))
+                        .subsidyMonetization(formatDoubleValue(subsidyMonetization))
+                        .monetizationBenefits(formatDoubleValue(monetizationBenefits))
+                        .paid(summaPaid)
+                        .debtAtFinalizingPeriod(formatDoubleValue(debt))
+                        .finalizingPeriod(to.minusDays(1))
+                        .build();
+                // добавляем элемент ответа в лист тела ответа
+                list.add(body);
+                // подготовка для следующей итерации
+                debtAtBeginningPeriod = debt;
+                from = to;
+                to = to.plusMonths(1);
+            }
+            log.info("Method getDetailsDebtInvoiceNotificationByApartment : exit");
+            return new DebtDetails(header, list);
+        } catch (Exception error) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(error.getMessage());
+            throw new RuntimeException(error);
+        }
+
+    }
+
+    @Override
+    public List<EntryBalanceHouse> getListEntryBalanceHouse() {
+        try {
+            log.info("Method getListEntryBalanceHouse : enter");
+            List<EntryBalanceHouse> result = new ArrayList<>();
+            ownershipDAO.findAll().forEach(el -> {
+                String bill = el.getBill();
+                String apartment = el.getAddress().getApartment();
+                Double totalAreaRoom = el.getTotalArea();
+                Double summaPaid = getSummaFromListPayment(paymentDAO.findAllByBill(bill));
+                Double summaAccrued = getSummaAccrued(totalAreaRoom);
+                Double debtAtBeginningPeriod = 0.00;
+                Double recalculationForServicesNotReceived = 0.00;
+                Double subsidyMonetization = 0.00;
+                Double monetizationBenefits = 0.00;
+                Double debt = debtAtBeginningPeriod + summaAccrued
+                        - summaPaid
+                        - monetizationBenefits
+                        - subsidyMonetization
+                        - recalculationForServicesNotReceived;
+                result.add(EntryBalanceHouse
+                        .builder()
+                        .bill(bill)
+                        .apartment(apartment)
+                        .summa(formatDoubleValue(debt))
+                        .build());
+            });
+            log.info("Method getListEntryBalanceHouse : exit");
+            return listSortedByApartment(result);
+        } catch (Exception error) {
+            log.error("Непредвиденная ошибка сервера");
+            log.error(error.getMessage());
+            throw new RuntimeException(error);
+        }
+
     }
 
     // help functions
@@ -517,7 +596,6 @@ public class PaymentService implements IPaymentService {
     }
 
     // получить общую сумму всех платёжек в переданном листе
-
     private Double getSummaFromListPayment(List<Payment> list) {
         return formatDoubleValue(list.stream().mapToDouble(Payment::getSumma).sum());
     }
