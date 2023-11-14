@@ -8,8 +8,4 @@ public interface ServiceMessages {
     public final String NOT_CREATED = "Объект не созданы";
     public final String NOT_UPDATED = "Объект не обновлены";
 
-    // USERNAME --------------------
-    public final String USERNAME_ALREADY_EXISTS = "Пользователь с таким USERNAME уже существует";
-
-    public final String USERNAME_NOT_EXISTS = "Пользователь с таким USERNAME не существует!";
 }

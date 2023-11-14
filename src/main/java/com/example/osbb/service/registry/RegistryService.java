@@ -96,18 +96,21 @@ public class RegistryService implements IRegistryService {
                 .countRooms(ownershipDAO.count())
                 .countApartment(ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT))
                 .countNonResidentialRoom(ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                .summaTotalArea(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum())
-                .summaTotalAreaApartment(ownershipDAO.findAll().stream()
+                .summaTotalArea(formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()))
+                .summaTotalAreaApartment(formatDoubleValue(ownershipDAO.findAll().stream()
                         .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                        .mapToDouble(Ownership::getTotalArea).sum())
-                .summaLivingAreaApartment(ownershipDAO.findAll().stream()
+                        .mapToDouble(Ownership::getTotalArea).sum()))
+                .summaLivingAreaApartment(formatDoubleValue(ownershipDAO.findAll().stream()
                         .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                        .mapToDouble(Ownership::getLivingArea).sum())
-                .summaTotalAreaNonResidentialRoom(ownershipDAO.findAll().stream()
+                        .mapToDouble(Ownership::getLivingArea).sum()))
+                .summaTotalAreaNonResidentialRoom(formatDoubleValue(ownershipDAO.findAll().stream()
                         .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                        .mapToDouble(Ownership::getTotalArea).sum())
+                        .mapToDouble(Ownership::getTotalArea).sum()))
                 .addressDto(AddressDto.getAddressDto())
                 .build();
+    }
+    private Double formatDoubleValue(Double var) {
+        return Math.rint(100.0 * var) / 100.0;
     }
 
 }

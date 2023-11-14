@@ -2,6 +2,7 @@ package com.example.osbb.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import com.example.osbb.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
@@ -23,8 +24,9 @@ public class UserService {
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
             return userDAO.save(user);
+        } else {
+            return null;
         }
-        return null;
     }
 
     public User updateUser(User user) {

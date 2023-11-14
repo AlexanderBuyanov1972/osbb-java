@@ -3,6 +3,7 @@ package com.example.osbb.entity.ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.entity.Share;
 import com.example.osbb.entity.ownership.Address;
+import com.example.osbb.enums.TypeOfHeatSupply;
 import com.example.osbb.enums.TypeOfRoom;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -53,7 +54,8 @@ public class Ownership {
     private String sewerage;
     //теплоснабжение
     @Column(name = "heat_supply")
-    private String heatSupply;
+    @Enumerated(EnumType.STRING)
+    private TypeOfHeatSupply heatSupply;
     //тепловой счётчик
     @Column(name = "heat_meter")
     private String heatMeter;

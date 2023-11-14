@@ -49,7 +49,7 @@ public class Room {
         this.waterSupply = one.getWaterSupply();
         this.waterMeter = one.getWaterMeter();
         this.sewerage = one.getSewerage();
-        this.heatSupply = one.getHeatSupply();
+        this.heatSupply = one.getHeatSupply().toString();
         this.heatMeter = one.getHeatMeter();
         this.share = share;
     }

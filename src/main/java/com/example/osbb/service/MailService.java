@@ -10,17 +10,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MailService {
-
     @Autowired
     JavaMailSender mailSender;
-
     @Value("${spring.mail.username}")
     private String username;
-
     @Value("${email_to}")
     private String emailTo;
-
-
     public void sendActivationMail(String path) {
         try {
             sendEmail(path);
@@ -28,7 +23,6 @@ public class MailService {
             e.printStackTrace();
         }
     }
-
     private void sendEmail(String path) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(username);
@@ -40,7 +34,6 @@ public class MailService {
         } catch (MailException e) {
             e.printStackTrace();
         }
-
     }
 
     private String createText(String path) {
