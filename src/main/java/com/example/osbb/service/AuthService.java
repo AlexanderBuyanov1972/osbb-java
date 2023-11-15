@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -30,7 +29,7 @@ import java.util.*;
 
 @Service
 public class AuthService {
-    private static final Logger log = LogManager.getLogger("AuthService");
+    private static final Logger log = Logger.getLogger(AuthService.class);
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     @Autowired

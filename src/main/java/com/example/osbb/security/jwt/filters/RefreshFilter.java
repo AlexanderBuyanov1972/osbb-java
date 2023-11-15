@@ -12,8 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +24,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import java.io.IOException;
 
 public class RefreshFilter extends UsernamePasswordAuthenticationFilter {
-    private static final Logger log = LogManager.getLogger("Class - RefreshFilter");
+    private static final Logger log = Logger.getLogger(RefreshFilter.class);
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
     private final CookieService cookieService;

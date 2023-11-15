@@ -7,8 +7,7 @@ import com.example.osbb.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.osbb.dao.UserDAO;
@@ -16,7 +15,7 @@ import com.example.osbb.entity.User;
 
 @Service
 public class UserService {
-    private static final Logger log = LogManager.getLogger("UserService");
+    private static final Logger log = Logger.getLogger(UserService.class);
     @Autowired
     private UserDAO userDAO;
     @Autowired

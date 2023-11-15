@@ -1,7 +1,6 @@
 package com.example.osbb.service.mail;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MailService {
-    private static final Logger log = LogManager.getLogger("MailService");
+    private static final Logger log = Logger.getLogger(MailService.class);
     @Autowired
     JavaMailSender mailSender;
     @Value("${spring.mail.username}")

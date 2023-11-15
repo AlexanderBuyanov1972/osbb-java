@@ -12,8 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +25,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private static final Logger log = LogManager.getLogger("Class - AuthenticationFilter");
+    private static final Logger log = Logger.getLogger(AuthenticationFilter.class);
     private final ObjectMapper objectMapper;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;

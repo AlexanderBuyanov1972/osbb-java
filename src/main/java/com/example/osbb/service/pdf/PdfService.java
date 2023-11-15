@@ -21,8 +21,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.property.TextAlignment;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PdfService implements IPdfService {
-    private static final Logger log = LogManager.getLogger("PdfService");
+    private static final Logger log = Logger.getLogger(PdfService.class);
     @Autowired
     IPaymentService iPaymentService;
     @Autowired

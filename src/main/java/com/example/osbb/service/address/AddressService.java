@@ -6,8 +6,7 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.ownership.Address;
 import jakarta.transaction.Transactional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AddressService implements IAddressService {
-    private static final Logger log = LogManager.getLogger("AddressService");
+    private static final Logger log = Logger.getLogger(AddressService.class);
     @Autowired
     private AddressDAO addressDAO;
 

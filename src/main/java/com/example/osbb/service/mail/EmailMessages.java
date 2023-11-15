@@ -7,7 +7,6 @@ public class EmailMessages {
     public String createActivationMessageText(String path) {
         return "Для активации перейдите по ссылке ... \n" +
                 path;
-
     }
 
     public String createActivationMessageTitle() {

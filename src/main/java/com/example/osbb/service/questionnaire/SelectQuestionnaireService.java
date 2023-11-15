@@ -1,13 +1,10 @@
 package com.example.osbb.service.questionnaire;
 
-import com.example.osbb.dao.ownership.AddressDAO;
-import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dao.QuestionnaireDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.Questionnaire;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +13,7 @@ import java.util.List;
 
 @Service
 public class SelectQuestionnaireService implements ISelectQuestionnaireService {
-    private static final Logger log = LogManager.getLogger("SelectQuestionnaireService");
+    private static final Logger log = Logger.getLogger(SelectQuestionnaireService.class);
 
     @Autowired
     QuestionnaireDAO questionnaireDAO;

@@ -1,26 +1,23 @@
 package com.example.osbb.service;
 
 import com.example.osbb.dao.TokenDAO;
-import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.entity.RefreshToken;
 import com.example.osbb.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class TokenService {
-    private static final Logger log = LogManager.getLogger("TokenService");
+    private static final Logger log = Logger.getLogger(TokenService.class);
     @Autowired
     private TokenDAO tokenDAO;
     private final String AUTHORIZATION = "Authorization";

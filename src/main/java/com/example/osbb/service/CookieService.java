@@ -1,15 +1,14 @@
 package com.example.osbb.service;
 
 import jakarta.servlet.http.Cookie;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class CookieService {
-    private static final Logger log = LogManager.getLogger("CookieService");
+    private static final Logger log = Logger.getLogger(CookieService.class);
     @Value("#{T(Integer).parseInt('${age.max.cookie}')}")
     private int ageMaxCookie;
 
