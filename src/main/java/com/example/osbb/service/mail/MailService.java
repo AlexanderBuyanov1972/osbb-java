@@ -1,5 +1,7 @@
-package com.example.osbb.service;
+package com.example.osbb.service.mail;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -10,20 +12,28 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MailService {
+    private static final Logger log = LogManager.getLogger("MailService");
     @Autowired
     JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String username;
     @Value("${email_to}")
     private String emailTo;
+
     public void sendActivationMail(String path) {
+        log.info("Method sendActivationMail : enter");
         try {
             sendEmail(path);
-        } catch (Exception e) {
-            e.printStackTrace();
+            log.info("Method sendActivationMail : exit");
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
         }
     }
+
     private void sendEmail(String path) {
+        log.info("Method sendEmail : enter");
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(username);
         simpleMailMessage.setTo(emailTo);
@@ -31,8 +41,11 @@ public class MailService {
         simpleMailMessage.setText(createText(path));
         try {
             mailSender.send(simpleMailMessage);
-        } catch (MailException e) {
-            e.printStackTrace();
+            log.info("Method sendEmail : exit");
+        } catch (MailException error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
         }
     }
 

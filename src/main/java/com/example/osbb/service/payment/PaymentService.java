@@ -10,7 +10,6 @@ import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.Payment;
 import com.example.osbb.enums.TypeOfBill;
-import com.example.osbb.service.ServiceMessages;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,63 +44,66 @@ public class PaymentService implements IPaymentService {
             log.info("Method createPayment : enter");
             payment.setDate(LocalDateTime.now());
             payment = paymentDAO.save(payment);
-            log.info("Платёж создан успешно");
+            log.info("Платёж с лицевого счёта № " + payment.getBill() + " успешно создан");
             log.info("Method createPayment : exit");
             return Response
                     .builder()
                     .data(payment)
-                    .messages(List.of("Платёж создан успешно"))
+                    .messages(List.of("Платёж с лицевого счёта № " + payment.getBill() + " успешно создан"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
     @Override
     public Object getPayment(Long id) {
         log.info("Method getPayment : enter");
-        List<String> errors = new ArrayList<>();
         try {
             if (!paymentDAO.existsById(id)) {
-                errors.add("Платёж с id= " + id + " не существует");
+                log.info("Платёж с id= " + id + " не существует");
+                log.info("Method getPayment : exit");
+                return new ResponseMessages(List.of("Платёж с id= " + id + " не существует"));
             }
+            Payment payment = paymentDAO.findById(id).get();
+            log.info("Платёж получен успешно");
             log.info("Method getPayment : exit");
-            return errors.isEmpty() ? Response
+            return Response
                     .builder()
-                    .data(paymentDAO.findById(id).orElse(null))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
+                    .data(payment)
+                    .messages(List.of("Платёж получен успешно"))
+                    .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
     @Override
     public Object deletePayment(Long id) {
         log.info("Method deletePayment : enter");
-        List<String> errors = new ArrayList<>();
         try {
             if (paymentDAO.existsById(id)) {
                 paymentDAO.deleteById(id);
-                log.info("Удаление прошло успешно");
+                log.info("Удаление платежа прошло успешно");
+                log.info("Method deletePayment : exit");
+                return Response
+                        .builder()
+                        .data(id)
+                        .messages(List.of("Удаление платежа прошло успешно"))
+                        .build();
             } else {
                 log.info("Платёж с id= " + id + " не существует");
-                errors.add("Платёж с id= " + id + " не существует");
+                log.info("Method deletePayment : exit");
+                return new ResponseMessages(List.of("Платёж с id= " + id + " не существует"));
             }
-            log.info("Method deletePayment : exit");
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -113,21 +115,27 @@ public class PaymentService implements IPaymentService {
         try {
             for (Payment payment : payments) {
                 if (!paymentDAO.existsById(payment.getId())) {
-                    result.add(paymentDAO.save(payment));
+                    payment = paymentDAO.save(payment);
+                    result.add(payment);
+                    log.info("Платёж с лицевого счёта № " + payment.getBill() + " успешно создан");
                 }
             }
+            if (result.isEmpty()) {
+                log.info("Не создано ни одного платежа");
+                log.info("Method createAllPayment : exit");
+                return new ResponseMessages(List.of("Не создано ни одного платежа"));
+            }
+            log.info("Создано " + result.size() + " платежей");
             log.info("Method createAllPayment : exit");
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_CREATED))
-                    : Response
+            return Response
                     .builder()
                     .data(listSortedByDate(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Создано " + result.size() + " платежей"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -136,19 +144,16 @@ public class PaymentService implements IPaymentService {
         log.info("Method getAllPayment : enter");
         try {
             List<Payment> result = paymentDAO.findAll();
+            log.info("Получено " + result.size() + " платежей");
             log.info("Method getAllPayment : exit");
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
-                    :
-                    Response
-                            .builder()
-                            .data(listSortedByDate(result))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build();
+            return Response.builder()
+                    .data(listSortedByDate(result))
+                    .messages(List.of("Получено " + result.size() + " платежей"))
+                    .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -157,12 +162,13 @@ public class PaymentService implements IPaymentService {
         log.info("Method deleteAllPayment : enter");
         try {
             paymentDAO.deleteAll();
+            log.info("Удалены все платежи");
             log.info("Method deleteAllPayment : exit");
-            return new ResponseMessages(List.of(ServiceMessages.OK));
+            return new ResponseMessages(List.of("Удалены все платежи"));
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -180,9 +186,9 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of("Платёжки по счёту = " + bill + " получены в количестве = " + result.size() + " штук"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -200,9 +206,9 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of("Платёжки по описанию = " + description + " получены в количестве = " + result.size() + " штук"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -227,9 +233,9 @@ public class PaymentService implements IPaymentService {
                             + result.size() + " штук"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -248,12 +254,14 @@ public class PaymentService implements IPaymentService {
             return Response
                     .builder()
                     .data(listSortedByDate(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Платёжки по описанию = " + description + " за период от "
+                            + from.toString() + " и до " + to.toString() + " получены в количестве = "
+                            + result.size() + " штук"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -273,9 +281,9 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of("Сальдо текущих операций составляет : " + saldo + " грн"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -293,9 +301,9 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of("Баланс сформирован успешно"))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", e.getMessage()));
         }
     }
 
@@ -330,9 +338,9 @@ public class PaymentService implements IPaymentService {
             log.info("Method getListEntryBalanceHouse : exit");
             return listSortedByApartment(result);
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
-            throw new RuntimeException(error);
+            throw new RuntimeException(error.getMessage());
         }
 
     }
@@ -343,18 +351,18 @@ public class PaymentService implements IPaymentService {
             log.info("Method getSummaAccrued : enter");
             LocalDate from = getStartLocalDateRate();
             log.info("Начальная точка начисления за оплату = " + from);
-            log.info("Method getSummaAccrued : enter");
-            return formatDoubleValue(
-                    rateDAO.findAll()
-                            .stream()
-                            .filter(el -> el.getDate().isBefore(LocalDate.now()))
-                            .filter(el -> from.isBefore(el.getDate()))
-                            .filter(el -> el.getDate().minusDays(1).isBefore(from))
-                            .map(el -> el.getValue() * area)
-                            .mapToDouble(Double::doubleValue).sum()
-            );
+            Double result = formatDoubleValue(rateDAO.findAll()
+                    .stream()
+                    .filter(el -> el.getDate().isBefore(LocalDate.now()))
+                    .filter(el -> from.isBefore(el.getDate()))
+                    .filter(el -> el.getDate().minusDays(1).isBefore(from))
+                    .map(el -> el.getValue() * area)
+                    .mapToDouble(Double::doubleValue).sum());
+            log.info("Начисленная сумма = " + result);
+            log.info("Method getSummaAccrued : exit");
+            return result;
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -382,7 +390,7 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of("Получена сумма = " + summa + " по счёту = " + bill))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -393,20 +401,16 @@ public class PaymentService implements IPaymentService {
     public Object getSummaAllPaymentByDescription(String description) {
         log.info("Method getSummaAllPaymentByDescription : enter");
         try {
-            List<Payment> result = paymentDAO.findAllByDescription(description);
-            Double summa = getSummaFromListPayment(result);
+            Double summa = getSummaFromListPayment(paymentDAO.findAllByDescription(description));
             log.info("Получена сумма = " + summa + " по описанию = " + description);
             log.info("Method getSummaAllPaymentByDescription : exit");
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
-                    :
-                    Response
-                            .builder()
-                            .data(summa)
-                            .messages(List.of("Получена сумма = " + summa + " по описанию = " + description))
-                            .build();
+            return Response
+                    .builder()
+                    .data(summa)
+                    .messages(List.of("Получена сумма = " + summa + " по описанию = " + description))
+                    .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -417,8 +421,7 @@ public class PaymentService implements IPaymentService {
     public Object getSummaAllPaymentByBillAndDateBetween(String bill, LocalDateTime from, LocalDateTime to) {
         log.info("Method getSummaAllPaymentByBillAndDateBetween : enter");
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to);
-            Double summa = getSummaFromListPayment(result);
+            Double summa = getSummaFromListPayment(paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to));
             String string = "Получена сумма платежей по счёту = " + bill + " за период от "
                     + from.toString() + " и до " + to.toString() + " на сумму = " + summa;
             log.info(string);
@@ -429,7 +432,7 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(string))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -439,8 +442,7 @@ public class PaymentService implements IPaymentService {
     public Object getSummaAllPaymentByDescriptionAndDateBetween(String description, LocalDateTime from, LocalDateTime to) {
         log.info("Method getSummaAllPaymentByDescriptionAndDateBetween : enter");
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByDescriptionAndDateBetween(description, from, to);
-            Double summa = getSummaFromListPayment(result);
+            Double summa = getSummaFromListPayment(paymentDAO.findAllPaymentByDescriptionAndDateBetween(description, from, to));
             String string = "Получена сумма платежей по описанию = " + description + " за период от "
                     + from.toString() + " и до " + to.toString() + " на сумму = " + summa;
             log.info(string);
@@ -451,7 +453,7 @@ public class PaymentService implements IPaymentService {
                     .messages(List.of(string))
                     .build();
         } catch (Exception e) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(e.getMessage());
             return new ErrorResponseMessages(List.of(e.getMessage()));
         }
@@ -472,15 +474,16 @@ public class PaymentService implements IPaymentService {
                         .messages(List.of("Долги не могут быть начислены, нет полного месяца обслуживания"))
                         .build();
             }
+            log.info("Платёжное поручение по помещению № " + apartment + " получено успешно");
             return Response
                     .builder()
                     .data(in)
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Платёжное поручение по помещению № " + apartment + " получено успешно"))
                     .build();
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("Непредвиденная ошибка сервера", error.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
 
     }
@@ -562,7 +565,7 @@ public class PaymentService implements IPaymentService {
                 return new InvoiceNotification(header, body);
             }
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -575,16 +578,17 @@ public class PaymentService implements IPaymentService {
         log.info("Method getDetailsDebtByApartment : enter");
         try {
             DebtDetails dd = getDetailsDebtInvoiceNotificationByApartment(apartment);
+            log.info("Детализация долга по помещению № " + apartment + " получена успешно");
             log.info("Method getDetailsDebtByApartment : exit");
             return Response
                     .builder()
                     .data(dd)
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Детализация долга по помещению № " + apartment + " получена успешно"))
                     .build();
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("Непредвиденная ошибка сервера", error.getMessage()));
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
 
         }
 
@@ -647,6 +651,10 @@ public class PaymentService implements IPaymentService {
                         .debtAtFinalizingPeriod(formatDoubleValue(debt))
                         .finalizingPeriod(to.minusDays(1))
                         .build();
+                log.info("Начальная дата  : " + body.getBeginningPeriod()
+                        + ", начальный долг : " + body.getDebtAtBeginningPeriod()
+                        + ", конечная дата : " + body.getFinalizingPeriod()
+                        + ", конечный долг : " + body.getDebtAtFinalizingPeriod());
                 // добавляем элемент ответа в лист тела ответа
                 list.add(body);
                 // подготовка для следующей итерации
@@ -657,7 +665,7 @@ public class PaymentService implements IPaymentService {
             log.info("Method getDetailsDebtInvoiceNotificationByApartment : exit");
             return new DebtDetails(header, list);
         } catch (Exception error) {
-            log.error("Непредвиденная ошибка сервера");
+            log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }

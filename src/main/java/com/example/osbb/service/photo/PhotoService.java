@@ -5,8 +5,9 @@ import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.owner.Photo;
-import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,147 +17,202 @@ import java.util.stream.Collectors;
 
 @Service
 public class PhotoService implements IPhotoService {
+    private static final Logger log = LogManager.getLogger("OwnershipService");
     @Autowired
     private PhotoDAO photoDAO;
 
     @Override
     @Transactional
     public Object createPhoto(Photo photo) {
+        log.info("Method createPhoto : enter");
         try {
+            photo = photoDAO.save(photo);
+            log.info("Фото с ID : " + photo.getId() + " создано успешно");
+            log.info("Method createPhoto : exit");
             return Response
                     .builder()
-                    .data(photoDAO.save(photo))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(photo)
+                    .messages(List.of("Фото с ID : " + photo.getId() + " создано успешно"))
                     .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object updatePhoto(Photo photo) {
-        List<String> list = new ArrayList<>();
+        log.info("Method updatePhoto : enter");
         try {
             if (!photoDAO.existsById(photo.getId())) {
-                list.add(ServiceMessages.NOT_EXISTS);
+                log.info("Фото с ID : " + photo.getId() + " не существует");
+                log.info("Method updatePhoto : exit");
+                return new ResponseMessages(List.of("Фото с ID : " + photo.getId() + " не существует"));
             }
-            return list.isEmpty() ? Response
+            photo = photoDAO.save(photo);
+            log.info("Фото с ID : " + photo.getId() + " создано успешно");
+            log.info("Method updatePhoto : exit");
+            return Response
                     .builder()
-                    .data(photoDAO.save(photo))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+                    .data(photo)
+                    .messages(List.of("Фото с ID : " + photo.getId() + " создано успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object getPhoto(Long id) {
-        List<String> list = new ArrayList<>();
+        log.info("Method getPhoto : enter");
         try {
             if (!photoDAO.existsById(id)) {
-                list.add(ServiceMessages.NOT_EXISTS);
+                log.info("Фото с ID : " + id + " не существует");
+                log.info("Method getPhoto : exit");
+                return new ResponseMessages(List.of("Фото с ID : " + id + " не существует"));
             }
-            return list.isEmpty() ? Response
+            Photo photo = photoDAO.findById(id).get();
+            log.info("Фото с ID : " + id + " получено успешно");
+            log.info("Method getPhoto : exit");
+            return Response
                     .builder()
-                    .data(photoDAO.findById(id).orElse(new Photo()))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+                    .data(photo)
+                    .messages(List.of("Фото с ID : " + id + " получено успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deletePhoto(Long id) {
-        List<String> list = new ArrayList<>();
+        log.info("Method deletePhoto : enter");
         try {
             if (photoDAO.existsById(id)) {
                 photoDAO.deleteById(id);
+                log.info("Фото с ID : " + id + " удалено успешно");
+                log.info("Method deletePhoto : exit");
+                return Response
+                        .builder()
+                        .data(id)
+                        .messages(List.of("Фото с ID : " + id + " удалено успешно"))
+                        .build();
             } else {
-                list.add(ServiceMessages.NOT_EXISTS);
+                log.info("Фото с ID : " + id + " не существует");
+                log.info("Method deletePhoto : exit");
+                return new ResponseMessages(List.of("Фото с ID : " + id + " не существует"));
             }
-            return list.isEmpty() ? Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object createAllPhoto(List<Photo> photos) {
+        log.info("Method createAllPhoto : enter");
         List<Photo> result = new ArrayList<>();
         try {
             for (Photo photo : photos) {
                 if (!photoDAO.existsById(photo.getId())) {
-                    result.add(photoDAO.save(photo));
+                    photo = photoDAO.save(photo);
+                    log.info("Фото с ID : " + photo.getId() + " создано успешно");
+                    result.add(photo);
                 }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_CREATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не создано ни одного фото");
+                log.info("Method createAllPhoto : exit");
+                return new ResponseMessages(List.of("Не создано ни одного фото"));
+            }
+            log.info("Создано " + result.size() + " фото");
+            log.info("Method createAllPhoto : exit");
+            return Response
                     .builder()
                     .data(listSorted(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Создано " + result.size() + " фото"))
                     .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object updateAllPhoto(List<Photo> photos) {
+        log.info("Method updateAllPhoto : enter");
         List<Photo> result = new ArrayList<>();
         try {
             for (Photo photo : photos) {
                 if (photoDAO.existsById(photo.getId())) {
-                    result.add(photoDAO.save(photo));
+                    photo = photoDAO.save(photo);
+                    log.info("Фото с ID : " + photo.getId() + " обновлено успешно");
+                    result.add(photo);
                 }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_UPDATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не обновлено ни одного фото");
+                log.info("Method updateAllPhoto : exit");
+                return new ResponseMessages(List.of("Не обновлено ни одного фото"));
+            }
+            log.info("Обновлено " + result.size() + " фото");
+            log.info("Method updateAllPhoto : exit");
+            return Response
                     .builder()
                     .data(listSorted(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Обновлено " + result.size() + " фото"))
                     .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object getAllPhoto() {
+        log.info("Method getAllPhoto : enter");
         try {
             List<Photo> result = photoDAO.findAll();
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
-                    :
-                    Response
-                            .builder()
-                            .data(listSorted(result))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            log.info("Получено " + result.size() + " фото");
+            log.info("Method getAllPhoto : exit");
+            return Response
+                    .builder()
+                    .data(listSorted(result))
+                    .messages(List.of("Получено " + result.size() + " фото"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deleteAllPhoto() {
+        log.info("Method deleteAllPhoto : enter");
         try {
             photoDAO.deleteAll();
-            return new ResponseMessages(List.of(ServiceMessages.OK));
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            log.info("Все фото удалены успешно");
+            log.info("Method deleteAllPhoto : exit");
+            return new ResponseMessages(List.of("Все фото удалены успешно"));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 

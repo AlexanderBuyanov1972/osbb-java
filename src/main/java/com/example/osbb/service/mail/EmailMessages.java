@@ -1,4 +1,4 @@
-package com.example.osbb.service;
+package com.example.osbb.service.mail;
 
 import java.time.LocalDate;
 

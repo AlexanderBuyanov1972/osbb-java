@@ -5,8 +5,9 @@ import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.ownership.Address;
-import com.example.osbb.service.ServiceMessages;
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AddressService implements IAddressService {
+    private static final Logger log = LogManager.getLogger("AddressService");
     @Autowired
     private AddressDAO addressDAO;
 
@@ -24,53 +26,68 @@ public class AddressService implements IAddressService {
     @Override
     @Transactional
     public Object createAddress(Address address) {
+        log.info("Method createAddress: enter");
         try {
-            List<String> errors = new ArrayList<>();
-            if (addressDAO.existsById(address.getId()))
-                errors.add(ServiceMessages.ALREADY_EXISTS);
-            return errors.isEmpty() ? Response
+            address = addressDAO.save(address);
+            log.info("Адресс создан успешно");
+            log.info("Method createAddress: exit");
+            return Response
                     .builder()
-                    .data(addressDAO.save(address))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+                    .data(address)
+                    .messages(List.of("Адресс создан успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object updateAddress(Address address) {
+        log.info("Method updateAddress: enter");
         try {
-            List<String> errors = new ArrayList<>();
-            if (!addressDAO.existsById(address.getId()))
-                errors.add(ServiceMessages.NOT_EXISTS);
-            return errors.isEmpty() ? Response
+            if (!addressDAO.existsById(address.getId())) {
+                log.info("Адресс с ID : " + address.getId() + " не существует");
+                return new ResponseMessages(List.of("Адресс с ID : " + address.getId() + " не существует"));
+            }
+            address = addressDAO.save(address);
+            log.info("Адресс обновлён успешно");
+            log.info("Method updateAddress: exit");
+            return Response
                     .builder()
-                    .data(addressDAO.save(address))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+                    .data(address)
+                    .messages(List.of("Адресс обновлён успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
 
     }
 
-
     @Override
     public Object getAddress(Long id) {
+        log.info("Method getAddress: enter");
         try {
-            List<String> errors = new ArrayList<>();
             if (!addressDAO.existsById(id)) {
-                errors.add(ServiceMessages.NOT_EXISTS);
+                log.info("Адресс с ID : " + id + " не существует");
+                return new ResponseMessages(List.of("Адресс с ID : " + id + " не существует"));
             }
-            return errors.isEmpty() ? Response
+            Address address = addressDAO.findById(id).get();
+            log.info("Адресс получен успешно");
+            log.info("Method getAddress: exit");
+            return Response
                     .builder()
-                    .data(addressDAO.findById(id).orElse(new Address()))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+                    .data(address)
+                    .messages(List.of("Адресс получен успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -90,10 +107,12 @@ public class AddressService implements IAddressService {
                             .floor("")
                             .apartment("")
                             .build())
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Адресс получен успешно"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -101,30 +120,35 @@ public class AddressService implements IAddressService {
     @Override
     @Transactional
     public Object deleteAddress(Long id) {
-        List<String> list = new ArrayList<>();
+        log.info("Method deleteAddress: enter");
         try {
             if (addressDAO.existsById(id)) {
                 addressDAO.deleteById(id);
+                log.info("Адресс с ID : " + id + " удалён успешно");
+                log.info("Method deleteAddress: exit");
+                return Response
+                        .builder()
+                        .data(id)
+                        .messages(List.of("Адресс с ID : " + id + " удалён успешно"))
+                        .build();
             } else {
-                list.add(ServiceMessages.NOT_EXISTS);
+                log.info("Адресс с ID : " + id + " не существует");
+                log.info("Method deleteAddress: exit");
+                return new ResponseMessages(List.of("Адресс с ID : " + id + " не существует"));
             }
-            return list.isEmpty() ? Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(list);
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
-
     }
-
 
     // ---------------- all ----------------
 
     @Override
     @Transactional
     public Object createAllAddress(List<Address> addresses) {
+        log.info("Method createAllAddress: enter");
         List<Address> result = new ArrayList<>();
         try {
             for (Address address : addresses) {
@@ -132,15 +156,23 @@ public class AddressService implements IAddressService {
                     result.add(addressDAO.save(address));
                 }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_CREATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не создано ни одного адресса");
+                log.info("Method createAllAddress: exit");
+                return new ResponseMessages(List.of("Не создано ни одного адресса"));
+
+            }
+            log.info("Создано " + result.size() + " адрессов");
+            log.info("Method createAllAddress: exit");
+            return Response
                     .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(listSortedById(result))
+                    .messages(List.of("Создано " + result.size() + " адрессов"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
 
     }
@@ -148,50 +180,66 @@ public class AddressService implements IAddressService {
     @Override
     @Transactional
     public Object updateAllAddress(List<Address> addresses) {
+        log.info("Method updateAllAddress: enter");
         List<Address> result = new ArrayList<>();
         try {
             for (Address address : addresses) {
-                if (addressDAO.existsById(address.getId())) {
+                if (addressDAO.existsById(address.getId()))
                     result.add(addressDAO.save(address));
-                }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_UPDATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не обновлено ни одного адресса");
+                log.info("Method updateAllAddress: exit");
+                return new ResponseMessages(List.of("Не обновлено ни одного адресса"));
+            }
+            log.info("Обновлено " + result.size() + " адрессов");
+            log.info("Method updateAllAddress: exit");
+            return Response
                     .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(listSortedById(result))
+                    .messages(List.of("Обновлено " + result.size() + " адрессов"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (
+                Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
+
     }
 
     @Override
     public Object getAllAddress() {
+        log.info("Method getAllAddress: enter");
         try {
             List<Address> result = addressDAO.findAll();
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
-                    :
-                    Response
-                            .builder()
-                            .data(returnListSortedById(result))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+            log.info("Получены все адресса");
+            log.info("Method getAllAddress: exit");
+            return Response
+                    .builder()
+                    .data(listSortedById(result))
+                    .messages(List.of("Получены все адресса"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deleteAllAddress() {
+        log.info("Method deleteAllAddress: enter");
         try {
             addressDAO.deleteAll();
-            return new ResponseMessages(List.of(ServiceMessages.OK));
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+            log.info("Удалены все адресса");
+            log.info("Method deleteAllAddress: exit");
+            return new ResponseMessages(List.of("Удалены все адресса"));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
 
     }
@@ -200,25 +248,33 @@ public class AddressService implements IAddressService {
 
     @Override
     public Object getAddress(String street, String house, String numberApartment) {
+        log.info("Method getAddress: enter");
         try {
-            if (!addressDAO.existsByStreetAndHouseAndApartment(street, house, numberApartment))
-                return new ErrorResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
+            if (!addressDAO.existsByStreetAndHouseAndApartment(street, house, numberApartment)) {
+                log.info("По указанным данным адресс не существует");
+                log.info("Method getAddress: exit");
+                return new ErrorResponseMessages(List.of("По указанным данным адресс не существует"));
+            }
+            Address address = addressDAO.findByStreetAndHouseAndApartment(street, house, numberApartment);
+            log.info("Адресс получен успешно");
+            log.info("Method getAddress: exit");
             return Response.builder()
-                    .data(addressDAO.findByStreetAndHouseAndApartment(street, house, numberApartment))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(address)
+                    .messages(List.of("Адресс получен успешно"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
-
     }
 
     // sorted ------------------------------
-    private List<Address> returnListSortedById(List<Address> list) {
+    private List<Address> listSortedById(List<Address> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
-    private List<Address> returnListSortedDyId(List<Address> list) {
+    private List<Address> listSortedDyId(List<Address> list) {
         return list.stream()
                 .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                 .collect(Collectors.toList());

@@ -6,6 +6,8 @@ import com.example.osbb.dao.QuestionnaireDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.Questionnaire;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,29 +16,32 @@ import java.util.List;
 
 @Service
 public class SelectQuestionnaireService implements ISelectQuestionnaireService {
+    private static final Logger log = LogManager.getLogger("SelectQuestionnaireService");
 
     @Autowired
     QuestionnaireDAO questionnaireDAO;
-    @Autowired
-    AddressDAO addressDAO;
-    @Autowired
-    OwnershipDAO ownershipDAO;
+
     //  one -------------------------------------
     @Override
     public Object selectAllQuestionnaireByTitle(String title) {
+        log.info("Method selectAllQuestionnaireByTitle : enter");
         try {
             List<Questionnaire> list = questionnaireDAO.findByTitle(title)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
+            log.info("Получено " + list.size() + " объектов.");
+            log.info("Method selectAllQuestionnaireByTitle : exit");
             return Response
                     .builder()
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -53,8 +58,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -70,8 +77,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -84,8 +93,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -101,8 +112,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -119,8 +132,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -137,8 +152,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -157,8 +174,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -175,8 +194,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -192,8 +213,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -210,8 +233,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -227,8 +252,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -241,8 +268,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -260,8 +289,10 @@ public class SelectQuestionnaireService implements ISelectQuestionnaireService {
                     .data(list)
                     .messages(List.of("Получено " + list.size() + " объектов."))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 

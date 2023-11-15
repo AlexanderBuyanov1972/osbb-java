@@ -6,9 +6,9 @@ import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.owner.Owner;
-import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Share;
-import com.example.osbb.service.ServiceMessages;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ShareService implements IShareService {
+    private static final Logger log = LogManager.getLogger("ShareService");
     @Autowired
     ShareDAO shareDAO;
     @Autowired
@@ -25,233 +26,330 @@ public class ShareService implements IShareService {
 
     @Override
     public Object createShare(Share share) {
+        log.info("Method createShare : enter");
         List<String> errors = new ArrayList<>();
         try {
-            if (share.getOwnership() == null)
+            if (share.getOwnership() == null) {
+                log.info("В этой доле помещение не существует");
                 errors.add("В этой доле помещение не существует");
-            if (share.getOwner() == null)
+            }
+
+            if (share.getOwner() == null) {
+                log.info("В этой доле собственник не существует");
                 errors.add("В этой доле собственник не существует");
-            if (shareDAO.existsById(share.getId()))
-                errors.add(ServiceMessages.ALREADY_EXISTS);
-            if (isContentShare(share))
+            }
+
+            if (shareDAO.existsById(share.getId())) {
+                log.info("Доля с ID : " + share.getId() + " уже существует");
+                errors.add("Доля с ID : " + share.getId() + " уже существует");
+            }
+
+            if (isContentShare(share)) {
+                log.info("Не может быть двух долей для одной пары собственник-собственность");
                 errors.addAll(List.of("Не может быть двух долей для одной пары собственник-собственность",
-                        "Проверте правильность заполнения данных"));
-            if(errors.isEmpty()){
+                        "Проверьте правильность заполнения данных"));
+            }
+
+            if (errors.isEmpty()) {
                 Owner owner = share.getOwner();
                 owner.setActive(true);
                 share.setOwner(owner);
                 ownerDAO.save(owner);
             }
-
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(shareDAO.save(share))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+            log.info("Method createShare : exit");
+            if (errors.isEmpty()) {
+                share = shareDAO.save(share);
+                log.info("Доля с ID : " + share.getId() + " создана успешно");
+                log.info("Method createShare : exit");
+                return Response
+                        .builder()
+                        .data(share)
+                        .messages(List.of("Доля с ID : " + share.getId() + " создана успешно"))
+                        .build();
+            }
+            log.info("Доля не создана по причине : ");
+            errors.forEach(log::info);
+            log.info("Method createShare : exit");
+            return new ResponseMessages(errors);
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     private boolean isContentShare(Share share) {
+        log.info("Method isContentShare : enter");
         for (Share one : shareDAO.findAll()) {
             if (one.getOwner().getId() == share.getOwner().getId() &&
                     one.getOwnership().getId() == share.getOwnership().getId()) {
+                log.info("Return true");
+                log.info("Method isContentShare : exit");
                 return true;
             }
         }
+        log.info("Return false");
+        log.info("Method isContentShare : exit");
         return false;
-    }
-
-    public Share getShareByOwnerAndOwnership(Owner owner, Ownership ownership) {
-        for (Share one : shareDAO.findAll()) {
-            if (one.getOwner().getId() == owner.getId() &&
-                    one.getOwnership().getId() == ownership.getId()) {
-                return one;
-            }
-        }
-        return new Share();
     }
 
     @Override
     public Object updateShare(Share share) {
+        log.info("Method updateShare : enter");
         List<String> errors = new ArrayList<>();
         try {
-            if (share.getOwnership() == null)
+            if (share.getOwnership() == null) {
+                log.info("В этой доле помещение не существует");
                 errors.add("В этой доле помещение не существует");
-            if (share.getOwner() == null)
+            }
+
+            if (share.getOwner() == null) {
+                log.info("В этой доле собственник не существует");
                 errors.add("В этой доле собственник не существует");
-            if (!shareDAO.existsById(share.getId()))
-                errors.add(ServiceMessages.NOT_EXISTS);
-            if (!isContentShare(share))
+            }
+
+            if (!shareDAO.existsById(share.getId())) {
+                log.info("Доля с ID : " + share.getId() + " не существует");
+                errors.add("Доля с ID : " + share.getId() + " не существует");
+            }
+
+            if (!isContentShare(share)) {
+                log.info("Не ни одной пары собственник-собственность по такой доле");
                 errors.addAll(List.of("Не ни одной пары собственник-собственность по такой доле",
-                        "Проверте правильность заполнения данных"));
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(shareDAO.save(share))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+                        "Проверьте правильность заполнения данных"));
+            }
+            if (errors.isEmpty()) {
+                share = shareDAO.save(share);
+                log.info("Доля с ID : " + share.getId() + " обновлена успешно");
+                log.info("Method updateShare : exit");
+                return Response
+                        .builder()
+                        .data(share)
+                        .messages(List.of("Доля с ID : " + share.getId() + " обновлена успешно"))
+                        .build();
+            }
+            log.info("Доля не обновлена по причине : ");
+            errors.forEach(log::info);
+            log.info("Method updateShare : exit");
+            return new ResponseMessages(errors);
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object getShare(Long id) {
-        List<String> errors = new ArrayList<>();
+        log.info("Method getShare : enter");
         try {
-            if (!shareDAO.existsById(id))
-                errors.add(ServiceMessages.NOT_EXISTS);
-            return errors.isEmpty() ? Response
+            if (!shareDAO.existsById(id)) {
+                log.info("Доля с ID : " + id + " не существует ");
+                log.info("Method getShare : exit");
+                return new ResponseMessages(List.of("Доля с ID : " + id + " не существует "));
+            }
+            Share share = shareDAO.findById(id).get();
+            log.info("Доля с ID : " + id + " получена успешно");
+            log.info("Method getShare : exit");
+            return Response
                     .builder()
-                    .data(shareDAO.findById(id).orElse(new Share()))
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(errors);
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+                    .data(share)
+                    .messages(List.of("Доля с ID : " + id + " получена успешно"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object deleteShare(Long id) {
-        List<String> errors = new ArrayList<>();
+        log.info("Method deleteShare : enter");
         try {
             if (shareDAO.existsById(id)) {
                 shareDAO.deleteById(id);
+                log.info("Удаление доли с ID : " + id + " прошло успешно");
+                log.info("Method deleteShare : exit");
+                return Response
+                        .builder()
+                        .data(id)
+                        .messages(List.of("Удаление доли с ID : " + id + " прошло успешно"))
+                        .build();
             } else {
-                errors.add(ServiceMessages.NOT_EXISTS);
+                log.info("Доля с ID : " + id + " не существует");
+                log.info("Method deleteShare : exit");
+                return new ResponseMessages(List.of("Доля с ID : " + id + " не существует"));
             }
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(ServiceMessages.OK))
-                    .build() : new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object createAllShare(List<Share> list) {
+        log.info("Method createAllShare : enter");
         List<Share> result = new ArrayList<>();
         try {
             for (Share share : list) {
                 if (!shareDAO.existsById(share.getId())) {
-                    result.add(shareDAO.save(share));
+                    share = shareDAO.save(share);
+                    result.add(share);
+                    log.info("Доля с ID : " + share.getId() + " создана успешно");
                 }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_CREATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не создано ни одной доли");
+                log.info("Method createAllShare : exit");
+                return new ResponseMessages(List.of("Не создано ни одной доли"));
+            }
+            log.info("Создано " + result.size() + " долей");
+            log.info("Method createAllShare : exit");
+            return Response
                     .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(listSortedById(result))
+                    .messages(List.of("Создано " + result.size() + " долей"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object updateAllShare(List<Share> list) {
+        log.info("Method updateAllShare : enter");
         List<Share> result = new ArrayList<>();
         try {
             for (Share share : list) {
                 if (shareDAO.existsById(share.getId())) {
-                    result.add(shareDAO.save(share));
+                    share = shareDAO.save(share);
+                    result.add(share);
+                    log.info("Доля с ID : " + share.getId() + " обновлено успешно");
                 }
             }
-            return result.isEmpty() ? new ResponseMessages(List
-                    .of(ServiceMessages.NOT_UPDATED))
-                    : Response
+            if (result.isEmpty()) {
+                log.info("Не обновлено ни одной доли");
+                log.info("Method updateAllShare : exit");
+                return new ResponseMessages(List.of("Не обновлено ни одной доли"));
+            }
+            log.info("Обновлено " + result.size() + " долей");
+            log.info("Method updateAllShare : exit");
+            return Response
                     .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(ServiceMessages.OK))
+                    .data(listSortedById(result))
+                    .messages(List.of("Обновлено " + result.size() + " долей"))
                     .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object getAllShare() {
+        log.info("Method getAllShare : enter");
         try {
             List<Share> result = shareDAO.findAll();
-            return result.isEmpty() ?
-                    new ResponseMessages(List.of(ServiceMessages.DB_EMPTY))
-                    :
-                    Response
-                            .builder()
-                            .data(returnListSortedById(result))
-                            .messages(List.of(ServiceMessages.OK))
-                            .build();
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+            log.info("Получено " + result.size() + " долей");
+            log.info("Method getAllShare : exit");
+            return Response
+                    .builder()
+                    .data(listSortedById(result))
+                    .messages(List.of("Получено " + result.size() + " долей"))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object deleteAllShare() {
+        log.info("Method getAllShare : enter");
         try {
             shareDAO.deleteAll();
-            return new ResponseMessages(List.of(ServiceMessages.OK));
-        } catch (Exception exception) {
-            return new ErrorResponseMessages(List.of(exception.getMessage()));
+            log.info("Все доли удалены успешно");
+            log.info("Method getAllShare : exit");
+            return new ResponseMessages(List.of("Все доли удалены успешно"));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
     @Override
     public Object getShareByApartmentAndFullName(String apartment, String fullName) {
-        String[] fios = fullName.split(" ");
-        if (!shareDAO.existsByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
-                apartment,
-                fios[0],
-                fios[1],
-                fios[2])) {
-            return new ResponseMessages(List.of(ServiceMessages.NOT_EXISTS));
+        log.info("Method getShareByApartmentAndFullName : enter");
+        try {
+            String[] fios = fullName.split(" ");
+            if (!shareDAO.existsByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
+                    apartment, fios[0], fios[1], fios[2])) {
+                log.info("Доля с номером помещения : " + apartment
+                        + " и ФИО : " + fullName + " не существует");
+                log.info("Method getShareByApartmentAndFullName : exit");
+                return new ResponseMessages(List.of("Доля с номером помещения : " + apartment
+                        + " и ФИО : " + fullName + " не существует"));
+            }
+            Share share = shareDAO.findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
+                    apartment, fios[0], fios[1], fios[2]);
+            log.info("share.getValue() : " + share.getValue() + ", apartment : " + apartment + ", fullName : " + fullName);
+            log.info("Method getShareByApartmentAndFullName : exit");
+            return Response
+                    .builder()
+                    .data(share)
+                    .messages(List.of("share.getValue() : " + share.getValue() + ", apartment : " + apartment + ", fullName : " + fullName))
+                    .build();
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
-
-        Share share = shareDAO.findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
-                apartment,
-                fios[0],
-                fios[1],
-                fios[2]);
-        return Response
-                .builder()
-                .data(share)
-                .messages(List.of(ServiceMessages.OK))
-                .build();
     }
 
     @Override
     public Object deleteShareByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
+        log.info("Method deleteShareByOwnerIdAndOwnershipId : enter");
         try {
             Share share = shareDAO.findAll().stream()
                     .filter(s -> s.getOwner().getId() == ownerId)
                     .filter(s -> s.getOwnership().getId() == ownershipId)
                     .findFirst().orElse(null);
             if (share == null) {
+                log.info("По данным ID собственника : " + ownerId + " и ID помещения : " + ownershipId + " не существует");
+                log.info("Method deleteShareByOwnerIdAndOwnershipId : exit");
                 return Response
                         .builder()
                         .data(new Share())
-                        .messages(List.of("По данным ID собственника и ID помещения не существует"))
+                        .messages(List.of("По данным ID собственника : "
+                                + ownerId + " и ID помещения : "
+                                + ownershipId + " не существует"))
                         .build();
             }
             shareDAO.deleteById(share.getId());
             if (isShareListEmptyByOwnerId(ownerId)) {
                 Owner owner = ownerDAO.findById(ownerId).get();
-                // деактивация собственника, по причине отсутствия записей с его участием
+                log.info("Деактивация собственника, по причине отсутствия записей с его участием");
                 owner.setActive(false);
                 ownerDAO.save(owner);
             }
-
+            log.info("Удаление доли прошло успешно");
+            log.info("Method deleteShareByOwnerIdAndOwnershipId : exit");
             return Response
                     .builder()
                     .data(share.getId())
-                    .messages(List.of(ServiceMessages.OK))
+                    .messages(List.of("Удаление доли прошло успешно"))
                     .build();
-        } catch (Exception e) {
-            return new ErrorResponseMessages(List.of(e.getMessage()));
+        } catch (Exception error) {
+            log.error("UNEXPECTED SERVER ERROR");
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
         }
     }
 
@@ -263,7 +361,7 @@ public class ShareService implements IShareService {
     }
 
     // sorted -------------------------------
-    private List<Share> returnListSortedById(List<Share> list) {
+    private List<Share> listSortedById(List<Share> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 }
