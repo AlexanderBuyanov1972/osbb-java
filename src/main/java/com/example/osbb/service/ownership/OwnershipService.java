@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class OwnershipService implements IOwnershipService {
-    private static final Logger log = Logger.getLogger(OwnershipService.class);
+    private static final Logger log = Logger.getLogger(IOwnershipService.class);
     @Autowired
     private OwnershipDAO ownershipDAO;
     @Autowired

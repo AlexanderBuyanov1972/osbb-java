@@ -95,11 +95,11 @@ public class OwnerService implements IOwnerService {
                 return new ResponseMessages(List.of("Собственник с ID : " + id + " не существует"));
             }
             Owner owner = ownerDAO.findById(id).get();
-            log.info("Получение собственника прошло успешно");
+            log.info("Получение собственника с ID : " + id + " прошло успешно");
             log.info("Method getOwner : exit");
             return Response.builder()
                     .data(owner)
-                    .messages(List.of("Получение собственника прошло успешно"))
+                    .messages(List.of("Получение собственника с ID : " + id + " прошло успешно"))
                     .build();
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
@@ -114,12 +114,12 @@ public class OwnerService implements IOwnerService {
         try {
             String[] fios = fullName.split(" ");
             Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
-            log.info("Получение собственника прошло успешно");
+            log.info("Получение собственника с ФИО : " + fullName + " прошло успешно");
             log.info("Method getOwnerByFullName : exit");
             return Response
                     .builder()
                     .data(owner)
-                    .messages(List.of("Получение собственника прошло успешно"))
+                    .messages(List.of("Получение собственника с ФИО : " + fullName + " прошло успешно"))
                     .build();
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
@@ -135,12 +135,12 @@ public class OwnerService implements IOwnerService {
         try {
             if (ownerDAO.existsById(id)) {
                 ownerDAO.deleteById(id);
-                log.info("Собственник удалён успешно");
+                log.info("Удаление собственника с ID : " + id + " прошло успешно");
                 log.info("Method deleteOwner : exit");
                 return Response
                         .builder()
                         .data(id)
-                        .messages(List.of("Собственник удалён успешно"))
+                        .messages(List.of("Удаление собственника с ID : " + id + " прошло успешно"))
                         .build();
             }
             log.info("Собственник с ID : " + id + " не существует");
