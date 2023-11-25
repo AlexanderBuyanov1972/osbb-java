@@ -53,10 +53,10 @@ public interface IOwnershipService {
     // get ownership by apartment -------------------------------
     public Object getOwnershipByApartment(String apartment);
 
-    public Object getBillByApartment(String apartment);
+    public Object getBillsByApartment(String apartment);
 
     // get room by apartment -------------------------------
-    public Object getRoomByApartment(String apartment);
+    public Object getRoomsByApartment(String apartment);
 
     // get list apartments by full name -------------------------------
     public Object getListApartmentsByFullName(String fullName);

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -121,13 +120,13 @@ public class OwnershipController {
             ApiConstants.BILL +
             ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getBillByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getBillByApartment(apartment));
+        return response.returnResponse(service.getBillsByApartment(apartment));
     }
 
     // get room by apartment -------------------------
     @GetMapping(ApiConstants.ROOM + ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getRoomByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getRoomByApartment(apartment));
+        return response.returnResponse(service.getRoomsByApartment(apartment));
     }
 
     // get list apartments by full name -----------------------

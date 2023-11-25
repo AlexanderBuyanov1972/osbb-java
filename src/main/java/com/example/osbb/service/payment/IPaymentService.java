@@ -66,12 +66,20 @@ public interface IPaymentService {
     // get invoice notification by apartment --------
     public Object getDebtByApartment(String apartment);
 
-    public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment);
+    public Object getDebtByBill(String bill);
+
+//    public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment);
+
+    public InvoiceNotification getDebtInvoiceNotificationByBill(String bill);
 
     // get invoice notification by apartment and last month --------
     public Object getDetailsDebtByApartment(String apartment);
 
-    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
+    public Object getDetailsDebtByBill(String bill);
+
+//    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
+
+    public DebtDetails getDetailsDebtInvoiceNotificationByBill(String bill);
 
     public List<EntryBalanceHouse> getListEntryBalanceHouse();
 

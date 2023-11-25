@@ -1,5 +1,6 @@
 package com.example.osbb.service.pdf;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.ownership.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
@@ -9,6 +10,7 @@ import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
+import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.payment.IPaymentService;
 import com.example.osbb.service.questionnaire.IQuestionnaireService;
@@ -23,6 +25,7 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.property.TextAlignment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -34,10 +37,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class PdfService implements IPdfService {
     private static final Logger log = Logger.getLogger(PdfService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
+    private final String PRINT_SUCCESSFULLY = "Все PDF файлы напечатаны успешно";
     @Autowired
     IPaymentService iPaymentService;
     @Autowired
@@ -49,42 +55,48 @@ public class PdfService implements IPdfService {
     // печатать задолженность за последний календарный месяц по номеру помещения в pdf файл
     @Override
     public Object printPdfDebtByApartment(InvoiceNotification in) {
-        log.info("Method printPdfDebtByApartment : enter");
+        String methodName = "printPdfDebtByApartment";
+        log.info(messageEnter(methodName));
         try {
             printPdfFile(in);
-            log.info("Method printPdfDebtByApartment : exit");
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(null)
-                    .messages(List.of("PDF файл напечатан успешно."))
+                    .messages(List.of(PRINT_SUCCESSFULLY))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в pdf файл каждый отдельно
     @Override
     public Object printListPdfDebtAllApartment() {
-        log.info("Method printListPdfDebtAllApartment : enter");
+        String methodName = "printListPdfDebtAllApartment";
+        log.info(messageEnter(methodName));
         try {
             ownershipDAO.findAll()
                     .stream()
-                    .map(el -> iPaymentService.getDebtInvoiceNotificationByApartment(
-                            el.getAddress().getApartment()))
+                    .map(el -> iPaymentService.getDebtInvoiceNotificationByBill(
+                            el.getBill()))
                     .forEach(this::printPdfFile);
-            log.info("Method printListPdfDebtAllApartment : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     private void printPdfFile(InvoiceNotification in) {
+        String methodName = "printPdfFile";
+
+        log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/payments");
             PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_" + in.getHeader().getBill() + ".pdf");
@@ -92,15 +104,20 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             writeOnePdfObject(in, doc);
             doc.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e.getMessage());
+            log.info(messageExit(methodName));
+        } catch (FileNotFoundException error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
         }
     }
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в один pdf файл
     @Override
     public Object printAllTInOnePdfDebtAllApartment() {
-        log.info("Method printAllTInOnePdfDebtAllApartment : enter");
+        String methodName = "printAllTInOnePdfDebtAllApartment";
+
+        log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/allInOne");
             AtomicInteger count = new AtomicInteger(1);
@@ -109,8 +126,8 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             ownershipDAO.findAll()
                     .stream()
-                    .map(el -> iPaymentService.getDebtInvoiceNotificationByApartment(
-                            el.getAddress().getApartment()))
+                    .map(el -> iPaymentService.getDebtInvoiceNotificationByBill(
+                            el.getBill()))
                     .sorted(comparatorByApartment())
                     .forEach(el -> {
                         writeOnePdfObject(el, doc);
@@ -119,13 +136,13 @@ public class PdfService implements IPdfService {
                         count.getAndIncrement();
                     });
             doc.close();
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printAllTInOnePdfDebtAllApartment : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -133,42 +150,54 @@ public class PdfService implements IPdfService {
     // печатать по номеру помещения детализированный долг от начальной точки до текущего месяца один pdf файл
     @Override
     public Object printPdfDebtDetailsByApartment(String apartment) {
-        log.info("Method printPdfDebtDetailsByApartment : enter");
+        String methodName = "printPdfDebtDetailsByApartment";
+        log.info(messageEnter(methodName));
         try {
-            DebtDetails debtDetails = iPaymentService.getDetailsDebtInvoiceNotificationByApartment(apartment);
-            printPdfDetailsFile(debtDetails);
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printPdfDebtDetailsByApartment : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            List<DebtDetails> list = new ArrayList<>();
+            List<String> bills = getListBillByApartment(apartment);
+            bills.forEach(bill -> {
+                list.add(iPaymentService.getDetailsDebtInvoiceNotificationByBill(bill));
+            });
+            list.forEach(this::printPdfDetailsFile);
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
+    }
+
+    private List<String> getListBillByApartment(String apartment) {
+        return ownershipDAO.findByAddressApartment(apartment)
+                .stream().map(Ownership::getBill).collect(Collectors.toList());
     }
 
     // печатать детализированный долг от начальной точки до текущего месяца по каждому помещению в отдельный файл
     @Override
     public Object printPdfDebtDetailsAllApartment() {
-        log.info("Method printPdfDebtDetailsAllApartment : enter");
+        String methodName = "printPdfDebtDetailsAllApartment";
+        log.info(messageEnter(methodName));
         try {
             ownershipDAO.findAll()
                     .stream()
-                    .map(el -> iPaymentService.getDetailsDebtInvoiceNotificationByApartment(
-                            el.getAddress().getApartment()))
+                    .map(el -> iPaymentService.getDetailsDebtInvoiceNotificationByBill(
+                            el.getBill()))
                     .forEach(this::printPdfDetailsFile);
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printPdfDebtDetailsAllApartment : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     private void printPdfDetailsFile(DebtDetails details) {
-        log.info("Method printPdfDetailsFile : enter");
+        String methodName = "printPdfDetailsFile";
+        log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/payments_details");
             PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_" + details.getHeader().getBill() + ".pdf");
@@ -176,10 +205,10 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             writeOnePdfObjectDetails(details, doc);
             doc.close();
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printPdfDetailsFile : exit");
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
         } catch (FileNotFoundException error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -189,7 +218,8 @@ public class PdfService implements IPdfService {
     // печатать баланс дома по помещениям (задолженность/переплата)
     @Override
     public Object printPdfBalanceHouse() {
-        log.info("Method printPdfBalanceHouse : enter");
+        String methodName = "printPdfBalanceHouse";
+        log.info(messageEnter(methodName));
         try {
             List<EntryBalanceHouse> list = iPaymentService.getListEntryBalanceHouse();
             Double summa = formatDoubleValue(list.stream().mapToDouble(EntryBalanceHouse::getSumma).reduce(0, (a, b) -> a + b));
@@ -226,21 +256,22 @@ public class PdfService implements IPdfService {
                 doc.add(paragraph);
             }
             doc.close();
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printPdfBalanceHouse : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
-    // questionnaire ------------------------------------------------------------------------------------------
-    // questionnaire result print -------------------
+    // опросы ------------------------------------------------------------------------------------------
+    // печатать результаты опросов по теме -------------------
     @Override
     public Object printResultQuestionnaire(String title) {
-        log.info("Method printResultQuestionnaire : enter");
+        String methodName = "printResultQuestionnaire";
+        log.info(messageEnter(methodName));
         try {
             ResultQuestionnaire result = iQuestionnaireService.getResultPoolByTitle(title);
             checkDir("D:/pdf/questionnaire_result");
@@ -306,20 +337,21 @@ public class PdfService implements IPdfService {
             }
             // finish -----------------
             doc.close();
-            log.info("Все файлы распечатаны успешно");
-            log.info("Method printResultQuestionnaire : exit");
-            return new ResponseMessages(List.of("Все файлы распечатаны успешно"));
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     // формирование объекта задолженности
     private void writeOnePdfObject(InvoiceNotification in, Document doc) {
+        String methodName = "writeOnePdfObject";
         try {
-            log.info("Method writeOnePdfObject : enter");
+            log.info(messageEnter(methodName));
             PdfFont font = createFont();
             // заголовок -----------------------
             createHeader("Счёт-уведомление по оплате за услуги по управлению ОСББ", doc, font);
@@ -350,9 +382,9 @@ public class PdfService implements IPdfService {
                 table.addCell(cell);
             }
             doc.add(table);
-            log.info("Method writeOnePdfObject : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -360,7 +392,8 @@ public class PdfService implements IPdfService {
 
     // формирование детализации объекта задолженность
     public void writeOnePdfObjectDetails(DebtDetails debtDetails, Document doc) {
-        log.info("Method writeOnePdfObjectDetails : enter");
+        String methodName = "writeOnePdfObjectDetails";
+        log.info(messageEnter(methodName));
         try {
             PdfFont font = createFont();
             // заголовок -----------------------
@@ -395,9 +428,9 @@ public class PdfService implements IPdfService {
                     }
             );
             doc.add(table);
-            log.info("Method writeOnePdfObjectDetails : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -406,7 +439,8 @@ public class PdfService implements IPdfService {
     // отдельные элементы для конструирования файла pdf
     // шапка для квитанций
     private void fillHeaderPdfFile(HeaderInvoiceNotification header, Document doc, PdfFont font) {
-        log.info("Method fillHeaderPdfFile : enter");
+        String methodName = "fillHeaderPdfFile";
+        log.info(messageEnter(methodName));
         try {
             String str = header.getCurrentTime().toString();
             List<String> list = List.of(
@@ -423,9 +457,9 @@ public class PdfService implements IPdfService {
                 paragraph.setFont(font).setFontSize(10).setMarginTop(0).setMarginBottom(0);
                 doc.add(paragraph);
             }
-            log.info("Method fillHeaderPdfFile : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -433,29 +467,31 @@ public class PdfService implements IPdfService {
 
     // заголовок
     private void createHeader(String text, Document doc, PdfFont font) {
-        log.info("Method fillHeaderPdfFile : enter");
+        String methodName = "createHeader";
+        log.info(messageEnter(methodName));
         try {
             Paragraph header = new Paragraph(text);
             header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13);
             doc.add(header);
-            log.info("Method fillHeaderPdfFile : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
     }
 
     private void createHeaderBlueviolet(String text, Document doc, PdfFont font) {
-        log.info("Method createHeaderBlueviolet : enter");
+        String methodName = "createHeaderBlueviolet";
+        log.info(messageEnter(methodName));
         try {
             Color blueviolet = new DeviceRgb(138, 43, 226);
             Paragraph header = new Paragraph(text);
             header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13).setFontColor(blueviolet);
             doc.add(header);
-            log.info("Method createHeaderBlueviolet : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -463,7 +499,8 @@ public class PdfService implements IPdfService {
 
     // заголовки в таблице debt
     private void fillListCellFirstRowDebt(Table table, PdfFont font, String beginDate, String finalDate) {
-        log.info("Method fillListCellFirstRowDebt : enter");
+        String methodName = "fillListCellFirstRowDebt";
+        log.info(messageEnter(methodName));
         List<String> list = List.of(
                 "Долг на \n " + beginDate + " составляет, грн",
                 "Текущий тариф, грн/м2", "Начислено, грн", "Монетизация субсидий, грн", "Монетизация льгот, грн",
@@ -474,12 +511,13 @@ public class PdfService implements IPdfService {
             cell.add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font);
             table.addCell(cell);
         }
-        log.info("Method fillListCellFirstRowDebt : exit");
+        log.info(messageExit(methodName));
     }
 
     // заголовки в таблице debt details
     private void fillListCellFirstRowDebtDetails(Table table, PdfFont font) {
-        log.info("Method fillListCellFirstRowDebtDetails : enter");
+        String methodName = "fillListCellFirstRowDebtDetails";
+        log.info(messageEnter(methodName));
         List<String> list = List.of(
                 "Начальный период", "Долг на начало периода, грн", "Текущий тариф, грн/м2", "Начислено, грн",
                 "Монетизация субсидий, грн", "Монетизация льгот, грн",
@@ -490,7 +528,7 @@ public class PdfService implements IPdfService {
             cell.add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font);
             table.addCell(cell);
         }
-        log.info("Method fillListCellFirstRowDebtDetails : exit");
+        log.info(messageExit(methodName));
     }
 
     // sorted ----------
@@ -509,8 +547,9 @@ public class PdfService implements IPdfService {
     }
 
     private void checkDir(String str) {
+        String methodName = "checkDir";
         try {
-            log.info("Method checkDir : enter");
+            log.info(messageEnter(methodName));
             String[] lines = str.split("/");
             String path = lines[0];
             for (int i = 1; i < lines.length; i++) {
@@ -519,9 +558,9 @@ public class PdfService implements IPdfService {
                 if (!folder.exists())
                     folder.mkdir();
             }
-            log.info("Method checkDir : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -531,25 +570,28 @@ public class PdfService implements IPdfService {
     @Override
     // печатать объявление о новых реквизитах по оплате за услуги ОСББ
     public Object fillPdfNewBillForPayServiceOSBB() {
+        String methodName = "fillPdfNewBillForPayServiceOSBB";
         try {
-            log.info("Method fillPdfNewBillForPayServiceOSBB : enter");
+            log.info(messageEnter(methodName));
             printPdfNewBillForPayServiceOSBB();
-            log.info("Method fillPdfNewBillForPayServiceOSBB : exit");
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(null)
-                    .messages(List.of("PDF файл напечатан успешно."))
+                    .messages(List.of(PRINT_SUCCESSFULLY))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     private void printPdfNewBillForPayServiceOSBB() {
+        String methodName = "printPdfNewBillForPayServiceOSBB";
         try {
-            log.info("Method printPdfNewBillForPayServiceOSBB : enter");
+            log.info(messageEnter(methodName));
             checkDir("D:/pdf/for_all");
             PdfWriter writer = new PdfWriter("D:/pdf/for_all/" + "new_bill" + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
@@ -607,9 +649,9 @@ public class PdfService implements IPdfService {
                 doc.add(paragraph);
             }
             doc.close();
-            log.info("Method printPdfNewBillForPayServiceOSBB : exit");
+            log.info(messageExit(methodName));
         } catch (FileNotFoundException error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -618,15 +660,25 @@ public class PdfService implements IPdfService {
 
     // font
     private PdfFont createFont() {
-        log.info("Method createFont : enter");
+        String methodName = "createFont";
+        log.info(messageEnter(methodName));
         try {
             return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251", true);
         } catch (IOException error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
     }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
+    }
+
 
 //    Paragraph p = new Paragraph();
 //p.add("The beginning of the line ");
