@@ -1,6 +1,10 @@
 package com.example.osbb.service.pdf;
 
 import com.example.osbb.dto.InvoiceNotification;
+import com.example.osbb.dto.queries.ApartmentHeatSupply;
+
+import java.util.List;
+import java.util.Map;
 
 public interface IPdfService {
     // debt ---------------------------
@@ -21,4 +25,7 @@ public interface IPdfService {
     // result questionnaire -------------
     public Object printResultQuestionnaire(String title);
     public Object fillPdfNewBillForPayServiceOSBB();
+
+    // возвращает отсортированный лист номер квартиры - тип отопления
+    public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map);
 }

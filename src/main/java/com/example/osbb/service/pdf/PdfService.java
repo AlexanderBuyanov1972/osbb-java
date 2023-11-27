@@ -5,6 +5,7 @@ import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
 import com.example.osbb.dto.ResultQuestionnaire;
+import com.example.osbb.dto.queries.ApartmentHeatSupply;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.InvoiceNotification;
@@ -32,8 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -575,10 +575,9 @@ public class PdfService implements IPdfService {
             printPdfNewBillForPayServiceOSBB();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return Response
+            return ResponseMessages
                     .builder()
-                    .data(null)
-                    .messages(List.of(PRINT_SUCCESSFULLY))
+                    .messages(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY))
                     .build();
         } catch (Exception error) {
             log.error(ERROR_SERVER);
@@ -587,12 +586,13 @@ public class PdfService implements IPdfService {
         }
     }
 
+
     private void printPdfNewBillForPayServiceOSBB() {
         String methodName = "printPdfNewBillForPayServiceOSBB";
         try {
             log.info(messageEnter(methodName));
             checkDir("D:/pdf/for_all");
-            PdfWriter writer = new PdfWriter("D:/pdf/for_all/" + "new_bill" + ".pdf");
+            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Платёжные реквизиты ОСББ" + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
             PdfFont font = createFont();
@@ -657,6 +657,58 @@ public class PdfService implements IPdfService {
 
     }
 
+    // возвращает отсортированный лист номер квартира - тип отопления ( SELECT, CENTER, AUTO_GAZ, AUTO_ELECTRO)
+    @Override
+    public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map) {
+        String methodName = "printQueryListHeatSupplyForApartment";
+        log.info(messageEnter(methodName));
+        try {
+            checkDir("D:/pdf/queries");
+            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Поквартирная типизация отопления" + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+            doc.add(new Paragraph().add(dateTimeNow()).setFont(font));
+            createTable(map.get("CENTER"), doc, font, "централизованное");
+            createTable(map.get("AUTO_GAZ"), doc, font, "автономное (газовое)");
+            createTable(map.get("AUTO_ELECTRO"), doc, font, "автономное (электрическое)");
+            doc.close();
+            log.info(messageExit(methodName));
+        } catch (FileNotFoundException error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
+        }
+    }
+
+    private void createTable(List<ApartmentHeatSupply> list, Document doc, PdfFont font, String message) {
+        // заголовок раздела - Тип отопления
+        Paragraph p = new Paragraph();
+        p.add("Тип отопления - " + message + ", в количестве " + list.size() + " л.с.").setFont(font);
+        doc.add(p);
+        //создаём таблицу
+        float[] pointColumnWidths = {200F, 200F};
+        Table table1 = new Table(pointColumnWidths);
+        table1.setMarginTop(7).setMarginBottom(7);
+        // заполняем заголовки таблицы
+        for (String line : List.of("Помещение №", "Тип отопления")) {
+            Cell cell = new Cell();
+            cell.add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font);
+            table1.addCell(cell);
+        }
+        // заполняем строки таблицы
+        list.forEach(
+                el -> {
+                    for (String line : List.of(el.getApartment(), el.getHeatSupply())) {
+                        Cell cell = new Cell();
+                        cell.add(line).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9);
+                        table1.addCell(cell);
+                    }
+                }
+        );
+        doc.add(table1);
+    }
+
     // font
     private PdfFont createFont() {
         String methodName = "createFont";
@@ -676,6 +728,11 @@ public class PdfService implements IPdfService {
 
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
+    }
+
+    private String dateTimeNow() {
+        String time = LocalDateTime.now().toString().replace("T", ", текущее время :  ");
+        return "Текущая дата : " + time.substring(0, time.indexOf("."));
     }
 
 

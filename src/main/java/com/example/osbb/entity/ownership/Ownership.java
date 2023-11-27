@@ -59,6 +59,8 @@ public class Ownership {
     private String heatMeter;
     @Column(name = "bill")
     private String bill;
+    @Column(name="additional_information")
+    private String additionalInformation;
 
     // one to one -------------------------
 
@@ -88,6 +90,6 @@ public class Ownership {
 //    sewerage
 //    heatSupply
 //    heatMeter
+//    additionalInformation
 //    address
 //    records
-//    shares

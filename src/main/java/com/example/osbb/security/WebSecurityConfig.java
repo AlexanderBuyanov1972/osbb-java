@@ -91,7 +91,6 @@ public class WebSecurityConfig {
                 .requestMatchers(ApiConstants.PRINT, ApiConstants.PRINT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.PAYMENT, ApiConstants.PAYMENT + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.RECORD, ApiConstants.RECORD + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(ApiConstants.SHARE, ApiConstants.SHARE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.USER, ApiConstants.USER + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.OWNER, ApiConstants.OWNER + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.PHOTO, ApiConstants.PHOTO + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")

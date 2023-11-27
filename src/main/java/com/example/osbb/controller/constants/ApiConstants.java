@@ -52,7 +52,8 @@ public class ApiConstants {
     // other ------------------------------
     public static final String RECORD = "/record";
     public static final String REGISTRY = "/registry";
-    public static final String SHARE = "/share";
+    public static final String QUERIES = "/queries";
+    public static final String HEAT_SUPPLY = "/heat_supply";
 
     // --------------- summa ------------------
     public static final String SUMMA = "/summa";
