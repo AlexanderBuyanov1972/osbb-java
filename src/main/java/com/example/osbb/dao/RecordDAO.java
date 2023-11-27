@@ -4,6 +4,8 @@ import com.example.osbb.entity.Record;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import java.util.List;
+
 @EnableJpaRepositories
 public interface RecordDAO extends JpaRepository<Record, Long> {
     Record findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(String apartment,
@@ -17,6 +19,10 @@ public interface RecordDAO extends JpaRepository<Record, Long> {
                                                                                                  String secondName);
 
     boolean existsByOwnershipIdAndOwnerId(long OwnershipId, long OwnerId);
+
+    List<Record> findByOwnershipId(Long id);
+
+    List<Record> findByOwnerId(Long id);
 }
 
 

@@ -1,6 +1,6 @@
 package com.example.osbb.controller.owner;
 
-import com.example.osbb.controller.ApiConstants;
+import com.example.osbb.controller.constants.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.owner.Vehicle;
 import com.example.osbb.service.vehicle.IVehicleService;

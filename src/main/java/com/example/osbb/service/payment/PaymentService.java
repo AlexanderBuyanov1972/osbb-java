@@ -3,7 +3,7 @@ package com.example.osbb.service.payment;
 import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.PaymentDAO;
 import com.example.osbb.dao.RateDAO;
-import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.BodyInvoiceNotification;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;

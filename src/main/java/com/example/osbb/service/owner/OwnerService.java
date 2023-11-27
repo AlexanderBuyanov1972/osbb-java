@@ -1,23 +1,26 @@
 package com.example.osbb.service.owner;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.dto.pojo.Client;
 import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.entity.ownership.Ownership;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class OwnerService implements IOwnerService {
     private static final Logger log = Logger.getLogger(IOwnerService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
 
     @Autowired
     private OwnerDAO ownerDAO;
@@ -26,130 +29,137 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object createOwner(Owner owner) {
-        log.info("Method createOwner : enter");
+        String methodName = "createOwner";
+        String messageOwnerAlreadyExists = "Собственник с таким Ф.И.О. и датой рождения уже существует";
+        String messageSuccessfully = "Создание собственника прошло успешно";
+        log.info(messageEnter(methodName));
         try {
-            List<String> errors = new ArrayList<>();
             if (ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
                     owner.getLastName(),
                     owner.getFirstName(),
                     owner.getSecondName(),
                     owner.getDateBirth())) {
-                log.info("Собственник с таким Ф.И.О. и датой рождения уже существует");
-                errors.add("Собственник с таким Ф.И.О. и датой рождения уже существует");
-            }
-
-            if (ownerDAO.existsById(owner.getId())) {
-                log.info("Собственник с таким ID : " + owner.getId() + " уже существует");
-                errors.add("Собственник с таким ID : " + owner.getId() + " уже существует");
+                log.info(messageOwnerAlreadyExists);
+                log.info(messageExit(methodName));
+                return new ResponseMessages(List.of(messageOwnerAlreadyExists));
             }
             owner.setActive(false);
-            log.info("Method createOwner : exit");
-            if (!errors.isEmpty()) {
-                log.info("Method createOwner : exit");
-                return new ResponseMessages(errors);
-            }
             owner = ownerDAO.save(owner);
-            log.info("Method createOwner : exit");
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(owner)
-                    .messages(List.of("Создание собственника прошло успешно"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object updateOwner(Owner owner) {
-        log.info("Method updateOwner : enter");
+        String methodName = "updateOwner";
+        String messageOwnerNotExists = "Собственник с ID : " + owner.getId() + " не существует";
+        String messageSuccessfully = "Обновление собственника прошло успешно";
+
+        log.info(messageEnter(methodName));
         try {
             if (!ownerDAO.existsById(owner.getId())) {
-                log.info("Собственник с ID : " + owner.getId() + " не существует");
-                log.info("Method updateOwner : exit");
-                return new ResponseMessages(List.of("Собственник с ID : " + owner.getId() + " не существует"));
+                log.info(messageOwnerNotExists);
+                log.info(messageExit(methodName));
+                return new ResponseMessages(List.of(messageOwnerNotExists));
             }
             owner = ownerDAO.save(owner);
-            log.info("Обновление собственника прошло успешно");
-            log.info("Method updateOwner : enter");
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(owner)
-                    .messages(List.of("Обновление собственника прошло успешно"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object getOwner(Long id) {
-        log.info("Method getOwner : enter");
+        String methodName = "getOwner";
+        String messageNotExists = "Собственник с ID : " + id + " не существует";
+        String messageSuccessfully = "Получение собственника с ID : " + id + " прошло успешно";
+        String messageResponse = "";
+
+        log.info(messageEnter(methodName));
         try {
-            if (!ownerDAO.existsById(id)) {
-                log.info("Собственник с ID : " + id + " не существует");
-                log.info("Method getOwner : exit");
-                return new ResponseMessages(List.of("Собственник с ID : " + id + " не существует"));
-            }
-            Owner owner = ownerDAO.findById(id).get();
-            log.info("Получение собственника с ID : " + id + " прошло успешно");
-            log.info("Method getOwner : exit");
+            Owner owner = ownerDAO.findById(id).orElse(null);
+            messageResponse = owner == null ? messageNotExists : messageSuccessfully;
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(owner)
-                    .messages(List.of("Получение собственника с ID : " + id + " прошло успешно"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object getOwnerByFullName(String fullName) {
-        log.info("Method getOwnerByFullName : enter");
+        String methodName = "getOwnerByFullName";
+        String messageNotExists = "Собственник с ФИО : " + fullName + " не существует";
+        String messageSuccessfully = "Получение собственника с ФИО : " + fullName + " прошло успешно";
+        String messageResponse = "";
+
+        log.info(messageEnter(methodName));
         try {
             String[] fios = fullName.split(" ");
             Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
-            log.info("Получение собственника с ФИО : " + fullName + " прошло успешно");
-            log.info("Method getOwnerByFullName : exit");
+            messageResponse = owner == null ? messageNotExists : messageSuccessfully;
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(owner)
-                    .messages(List.of("Получение собственника с ФИО : " + fullName + " прошло успешно"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deleteOwner(Long id) {
-        log.info("Method deleteOwner : enter");
+        String methodName = "deleteOwner";
+        String messageNotExists = "Собственник с ID : " + id + " не существует";
+        String messageSuccessfully = "Удаление собственника с ID : " + id + " прошло успешно";
+        String messageResponse = messageNotExists;
+        log.info(messageEnter(methodName));
         try {
             if (ownerDAO.existsById(id)) {
                 ownerDAO.deleteById(id);
-                log.info("Удаление собственника с ID : " + id + " прошло успешно");
-                log.info("Method deleteOwner : exit");
-                return Response
-                        .builder()
-                        .data(id)
-                        .messages(List.of("Удаление собственника с ID : " + id + " прошло успешно"))
-                        .build();
+                messageResponse = messageSuccessfully;
             }
-            log.info("Собственник с ID : " + id + " не существует");
-            log.info("Method deleteOwner : exit");
-            return new ResponseMessages(List.of("Собственник с ID : " + id + " не существует"));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return Response
+                    .builder()
+                    .data(id)
+                    .messages(List.of(messageResponse))
+                    .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -157,32 +167,33 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object createAllOwner(List<Owner> owners) {
-        log.info("Method createAllOwner : enter");
+        String methodName = "createAllOwner";
+        String messageEmpty = "Ни один из собственников не создан";
+        String messageResponse = "";
+
+        log.info(messageEnter(methodName));
         try {
             List<Owner> result = new ArrayList<>();
             for (Owner one : owners) {
                 if (!ownerDAO.existsById(one.getId())) {
                     one.setActive(true);
-                    result.add(ownerDAO.save(one));
+                    one = ownerDAO.save(one);
+                    log.info("Собственник с ID : " + one.getId() + " успешно создан");
+                    result.add(one);
                 }
             }
-            if (result.isEmpty()) {
-                log.info("Ни один из собственников не создан");
-                log.info("Method createAllOwner : exit");
-                return new ResponseMessages(List.of("Ни один из собственников не создан"));
-
-            }
-            log.info("Создано " + result.size() + " собственников");
-            log.info("Method createAllOwner : exit");
+            messageResponse = result.isEmpty() ? messageEmpty : "Создано " + result.size() + " собственников";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(sortedByLastName(result))
-                    .messages(List.of("Создано " + result.size() + " собственников"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -190,96 +201,116 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object updateAllOwner(List<Owner> owners) {
-        log.info("Method updateAllOwner : enter");
+        String methodName = "updateAllOwner";
+        String messageEmpty = "Ни один из собственников не обновлён";
+        String messageResponse = "";
+
+        log.info(messageEnter(methodName));
         try {
             List<Owner> result = new ArrayList<>();
-            for (Owner contact : owners) {
-                if (ownerDAO.existsById(contact.getId())) {
-                    ownerDAO.save(contact);
-                    result.add(contact);
+            for (Owner one : owners) {
+                if (ownerDAO.existsById(one.getId())) {
+                    one = ownerDAO.save(one);
+                    log.info("Собственник с ID : " + one.getId() + " успешно обновлён");
+                    result.add(one);
                 }
             }
-            if (result.isEmpty()) {
-                log.info("Ни один из собственников не обновлён");
-                log.info("Method updateAllOwner : exit");
-                return new ResponseMessages(List.of("Ни один из собственников не обновлён"));
-            }
-            log.info("Обновлено " + result.size() + " собственников");
-            log.info("Method updateAllOwner : exit");
+            messageResponse = result.isEmpty() ? messageEmpty : "Обновлено " + result.size() + " собственников";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(sortedByLastName(result))
-                    .messages(List.of("Обновлено " + result.size() + " собственников"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object getAllOwner() {
-        log.info("Method getAllOwner : enter");
+        String methodName = "getAllOwner";
+        String messageResponse = "";
+        log.info(messageEnter(methodName));
         try {
-            List<Client> result = ownerDAO.findAll()
-                    .stream()
-                    .map(s -> new Client(s, Double.parseDouble("0")))
-                    .sorted((a, b) -> a.getLastName().compareTo(b.getLastName()))
-                    .toList();
-            log.info("Получено " + result.size() + " собственников");
-            log.info("Method getAllOwner : exit");
+            List<Owner> result = ownerDAO.findAll().stream().sorted(comparatorOwnerByLastName()).toList();
+            messageResponse = "Получено " + result.size() + " собственников";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(result)
-                    .messages(List.of("Получено " + result.size() + " собственников"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deleteAllOwner() {
-        log.info("Method deleteAllOwner : enter");
+        String methodName = "deleteAllOwner";
+        String messageResponse = "Собственники удалены успешно";
+
+        log.info(messageEnter(methodName));
         try {
             ownerDAO.deleteAll();
-            log.info("Собственники удалены успешно");
-            log.info("Method deleteAllOwner : exit");
-            return new ResponseMessages(List.of("Собственники удалены успешно"));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     // count ------------------------------
     @Override
     public Object countOwners() {
-        log.info("Method countOwners : enter");
+        String methodName = "countOwners";
+        String messageResponse = "";
+
+        log.info(messageEnter(methodName));
         try {
             long count = ownerDAO.count();
-            log.info("Количество собственников составляет : " + count);
-            log.info("Method countOwners : exit");
+            messageResponse = "Количество собственников составляет : " + count;
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(count)
-                    .messages(List.of("Количество собственников составляет : " + count))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     // sorted -------------------------------------------------------------
     private List<Owner> sortedByLastName(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
+    }
+
+    //.sorted(comparatorByBill())
+    private Comparator<Owner> comparatorOwnerByLastName() {
+        return (a, b) -> a.getLastName().compareTo(b.getLastName());
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

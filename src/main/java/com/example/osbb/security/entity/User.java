@@ -1,4 +1,4 @@
-package com.example.osbb.entity;
+package com.example.osbb.security.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

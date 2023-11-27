@@ -50,15 +50,14 @@ public interface IOwnershipService {
     // Количество нежилых помещений
     public Object countNonResidentialRoom();
 
-    // get ownership by apartment -------------------------------
-    public Object getOwnershipByApartment(String apartment);
+    // разное -----------------------------
+    // получить все объекты собственности по номеру помещения (квартиры)
+    public Object getAllOwnershipByApartment(String apartment);
 
-    public Object getBillsByApartment(String apartment);
+    // получить все лицевые счета по номеру помещения (квартиры)
+    public Object getAllBillByApartment(String apartment);
 
-    // get room by apartment -------------------------------
-    public Object getRoomsByApartment(String apartment);
-
-    // get list apartments by full name -------------------------------
-    public Object getListApartmentsByFullName(String fullName);
+    // получить все номера квартир по ФИО -------------
+    public Object getAllApartmentByFullName(String fullName);
 
 }

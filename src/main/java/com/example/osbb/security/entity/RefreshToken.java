@@ -1,4 +1,4 @@
-package com.example.osbb.entity;
+package com.example.osbb.security.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

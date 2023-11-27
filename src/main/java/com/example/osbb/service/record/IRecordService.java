@@ -26,9 +26,9 @@ public interface IRecordService {
 
     // other ---------------------------
 
-    public Object getRoomsAndClientsByOwnershipId(Long id);
+    public Object getAllRecordByOwnershipId(Long id);
 
-    public Object getRoomsAndClientsByOwnerId(Long id);
+    public Object getAllRecordByOwnerId(Long id);
 
     public Object getRecordByApartmentAndFullName(String apartment, String fullName);
 

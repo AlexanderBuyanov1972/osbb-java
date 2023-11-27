@@ -1,6 +1,6 @@
 package com.example.osbb.security.user_details;
 
-import com.example.osbb.entity.User;
+import com.example.osbb.security.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

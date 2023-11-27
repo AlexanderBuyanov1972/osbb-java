@@ -1,4 +1,4 @@
-package com.example.osbb.controller;
+package com.example.osbb.controller.constants;
 
 public class ApiConstants {
     public static final String URL_SERVER = "http://localhost:9000";

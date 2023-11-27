@@ -1,6 +1,6 @@
-package com.example.osbb.controller.ownership;
+package com.example.osbb.controller;
 
-import com.example.osbb.controller.ApiConstants;
+import com.example.osbb.controller.constants.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.service.ownership.IOwnershipService;
@@ -111,28 +111,23 @@ public class OwnershipController {
 
     // get ownership by apartment -------------------------
     @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getOwnershipByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getOwnershipByApartment(apartment));
+    public ResponseEntity<?> getAllOwnershipByApartment(@PathVariable String apartment) {
+        return response.returnResponse(service.getAllOwnershipByApartment(apartment));
     }
 
     // get personal account by apartment -------------------------
     @GetMapping(ApiConstants.APARTMENT +
             ApiConstants.BILL +
             ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getBillByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getBillsByApartment(apartment));
+    public ResponseEntity<?> getAllBillByApartment(@PathVariable String apartment) {
+        return response.returnResponse(service.getAllBillByApartment(apartment));
     }
 
-    // get room by apartment -------------------------
-    @GetMapping(ApiConstants.ROOM + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getRoomByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getRoomsByApartment(apartment));
-    }
 
     // get list apartments by full name -----------------------
     @GetMapping(ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME)
-    public ResponseEntity<?> getListApartmentsByFullName(@PathVariable String fullName) {
-        return response.returnResponse(service.getListApartmentsByFullName(fullName));
+    public ResponseEntity<?> getAllApartmentByFullName(@PathVariable String fullName) {
+        return response.returnResponse(service.getAllApartmentByFullName(fullName));
     }
 
 }

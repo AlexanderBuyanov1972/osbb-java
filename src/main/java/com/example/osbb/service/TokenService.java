@@ -1,8 +1,9 @@
 package com.example.osbb.service;
 
-import com.example.osbb.dao.TokenDAO;
-import com.example.osbb.entity.RefreshToken;
-import com.example.osbb.entity.User;
+import com.example.osbb.controller.constants.MessageConstants;
+import com.example.osbb.security.dao.TokenDAO;
+import com.example.osbb.security.entity.RefreshToken;
+import com.example.osbb.security.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,6 +19,7 @@ import java.util.List;
 @Service
 public class TokenService {
     private static final Logger log = Logger.getLogger(TokenService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private TokenDAO tokenDAO;
     private final String AUTHORIZATION = "Authorization";
@@ -46,7 +48,7 @@ public class TokenService {
             }
             log.info("Method saveRefreshToken : exit");
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -59,7 +61,7 @@ public class TokenService {
         try {
             return !email.isEmpty() ? tokenDAO.findTokenByEmail(email) : null;
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -74,7 +76,7 @@ public class TokenService {
             }
             log.info("Method removeTokenByEmail : exit");
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -94,7 +96,7 @@ public class TokenService {
                     .signWith(SignatureAlgorithm.HS256, secretAccessToken.getBytes(StandardCharsets.UTF_8))
                     .compact();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -116,7 +118,7 @@ public class TokenService {
                     .signWith(SignatureAlgorithm.HS256, secretRefreshToken.getBytes(StandardCharsets.UTF_8))
                     .compact();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -135,7 +137,7 @@ public class TokenService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -149,7 +151,7 @@ public class TokenService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }

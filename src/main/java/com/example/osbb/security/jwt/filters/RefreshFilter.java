@@ -1,7 +1,7 @@
 package com.example.osbb.security.jwt.filters;
 
-import com.example.osbb.controller.ApiConstants;
-import com.example.osbb.entity.User;
+import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.security.entity.User;
 import com.example.osbb.security.user_details.CustomUserDetails;
 import com.example.osbb.service.CookieService;
 import com.example.osbb.service.TokenService;

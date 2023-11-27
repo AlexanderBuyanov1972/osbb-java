@@ -1,9 +1,9 @@
-package com.example.osbb.dao;
+package com.example.osbb.security.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.example.osbb.entity.User;
+import com.example.osbb.security.entity.User;
 import org.springframework.stereotype.Repository;
 
 @Repository

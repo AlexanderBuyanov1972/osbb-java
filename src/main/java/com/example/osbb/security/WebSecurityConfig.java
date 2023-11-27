@@ -1,6 +1,6 @@
 package com.example.osbb.security;
 
-import com.example.osbb.controller.ApiConstants;
+import com.example.osbb.controller.constants.ApiConstants;
 import com.example.osbb.security.jwt.filters.AuthenticationFilter;
 import com.example.osbb.security.jwt.filters.AuthorizationFilter;
 import com.example.osbb.security.jwt.filters.RefreshFilter;

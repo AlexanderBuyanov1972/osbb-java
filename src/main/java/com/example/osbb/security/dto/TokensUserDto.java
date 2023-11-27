@@ -1,4 +1,4 @@
-package com.example.osbb.dto;
+package com.example.osbb.security.dto;
 
 
 import lombok.*;

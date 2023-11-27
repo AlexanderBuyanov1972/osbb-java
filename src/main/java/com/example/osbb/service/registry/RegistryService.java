@@ -1,117 +1,95 @@
 package com.example.osbb.service.registry;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
-import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
-import com.example.osbb.dao.ShareDAO;
 import com.example.osbb.dto.*;
-import com.example.osbb.dto.pojo.*;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Record;
-import com.example.osbb.entity.Share;
 import com.example.osbb.enums.TypeOfRoom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
 import org.apache.log4j.Logger;
+
 import java.util.stream.Collectors;
 
 @Service
 public class RegistryService implements IRegistryService {
     private static final Logger log = Logger.getLogger(RegistryService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
+    private final String SUCCESSFULLY = "Операция прошла успешно";
     @Autowired
     private OwnerDAO ownerDAO;
     @Autowired
     private OwnershipDAO ownershipDAO;
     @Autowired
     private RecordDAO recordDAO;
-    @Autowired
-    private ShareDAO shareDAO;
 
 
     @Override
     public Object getRegistryOwners() {
-        log.info("Method getRegistryOwners - enter");
+        String methodName = "getRegistryOwnerships";
+        log.info(messageEnter(methodName));
         try {
-            List<ListRoomAndListClient> result = new ArrayList<>();
-            Map<Long, List<Room>> map = recordDAO.findAll()
+            Map<Long, List<Record>> map = recordDAO.findAll()
                     .stream()
-                    .collect(Collectors.filtering(s -> s.getOwner().isActive(),
-                            Collectors.groupingBy(s -> s.getOwner().getId(),
-                                    Collectors.filtering(s -> s.getOwnership() != null,
-                                            Collectors.mapping(s ->
-                                                            new Room(s.getOwnership(),
-                                                                    getShareFromRecord(s)),
-                                                    Collectors.toList())))));
-            for (Long key : map.keySet()) {
-                result.add(new ListRoomAndListClient(
-                        map.get(key),
-                        List.of(new Client(
-                                ownerDAO.findById(key).orElse(new Owner()),
-                                0.00))));
-            }
-            log.info("Операция прошла успешно");
-            log.info("Method getRegistryOwners - exit");
+                    .collect(Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
+                            Collectors.filtering(s -> s.getOwnership() != null,
+                                    Collectors.groupingBy(s -> s.getOwner().getId(),
+                                            Collectors.toList()))));
+            log.info(SUCCESSFULLY);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(result)
-                    .messages(List.of("Операция прошла успешно"))
+                    .data(map.values())
+                    .messages(List.of(SUCCESSFULLY))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object getRegistryOwnerships() {
-        log.info("Method getRegistryOwnerships - enter");
+        String methodName = "getRegistryOwnerships";
+        log.info(messageEnter(methodName));
         try {
-            List<ListRoomAndListClient> result = new ArrayList<>();
-            Map<Long, List<Client>> map = recordDAO.findAll()
+            Map<String, List<Record>> map = recordDAO.findAll()
                     .stream()
-                    .collect(Collectors.groupingBy(s -> s.getOwnership().getId(),
-                            Collectors.filtering(s -> s.getOwner() != null,
-                                    Collectors.filtering(s -> s.getOwner().isActive(),
-                                            Collectors.mapping(s -> new Client(s.getOwner(),
-                                                            getShareFromRecord(s)),
-                                                    Collectors.toList())))));
-            for (Long key : map.keySet())
-                result.add(new ListRoomAndListClient(List.of(new Room(
-                        ownershipDAO.findById(key).orElse(new Ownership())
-                        , 0.00)), map.get(key)));
-            log.info("Операция прошла успешно");
-            log.info("Method getRegistryOwnerships - exit");
+                    .collect(
+                            Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
+                                    Collectors.filtering(s -> s.getOwnership() != null,
+                                            Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
+                                                    Collectors.toList()))));
+            log.info(SUCCESSFULLY);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(result)
-                    .messages(List.of("Операция прошла успешно"))
+                    .data(map.values().stream().sorted(comparatorListRecordByApartment()).collect(Collectors.toList()))
+                    .messages(List.of(SUCCESSFULLY))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-    }
-
-    private Double getShareFromRecord(Record r) {
-        return shareDAO.findAll()
-                .stream()
-                .filter(s -> s.getOwnership().equals(r.getOwnership()))
-                .filter(s -> s.getOwner().equals(r.getOwner()))
-                .map(Share::getValue).findAny().orElse(0.00);
     }
 
     @Override
     public BuildingCharacteristics getBuildingCharacteristics() {
-        log.info("Method getBuildingCharacteristics - enter");
+        String methodName = "getBuildingCharacteristics";
+        log.info(messageEnter(methodName));
+
         try {
-            return BuildingCharacteristics
+            BuildingCharacteristics bc = BuildingCharacteristics
                     .builder()
                     .countOwners(ownerDAO.count())
                     .countRooms(ownershipDAO.count())
@@ -129,8 +107,11 @@ public class RegistryService implements IRegistryService {
                             .mapToDouble(Ownership::getTotalArea).sum()))
                     .addressDto(AddressDto.getAddressDto())
                     .build();
+            log.info(SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return bc;
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -138,6 +119,20 @@ public class RegistryService implements IRegistryService {
 
     private Double formatDoubleValue(Double var) {
         return Math.rint(100.0 * var) / 100.0;
+    }
+
+    private Comparator<List<Record>> comparatorListRecordByApartment() {
+        return (a, b) -> Integer.parseInt(a.get(0).getOwnership().getAddress().getApartment())
+                - Integer.parseInt(b.get(0).getOwnership().getAddress().getApartment());
+    }
+
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

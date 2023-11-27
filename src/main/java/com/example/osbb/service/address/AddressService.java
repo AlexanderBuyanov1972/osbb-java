@@ -1,6 +1,6 @@
 package com.example.osbb.service.address;
 
-import com.example.osbb.dao.ownership.AddressDAO;
+import com.example.osbb.dao.AddressDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;

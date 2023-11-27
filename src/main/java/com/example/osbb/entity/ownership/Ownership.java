@@ -1,8 +1,6 @@
 package com.example.osbb.entity.ownership;
 
 import com.example.osbb.entity.Record;
-import com.example.osbb.entity.Share;
-import com.example.osbb.entity.ownership.Address;
 import com.example.osbb.enums.TypeOfHeatSupply;
 import com.example.osbb.enums.TypeOfRoom;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -73,10 +71,6 @@ public class Ownership {
     @OneToMany(mappedBy = "ownership", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
     @JsonIgnore
     private List<Record> records;
-
-    @OneToMany(mappedBy = "ownership", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
-    @JsonIgnore
-    private List<Share> shares;
 
 }
 

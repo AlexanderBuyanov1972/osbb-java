@@ -1,6 +1,6 @@
-package com.example.osbb.controller.account;
+package com.example.osbb.controller;
 
-import com.example.osbb.controller.ApiConstants;
+import com.example.osbb.controller.constants.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.Rate;
 import com.example.osbb.service.rate.IRateService;

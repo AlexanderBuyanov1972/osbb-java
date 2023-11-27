@@ -1,8 +1,9 @@
 package com.example.osbb.service.questionnaire;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.*;
 import com.example.osbb.dao.owner.OwnerDAO;
-import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.QuestionnaireDAO;
 import com.example.osbb.dto.ResultQuestionnaire;
 import com.example.osbb.dto.ShareTotalAreaQuestionAnswer;
@@ -25,12 +26,11 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionnaireService implements IQuestionnaireService {
     private static final Logger log = Logger.getLogger(QuestionnaireService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     QuestionnaireDAO questionnaireDAO;
     @Autowired
     RecordDAO recordDAO;
-    @Autowired
-    ShareDAO shareDAO;
     @Autowired
     OwnerDAO ownerDAO;
     @Autowired
@@ -39,24 +39,33 @@ public class QuestionnaireService implements IQuestionnaireService {
     //  result --------------------------------
     @Override
     public Object getResultOfQuestionnaireByTitle(String title) {
-        log.info("Method getResultOfQuestionnaireByTitle : enter");
+        String methodName = "getResultOfQuestionnaireByTitle";
+        String messageSuccessfully = "Результаты опроса " + title + " обработаны";
+
+        log.info(messageEnter(methodName));
         try {
             ResultQuestionnaire rq = getResultPoolByTitle(title);
-            log.info("Method getResultOfQuestionnaireByTitle : exit");
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(rq)
-                    .messages(List.of("Результаты опроса " + title + " обработаны"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public ResultQuestionnaire getResultPoolByTitle(String title) {
+        String methodName = "getResultPoolByTitle";
+        String messageSuccessfully = "Результаты опроса подготовлены успешно";
+
         try {
+            log.info(messageEnter(methodName));
+
             List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
                     .stream()
                     .filter(x -> x.getDateReceiving() != null)
@@ -65,20 +74,20 @@ public class QuestionnaireService implements IQuestionnaireService {
             Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner = createMapVotedOwner(baseList);
             Map<String, Map<TypeOfAnswer, Double>> mapVotedArea = createMapVotedArea(baseList);
             String question = new ArrayList<>(mapVotedArea.keySet()).get(0);
-            Double areaVoted = resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.BEHIND) +
+            double areaVoted = resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.BEHIND) +
                     resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.AGAINST) +
                     resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.ABSTAINED);
             Long ownerVoted = resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.BEHIND) +
                     resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.AGAINST) +
                     resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.ABSTAINED);
             Long countOwner = ownerDAO.count();
-            Double summaArea = ownershipDAO.findAll().stream()
+            double summaArea = ownershipDAO.findAll().stream()
                     .mapToDouble(Ownership::getTotalArea)
                     .sum();
             List<TypeOfAnswer> list = List.of(TypeOfAnswer.BEHIND, TypeOfAnswer.AGAINST, TypeOfAnswer.ABSTAINED);
             fillMapVotedOwnerFromNull(list, mapVotedOwner);
             fillMapVotedAreaFromNull(list, mapVotedArea);
-            return ResultQuestionnaire
+            ResultQuestionnaire rq = ResultQuestionnaire
                     .builder()
                     .processingPercentageOwner(formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)))
                     .processingPercentageArea(formatDoubleValue(areaVoted * 100 / summaArea))
@@ -89,8 +98,11 @@ public class QuestionnaireService implements IQuestionnaireService {
                     .mapVotedOwner(mapVotedOwner)
                     .mapVotedArea(mapVotedArea)
                     .build();
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
+            return rq;
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -109,7 +121,7 @@ public class QuestionnaireService implements IQuestionnaireService {
                 }
             }
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -128,7 +140,7 @@ public class QuestionnaireService implements IQuestionnaireService {
                 }
             }
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -142,7 +154,7 @@ public class QuestionnaireService implements IQuestionnaireService {
                                     Collectors.groupingBy(Questionnaire::getAnswer,
                                             Collectors.counting())));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -157,7 +169,7 @@ public class QuestionnaireService implements IQuestionnaireService {
                             Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
                                     Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -167,7 +179,7 @@ public class QuestionnaireService implements IQuestionnaireService {
         try {
             return map.get(key).get(answer) == null ? 0.00 : map.get(key).get(answer);
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -177,7 +189,7 @@ public class QuestionnaireService implements IQuestionnaireService {
         try {
             return map.get(key).get(answer) == null ? 0L : map.get(key).get(answer);
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -186,17 +198,17 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     private ShareTotalAreaQuestionAnswer computeShare(Questionnaire q) {
         try {
-            return shareDAO.findAll().stream()
+            return recordDAO.findAll().stream()
                     .filter(Objects::nonNull)
                     .filter(s -> s.getOwnership().getAddress().getApartment().equals(q.getApartment()))
                     .filter(s -> mapOwnerToFullName(s.getOwner()).equals(q.getFullName()))
                     .map(s -> new ShareTotalAreaQuestionAnswer(
                             q.getQuestion(),
                             q.getAnswer(),
-                            s.getValue() * s.getOwnership().getTotalArea())).findFirst().orElse(
+                            s.getShare() * s.getOwnership().getTotalArea())).findFirst().orElse(
                             new ShareTotalAreaQuestionAnswer());
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -207,7 +219,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     @Override
     @Transactional
     public Object createAllQuestionnaire(List<Questionnaire> questionnaires) {
-        log.info("Method createAllQuestionnaire : enter");
+        String methodName = "createAllQuestionnaire";
+        String messageSuccessfully = "";
+
+        log.info(messageEnter(methodName));
         long count = questionnaireDAO.findByTitle(questionnaires.get(0).getTitle()).size();
         List<String> messages = List.of(
                 "Создать опрос с данной темой не представляется возможным",
@@ -216,7 +231,7 @@ public class QuestionnaireService implements IQuestionnaireService {
         );
         if (count != 0) {
             messages.forEach(log::info);
-            log.info("Method createAllQuestionnaire : exit");
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(count)
@@ -235,26 +250,29 @@ public class QuestionnaireService implements IQuestionnaireService {
                         });
                     });
             int size = questionnaires.size();
-            log.info("Создано " + size + " вопросов по теме \""
-                    + questionnaires.get(0).getTitle() + "\"");
-            log.info("Method createAllQuestionnaire : exit");
+            messageSuccessfully = "Создано " + size + " вопросов по теме \""
+                    + questionnaires.get(0).getTitle() + "\"";
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(size)
-                    .messages(List.of("Создано " + size + " вопросов по теме \""
-                            + questionnaires.get(0).getTitle() + "\""))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object updateAllQuestionnaire(List<Questionnaire> questionnaires) {
-        log.info("Method updateAllQuestionnaire : enter");
+        String methodName = "updateAllQuestionnaire";
+        String messageSuccessfully = "Операция выполнена успешно";
+
+        log.info(messageEnter(methodName));
         try {
             for (Questionnaire one : questionnaires) {
                 if (questionnaireDAO.existsById(one.getId())) {
@@ -278,80 +296,104 @@ public class QuestionnaireService implements IQuestionnaireService {
                 }
             }
             //------------ finish -----------------
-            log.info("Операция выполнена успешно");
-            log.info("Method updateAllQuestionnaire : exit");
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response.builder()
-                    .messages(List.of("Операция выполнена успешно"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object getAllQuestionnaire() {
-        log.info("Method getAllQuestionnaire : enter");
+        String methodName = "getAllQuestionnaire";
+        String messageSuccessfully = "";
+
+        log.info(messageEnter(methodName));
         try {
             List<Questionnaire> list = questionnaireDAO.findAll()
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
-            log.info("Получено " + list.size() + " записей");
-            log.info("Method getAllQuestionnaire : exit");
+            messageSuccessfully = "Получено " + list.size() + " записей";
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(list)
-                    .messages(List.of("Получено " + list.size() + " записей"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deleteAllQuestionnaireByTitle(String title) {
-        log.info("Method deleteAllQuestionnaireByTitle : enter");
+        String methodName = "deleteAllQuestionnaireByTitle";
+        String messageSuccessfully = "Все вопросы по теме \"" + title + "\" удалены успешно ";
+
+        log.info(messageEnter(methodName));
         try {
             questionnaireDAO.deleteByTitle(title);
-            log.info("Все вопросы по теме \"" + title + "\" удалены успешно ");
-            log.info("Method deleteAllQuestionnaireByTitle : exit");
-            return new ResponseMessages(List.of("Все вопросы по теме \"" + title + "\" удалены успешно "));
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
+            return new ResponseMessages(List.of(messageSuccessfully));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     public Object deleteAllQuestionnaireByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
-        log.info("Method deleteAllQuestionnaireByOwnerIdAndOwnershipId : enter");
+        String methodName = "deleteAllQuestionnaireByOwnerIdAndOwnershipId";
+        String messageSuccessfully = "Оперция завершена успешно";
+        String messageOwnerNotExists = "Собственник по ID : " + ownerId + " не найден";
+        String messageOwnershipNotExists = "Объект собственности по ID : " + ownershipId + " не найден";
+
+        log.info(messageEnter(methodName));
         try {
-            String fullName = mapOwnerToFullName(ownerDAO.findById(ownerId).get());
-            String apartment = ownershipDAO.findById(ownershipId).get().getAddress().getApartment();
+            Owner owner = ownerDAO.findById(ownerId).orElse(null);
+            if (owner == null) {
+                log.info(messageOwnerNotExists);
+                return new ResponseMessages(List.of(messageOwnerNotExists));
+            }
+            String fullName = mapOwnerToFullName(owner);
+            Ownership ownership = ownershipDAO.findById(ownershipId).orElse(null);
+            if (ownership == null) {
+                log.info(messageOwnershipNotExists);
+                return new ResponseMessages(List.of(messageOwnershipNotExists));
+            }
+            String apartment = ownership.getAddress().getApartment();
+
             questionnaireDAO.deleteByFullNameAndApartment(fullName, apartment);
+
             List<String> list = questionnaireDAO.findAll()
                     .stream()
                     .map(Questionnaire::getTitle)
                     .distinct()
                     .toList();
-            log.info("Оперция завершена успешно");
-            log.info("Method deleteAllQuestionnaireByOwnerIdAndOwnershipId : exit");
+            log.info(messageSuccessfully);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
                     .data(list)
-                    .messages(List.of("Оперция завершена успешно"))
+                    .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -364,5 +406,13 @@ public class QuestionnaireService implements IQuestionnaireService {
     //Округление дробной части до 2-х запятых
     private Double formatDoubleValue(Double var) {
         return Math.rint(100.0 * var) / 100.0;
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 }

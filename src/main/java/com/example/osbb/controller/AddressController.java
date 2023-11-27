@@ -1,6 +1,6 @@
-package com.example.osbb.controller.ownership;
+package com.example.osbb.controller;
 
-import com.example.osbb.controller.ApiConstants;
+import com.example.osbb.controller.constants.ApiConstants;
 import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.ownership.Address;
 import com.example.osbb.service.address.IAddressService;

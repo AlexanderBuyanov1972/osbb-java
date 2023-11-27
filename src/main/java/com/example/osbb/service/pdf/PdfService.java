@@ -1,7 +1,7 @@
 package com.example.osbb.service.pdf;
 
 import com.example.osbb.controller.constants.MessageConstants;
-import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
 import com.example.osbb.dto.ResultQuestionnaire;
@@ -25,7 +25,6 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.property.TextAlignment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

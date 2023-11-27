@@ -1,13 +1,14 @@
 package com.example.osbb.service;
 
-import com.example.osbb.controller.ApiConstants;
-import com.example.osbb.dto.RegistrationRequest;
-import com.example.osbb.dto.TokensUserDto;
-import com.example.osbb.dto.UserDto;
+import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.MessageConstants;
+import com.example.osbb.security.dto.RegistrationRequest;
+import com.example.osbb.security.dto.TokensUserDto;
+import com.example.osbb.security.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.entity.User;
+import com.example.osbb.security.entity.User;
 import com.example.osbb.enums.TypoOfRoles;
 import com.example.osbb.service.mail.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import java.util.*;
 @Service
 public class AuthService {
     private static final Logger log = Logger.getLogger(AuthService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -74,9 +76,9 @@ public class AuthService {
                     .build();
 
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -87,9 +89,9 @@ public class AuthService {
             log.info("email : " + email);
             return doMain(email);
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -121,9 +123,9 @@ public class AuthService {
             log.info("Access token invalid or is not exists");
             return new ErrorResponseMessages(List.of("Access token invalid or is not exists"));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -146,9 +148,9 @@ public class AuthService {
                         .build();
             }
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
         log.info("The user for this activation link does not exist");
         return new ErrorResponseMessages(List.of("The user for this activation link does not exist"));
@@ -160,9 +162,9 @@ public class AuthService {
             String email = request.getAttribute("email").toString();
             return doMain(email);
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -176,9 +178,9 @@ public class AuthService {
             log.info("email : " + user.getEmail());
             return doMain(user.getEmail());
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 

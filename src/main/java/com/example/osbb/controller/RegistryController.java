@@ -1,6 +1,7 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.dao.ownership.OwnershipDAO;
+import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.service.registry.IRegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

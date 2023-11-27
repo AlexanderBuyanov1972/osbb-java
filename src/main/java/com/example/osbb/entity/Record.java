@@ -25,6 +25,10 @@ public class Record {
     @JoinColumn(name = "update_at")
     private LocalDateTime updateAt;
 
+    @JoinColumn(name = "share")
+    private Double share;
+
+
     // many to one --------------------------
 
     @ManyToOne

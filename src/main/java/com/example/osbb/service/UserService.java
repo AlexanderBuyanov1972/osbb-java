@@ -3,19 +3,22 @@ package com.example.osbb.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.osbb.dto.UserDto;
+import com.example.osbb.controller.constants.MessageConstants;
+import com.example.osbb.security.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.dto.response.ResponseMessages;
+import com.example.osbb.service.record.IRecordService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.osbb.dao.UserDAO;
-import com.example.osbb.entity.User;
+import com.example.osbb.security.dao.UserDAO;
+import com.example.osbb.security.entity.User;
 
 @Service
 public class UserService {
     private static final Logger log = Logger.getLogger(UserService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private UserDAO userDAO;
     @Autowired
@@ -69,9 +72,9 @@ public class UserService {
                     .messages(List.of("Пользователь получен успешно."))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
@@ -90,9 +93,9 @@ public class UserService {
             log.info("Method deleteUserForController : exit");
             return new ErrorResponseMessages(List.of("Пользователь с id : " +  id + " не найден."));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 

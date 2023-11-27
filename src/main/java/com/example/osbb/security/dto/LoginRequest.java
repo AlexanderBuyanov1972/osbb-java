@@ -1,6 +1,8 @@
-package com.example.osbb.dto;
+package com.example.osbb.security.dto;
 
 import lombok.*;
+
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -9,9 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RegistrationRequest {
-    private String username;
+public class LoginRequest {
     private String email;
     private String password;
-    private String role;
 }
+

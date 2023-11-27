@@ -1,6 +1,6 @@
-package com.example.osbb.dto;
+package com.example.osbb.security.dto;
 
-import com.example.osbb.entity.User;
+import com.example.osbb.security.entity.User;
 import lombok.*;
 
 @ToString

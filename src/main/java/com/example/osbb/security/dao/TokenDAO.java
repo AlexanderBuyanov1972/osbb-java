@@ -1,6 +1,6 @@
-package com.example.osbb.dao;
+package com.example.osbb.security.dao;
 
-import com.example.osbb.entity.RefreshToken;
+import com.example.osbb.security.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;

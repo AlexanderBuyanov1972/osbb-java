@@ -1,4 +1,4 @@
-package com.example.osbb.dao.ownership;
+package com.example.osbb.dao;
 
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
