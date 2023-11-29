@@ -14,8 +14,8 @@ import java.util.Objects;
 @Builder
 @Entity
 @ToString
-@Table(name = "questionnaires")
-public class Questionnaire {
+@Table(name = "surveys")
+public class Survey {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
@@ -38,7 +38,7 @@ public class Questionnaire {
     @Enumerated(EnumType.STRING)
     private TypeOfAnswer answer;
 
-    public Questionnaire(Questionnaire q, String fullName, String apartment) {
+    public Survey(Survey q, String fullName, String apartment) {
         this.title = q.getTitle();
         this.byWhom = q.getByWhom();
         this.dateDispatch = LocalDate.now();
@@ -50,7 +50,7 @@ public class Questionnaire {
 
     }
 
-    public boolean equals(Questionnaire q) {
+    public boolean equals(Survey q) {
         return Objects.equals(getTitle(), q.getTitle())
                 && Objects.equals(getQuestion(), q.getQuestion())
                 && Objects.equals(getFullName(), q.getFullName())

@@ -1,18 +1,17 @@
-package com.example.osbb.service.questionnaire;
+package com.example.osbb.service.survey;
 
 import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.*;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
-import com.example.osbb.dao.QuestionnaireDAO;
-import com.example.osbb.dto.ResultQuestionnaire;
+import com.example.osbb.dao.SurveyDAO;
+import com.example.osbb.dto.ResultSurvey;
 import com.example.osbb.dto.ShareTotalAreaQuestionAnswer;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.entity.ownership.Ownership;
-import com.example.osbb.entity.Questionnaire;
+import com.example.osbb.entity.Survey;
 import com.example.osbb.enums.TypeOfAnswer;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
@@ -24,11 +23,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class QuestionnaireService implements IQuestionnaireService {
-    private static final Logger log = Logger.getLogger(QuestionnaireService.class);
+public class SurveyService implements ISurveyService {
+    private static final Logger log = Logger.getLogger(SurveyService.class);
     private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
-    QuestionnaireDAO questionnaireDAO;
+    SurveyDAO surveyDAO;
     @Autowired
     RecordDAO recordDAO;
     @Autowired
@@ -38,13 +37,13 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     //  result --------------------------------
     @Override
-    public Object getResultOfQuestionnaireByTitle(String title) {
-        String methodName = "getResultOfQuestionnaireByTitle";
+    public Object getResultSurveyByTitle(String title) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "Результаты опроса " + title + " обработаны";
-
         log.info(messageEnter(methodName));
         try {
-            ResultQuestionnaire rq = getResultPoolByTitle(title);
+            ResultSurvey rq = getResultSurveyByTitleForPrint(title);
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
             return Response.builder()
@@ -58,36 +57,54 @@ public class QuestionnaireService implements IQuestionnaireService {
         }
     }
 
-    @Override
-    public ResultQuestionnaire getResultPoolByTitle(String title) {
-        String methodName = "getResultPoolByTitle";
+
+    public ResultSurvey getResultSurveyByTitleForPrint(String title) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "Результаты опроса подготовлены успешно";
 
         try {
             log.info(messageEnter(methodName));
-
-            List<Questionnaire> baseList = questionnaireDAO.findByTitle(title)
+            List<Survey> baseList = surveyDAO.findByTitle(title)
                     .stream()
                     .filter(x -> x.getDateReceiving() != null)
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
+            log.info("Подготовлен базовый лист в размере : " + baseList.size());
+
             Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner = createMapVotedOwner(baseList);
+            log.info("Подготовлен карта голосования личным участием в размере : " + mapVotedOwner.size());
+
             Map<String, Map<TypeOfAnswer, Double>> mapVotedArea = createMapVotedArea(baseList);
+            log.info("Подготовлен карта голосования квадратными метрами в размере : " + mapVotedArea.size());
+
             String question = new ArrayList<>(mapVotedArea.keySet()).get(0);
+            log.info("Вопрос String question = new ArrayList<>(mapVotedArea.keySet()).get(0); ---> " + question);
+
             double areaVoted = resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.BEHIND) +
                     resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.AGAINST) +
                     resultAnswerDouble(mapVotedArea, question, TypeOfAnswer.ABSTAINED);
-            Long ownerVoted = resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.BEHIND) +
-                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.AGAINST) +
-                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.ABSTAINED);
-            Long countOwner = ownerDAO.count();
+            log.info("Квадратные метры принявшие участие в голосовании : " + areaVoted);
+
             double summaArea = ownershipDAO.findAll().stream()
                     .mapToDouble(Ownership::getTotalArea)
                     .sum();
+            log.info("Общая площадь помещений в доме : " + summaArea);
+
+            Long ownerVoted = resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.BEHIND) +
+                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.AGAINST) +
+                    resultAnswerLong(mapVotedOwner, question, TypeOfAnswer.ABSTAINED);
+            log.info("Личные голоса принявшие участие в голосовании : " + ownerVoted);
+
+            Long countOwner = ownerDAO.count();
+            log.info("Всего собственников дома : " + countOwner);
+
             List<TypeOfAnswer> list = List.of(TypeOfAnswer.BEHIND, TypeOfAnswer.AGAINST, TypeOfAnswer.ABSTAINED);
             fillMapVotedOwnerFromNull(list, mapVotedOwner);
+            log.info("Заполнена карта голосования личным участием успешно");
             fillMapVotedAreaFromNull(list, mapVotedArea);
-            ResultQuestionnaire rq = ResultQuestionnaire
+            log.info("Заполнена карта голосования квадратными метрами успешно");
+            ResultSurvey rq = ResultSurvey
                     .builder()
                     .processingPercentageOwner(formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)))
                     .processingPercentageArea(formatDoubleValue(areaVoted * 100 / summaArea))
@@ -146,12 +163,12 @@ public class QuestionnaireService implements IQuestionnaireService {
         }
     }
 
-    private Map<String, Map<TypeOfAnswer, Long>> createMapVotedOwner(List<Questionnaire> baseList) {
+    private Map<String, Map<TypeOfAnswer, Long>> createMapVotedOwner(List<Survey> baseList) {
         try {
             return baseList.stream()
                     .collect(
-                            Collectors.groupingBy(Questionnaire::getQuestion,
-                                    Collectors.groupingBy(Questionnaire::getAnswer,
+                            Collectors.groupingBy(Survey::getQuestion,
+                                    Collectors.groupingBy(Survey::getAnswer,
                                             Collectors.counting())));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
@@ -160,14 +177,22 @@ public class QuestionnaireService implements IQuestionnaireService {
         }
     }
 
-    private Map<String, Map<TypeOfAnswer, Double>> createMapVotedArea(List<Questionnaire> baseList) {
+    private Map<String, Map<TypeOfAnswer, Double>> createMapVotedArea(List<Survey> baseList) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+
         try {
-            return baseList
+            Map<String, Map<TypeOfAnswer, Double>> map = baseList
                     .stream()
                     .map(this::computeShare)
+                    .peek(log::info)
                     .collect(Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getQuestion,
                             Collectors.groupingBy(ShareTotalAreaQuestionAnswer::getAnswer,
                                     Collectors.summingDouble(ShareTotalAreaQuestionAnswer::getShareTotalArea))));
+            log.info("Карта голосования квадратными метрами подготовлена успешно в размере : " + map.size());
+            log.info(messageExit(methodName));
+            return map;
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -196,7 +221,11 @@ public class QuestionnaireService implements IQuestionnaireService {
     }
 
 
-    private ShareTotalAreaQuestionAnswer computeShare(Questionnaire q) {
+    private ShareTotalAreaQuestionAnswer computeShare(Survey q) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        log.info("Входящий опрос : " + q);
         try {
             return recordDAO.findAll().stream()
                     .filter(Objects::nonNull)
@@ -205,8 +234,7 @@ public class QuestionnaireService implements IQuestionnaireService {
                     .map(s -> new ShareTotalAreaQuestionAnswer(
                             q.getQuestion(),
                             q.getAnswer(),
-                            s.getShare() * s.getOwnership().getTotalArea())).findFirst().orElse(
-                            new ShareTotalAreaQuestionAnswer());
+                            s.getShare() * s.getOwnership().getTotalArea())).findFirst().orElse(null);
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -218,12 +246,13 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     @Override
     @Transactional
-    public Object createAllQuestionnaire(List<Questionnaire> questionnaires) {
-        String methodName = "createAllQuestionnaire";
+    public Object createAllSurvey(List<Survey> surveys) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "";
 
         log.info(messageEnter(methodName));
-        long count = questionnaireDAO.findByTitle(questionnaires.get(0).getTitle()).size();
+        long count = surveyDAO.findByTitle(surveys.get(0).getTitle()).size();
         List<String> messages = List.of(
                 "Создать опрос с данной темой не представляется возможным",
                 "Такой опрос был создан ранее",
@@ -234,24 +263,23 @@ public class QuestionnaireService implements IQuestionnaireService {
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(count)
                     .messages(messages)
                     .build();
         }
         try {
             recordDAO.findAll()
                     .forEach(el -> {
-                        questionnaires.forEach(s -> {
-                            questionnaireDAO.save(
-                                    new Questionnaire(
+                        surveys.forEach(s -> {
+                            surveyDAO.save(
+                                    new Survey(
                                             s,
                                             mapOwnerToFullName(el.getOwner()),
                                             el.getOwnership().getAddress().getApartment()));
                         });
                     });
-            int size = questionnaires.size();
+            int size = surveys.size();
             messageSuccessfully = "Создано " + size + " вопросов по теме \""
-                    + questionnaires.get(0).getTitle() + "\"";
+                    + surveys.get(0).getTitle() + "\"";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
             return Response
@@ -268,37 +296,39 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     @Override
     @Transactional
-    public Object updateAllQuestionnaire(List<Questionnaire> questionnaires) {
-        String methodName = "updateAllQuestionnaire";
+    public Object updateAllSurvey(List<Survey> surveys) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "Операция выполнена успешно";
 
         log.info(messageEnter(methodName));
         try {
-            for (Questionnaire one : questionnaires) {
-                if (questionnaireDAO.existsById(one.getId())) {
+            for (Survey one : surveys) {
+                if (surveyDAO.existsById(one.getId())) {
                     // устанавливаем дату прохождения опроса, опрос пройден
                     one.setDateReceiving(LocalDate.now());
-                    questionnaireDAO.save(one);
+                    surveyDAO.save(one);
                 }
             }
-            //------------ start ------------------
-            for (Questionnaire two : questionnaires) {
-                List<Questionnaire> list = questionnaireDAO
-                        .findByTitleAndFullNameAndDateReceiving(two.getTitle(), two.getFullName(), null);
-                if (!list.isEmpty()) {
-                    list.forEach(el -> {
-                        if (el.getQuestion().equals(two.getQuestion())) {
-                            el.setAnswer(two.getAnswer());
-                            el.setDateReceiving(LocalDate.now());
-                            questionnaireDAO.save(el);
-                        }
-                    });
-                }
-            }
+            //------------ start ---- использовать ТОЛЬКО при заполненой базе --------------
+//            for (Survey two : surveys) {
+//                List<Survey> list = surveyDAO
+//                        .findByTitleAndFullNameAndDateReceiving(two.getTitle(), two.getFullName(), null);
+//                if (!list.isEmpty()) {
+//                    list.forEach(el -> {
+//                        if (el.getQuestion().equals(two.getQuestion())) {
+//                            el.setAnswer(two.getAnswer());
+//                            el.setDateReceiving(LocalDate.now());
+//                            surveyDAO.save(el);
+//                        }
+//                    });
+//                }
+//            }
             //------------ finish -----------------
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response.builder()
+            return Response
+                    .builder()
                     .messages(List.of(messageSuccessfully))
                     .build();
         } catch (Exception error) {
@@ -309,25 +339,17 @@ public class QuestionnaireService implements IQuestionnaireService {
     }
 
     @Override
-    public Object getAllQuestionnaire() {
-        String methodName = "getAllQuestionnaire";
-        String messageSuccessfully = "";
-
+    public Object getAllSurvey() {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            List<Questionnaire> list = questionnaireDAO.findAll()
-                    .stream()
-                    .filter(el -> el.getDateReceiving() == null)
-                    .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
-                    .toList();
-            messageSuccessfully = "Получено " + list.size() + " записей";
+            List<Survey> list = surveyDAO.findAll().stream().filter(el -> el.getDateReceiving() == null)
+                    .sorted(comparatorSurveyByApartment()).toList();
+            String messageSuccessfully = "Получено " + list.size() + " записей";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return Response.builder().data(list).messages(List.of(messageSuccessfully)).build();
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -337,16 +359,16 @@ public class QuestionnaireService implements IQuestionnaireService {
 
     @Override
     @Transactional
-    public Object deleteAllQuestionnaireByTitle(String title) {
-        String methodName = "deleteAllQuestionnaireByTitle";
+    public Object deleteAllSurveyByTitle(String title) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "Все вопросы по теме \"" + title + "\" удалены успешно ";
-
         log.info(messageEnter(methodName));
         try {
-            questionnaireDAO.deleteByTitle(title);
+            surveyDAO.deleteByTitle(title);
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(messageSuccessfully));
+            return new Response(List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -355,8 +377,9 @@ public class QuestionnaireService implements IQuestionnaireService {
     }
 
     @Override
-    public Object deleteAllQuestionnaireByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
-        String methodName = "deleteAllQuestionnaireByOwnerIdAndOwnershipId";
+    public Object deleteAllSurveyByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageSuccessfully = "Оперция завершена успешно";
         String messageOwnerNotExists = "Собственник по ID : " + ownerId + " не найден";
         String messageOwnershipNotExists = "Объект собственности по ID : " + ownershipId + " не найден";
@@ -366,21 +389,21 @@ public class QuestionnaireService implements IQuestionnaireService {
             Owner owner = ownerDAO.findById(ownerId).orElse(null);
             if (owner == null) {
                 log.info(messageOwnerNotExists);
-                return new ResponseMessages(List.of(messageOwnerNotExists));
+                return new Response(List.of(messageOwnerNotExists));
             }
             String fullName = mapOwnerToFullName(owner);
             Ownership ownership = ownershipDAO.findById(ownershipId).orElse(null);
             if (ownership == null) {
                 log.info(messageOwnershipNotExists);
-                return new ResponseMessages(List.of(messageOwnershipNotExists));
+                return new Response(List.of(messageOwnershipNotExists));
             }
             String apartment = ownership.getAddress().getApartment();
 
-            questionnaireDAO.deleteByFullNameAndApartment(fullName, apartment);
+            surveyDAO.deleteByFullNameAndApartment(fullName, apartment);
 
-            List<String> list = questionnaireDAO.findAll()
+            List<String> list = surveyDAO.findAll()
                     .stream()
-                    .map(Questionnaire::getTitle)
+                    .map(Survey::getTitle)
                     .distinct()
                     .toList();
             log.info(messageSuccessfully);
@@ -402,6 +425,10 @@ public class QuestionnaireService implements IQuestionnaireService {
     private String mapOwnerToFullName(Owner o) {
         return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
     }
+    private Comparator<Survey> comparatorSurveyByApartment() {
+        return (a, b) -> Integer.parseInt(a.getApartment())
+                - Integer.parseInt(b.getApartment());
+    }
 
     //Округление дробной части до 2-х запятых
     private Double formatDoubleValue(Double var) {
@@ -415,4 +442,5 @@ public class QuestionnaireService implements IQuestionnaireService {
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
     }
+
 }

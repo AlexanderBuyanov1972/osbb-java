@@ -4,17 +4,16 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderInvoiceNotification;
-import com.example.osbb.dto.ResultQuestionnaire;
+import com.example.osbb.dto.ResultSurvey;
 import com.example.osbb.dto.queries.ApartmentHeatSupply;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.payment.IPaymentService;
-import com.example.osbb.service.questionnaire.IQuestionnaireService;
+import com.example.osbb.service.survey.ISurveyService;
 import com.itextpdf.kernel.color.Color;
 import com.itextpdf.kernel.color.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -46,7 +45,7 @@ public class PdfService implements IPdfService {
     @Autowired
     IPaymentService iPaymentService;
     @Autowired
-    IQuestionnaireService iQuestionnaireService;
+    ISurveyService iSurveyService;
     @Autowired
     OwnershipDAO ownershipDAO;
 
@@ -84,7 +83,7 @@ public class PdfService implements IPdfService {
                             el.getBill()))
                     .forEach(this::printPdfFile);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -137,7 +136,7 @@ public class PdfService implements IPdfService {
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -160,7 +159,7 @@ public class PdfService implements IPdfService {
             list.forEach(this::printPdfDetailsFile);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -186,7 +185,7 @@ public class PdfService implements IPdfService {
                     .forEach(this::printPdfDetailsFile);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -257,7 +256,7 @@ public class PdfService implements IPdfService {
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -272,7 +271,7 @@ public class PdfService implements IPdfService {
         String methodName = "printResultQuestionnaire";
         log.info(messageEnter(methodName));
         try {
-            ResultQuestionnaire result = iQuestionnaireService.getResultPoolByTitle(title);
+            ResultSurvey result = iSurveyService.getResultSurveyByTitleForPrint(title);
             checkDir("D:/pdf/questionnaire_result");
             PdfWriter writer = new PdfWriter("D:/pdf/questionnaire_result/" + title + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
@@ -338,7 +337,7 @@ public class PdfService implements IPdfService {
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -575,7 +574,7 @@ public class PdfService implements IPdfService {
             printPdfNewBillForPayServiceOSBB();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return ResponseMessages
+            return Response
                     .builder()
                     .messages(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY))
                     .build();

@@ -109,13 +109,13 @@ public class OwnershipController {
         return response.returnResponse(service.countNonResidentialRoom());
     }
 
-    // get ownership by apartment -------------------------
+    // get all ownerships by apartment -------------------------
     @GetMapping(ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getAllOwnershipByApartment(@PathVariable String apartment) {
         return response.returnResponse(service.getAllOwnershipByApartment(apartment));
     }
 
-    // get personal account by apartment -------------------------
+    // get all personal accounts by apartment -------------------------
     @GetMapping(ApiConstants.APARTMENT +
             ApiConstants.BILL +
             ApiConstants.PARAM_APARTMENT)
@@ -124,10 +124,15 @@ public class OwnershipController {
     }
 
 
-    // get list apartments by full name -----------------------
+    // get all apartments by full name -----------------------
     @GetMapping(ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME)
     public ResponseEntity<?> getAllApartmentByFullName(@PathVariable String fullName) {
         return response.returnResponse(service.getAllApartmentByFullName(fullName));
+    }
+    // get all apartments by full name -----------------------
+    @GetMapping(ApiConstants.BILL + ApiConstants.PARAM_BILL)
+    public ResponseEntity<?> getOwnershipByBill(@PathVariable String bill) {
+        return response.returnResponse(service.getOwnershipByBill(bill));
     }
 
 }

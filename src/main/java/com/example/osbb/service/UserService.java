@@ -7,8 +7,6 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.security.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
-import com.example.osbb.service.record.IRecordService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -87,7 +85,7 @@ public class UserService {
                 deleteUser(id);
                 log.info("Пользователь удалён успешно.");
                 log.info("Method deleteUserForController : exit");
-                return new ResponseMessages(List.of("Пользователь удалён успешно."));
+                return new Response(List.of("Пользователь удалён успешно."));
             }
             log.info("Пользователь с id : " + id + " не найден.");
             log.info("Method deleteUserForController : exit");

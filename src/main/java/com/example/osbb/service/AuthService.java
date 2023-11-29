@@ -7,7 +7,6 @@ import com.example.osbb.security.dto.TokensUserDto;
 import com.example.osbb.security.dto.UserDto;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.security.entity.User;
 import com.example.osbb.enums.TypoOfRoles;
 import com.example.osbb.service.mail.MailService;
@@ -118,7 +117,7 @@ public class AuthService {
 //                response.addCookie(cookie);
                 log.info("Выход из системы осуществлён успешно");
                 log.info("Method logout - exit");
-                return new ResponseMessages(List.of("Выход из системы осуществлён успешно"));
+                return new Response(List.of("Выход из системы осуществлён успешно"));
             }
             log.info("Access token invalid or is not exists");
             return new ErrorResponseMessages(List.of("Access token invalid or is not exists"));

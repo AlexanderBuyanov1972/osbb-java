@@ -1,7 +1,6 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.dto.InvoiceNotification;
 import com.example.osbb.service.pdf.IPdfService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ public class PrintController {
     private HelpMethodsForController response;
 
     // print questionnaire result --------------------------------
-    @GetMapping(ApiConstants.QUESTIONNAIRES + ApiConstants.RESULT + ApiConstants.PARAM_TITLE)
+    @GetMapping(ApiConstants.SURVEYS + ApiConstants.RESULT + ApiConstants.PARAM_TITLE)
     public ResponseEntity<?> printResultQuestionnaire(@PathVariable String title) {
         return response.returnResponse(service.printResultQuestionnaire(title));
     }

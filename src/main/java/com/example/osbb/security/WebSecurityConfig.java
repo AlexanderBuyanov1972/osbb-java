@@ -98,7 +98,7 @@ public class WebSecurityConfig {
                 .requestMatchers(ApiConstants.VEHICLE, ApiConstants.VEHICLE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.ADDRESS, ApiConstants.ADDRESS + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(ApiConstants.QUESTIONNAIRES, ApiConstants.QUESTIONNAIRES + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(ApiConstants.SURVEYS, ApiConstants.SURVEYS + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
 
                 .anyRequest().authenticated());

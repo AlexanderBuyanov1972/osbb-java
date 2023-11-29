@@ -4,14 +4,13 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.queries.ApartmentHeatSupply;
 import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.ResponseMessages;
+import com.example.osbb.dto.response.Response;
 import com.example.osbb.service.pdf.IPdfService;
 import com.example.osbb.service.pdf.PdfService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class QueriesService implements IQueriesService {
             iPdfService.printQueryListHeatSupplyForApartment(map);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of("Наличие и типизация квартирного отопления в доме", PRINT_SUCCESSFULLY));
+            return new Response(List.of("Наличие и типизация квартирного отопления в доме", PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

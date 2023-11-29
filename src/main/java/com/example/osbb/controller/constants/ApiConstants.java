@@ -13,7 +13,6 @@ public class ApiConstants {
     public static final String REFRESH = "/refresh";
     public static final String CHECK = "/check";
     public static final String LINK = "/{link}";
-    public static final String EMAIL = "/{email}";
     // owner -----------------
     public static final String PASSPORT = "/passport";
     public static final String VEHICLE = "/vehicle";
@@ -24,7 +23,6 @@ public class ApiConstants {
     public static final String OWNERSHIP = "/ownership";
     public static final String ADDRESS = "/address";
     public static final String APARTMENT = "/apartment";
-    public static final String ROOM = "/room";
     public static final String CHARACTERISTICS = "/characteristics";
 
     // payment ---------------
@@ -39,7 +37,7 @@ public class ApiConstants {
     public static final String RATE = "/rate";
 
     // polls ------------------------
-    public static final String QUESTIONNAIRES = "/questionnaires";
+    public static final String SURVEYS = "/surveys";
 
     public static final String SELECT = "/select";
     public static final String TITLE = "/title";
@@ -86,7 +84,6 @@ public class ApiConstants {
     public static final String PARAM_DATE_RECEIVING = "/{dateReceiving}";
     public static final String PARAM_OWNER_ID = "/{ownerId}";
     public static final String PARAM_OWNERSHIP_ID = "/{ownershipId}";
-    public static final String PARAM_DATE = "/{date}";
     public static final String PARAM_BILL = "/{bill}";
     public static final String PARAM_FROM = "/{from}";
     public static final String PARAM_TO = "/{to}";

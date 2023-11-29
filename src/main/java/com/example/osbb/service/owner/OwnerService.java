@@ -4,9 +4,7 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.owner.Owner;
-import com.example.osbb.entity.ownership.Ownership;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +39,7 @@ public class OwnerService implements IOwnerService {
                     owner.getDateBirth())) {
                 log.info(messageOwnerAlreadyExists);
                 log.info(messageExit(methodName));
-                return new ResponseMessages(List.of(messageOwnerAlreadyExists));
+                return new Response(List.of(messageOwnerAlreadyExists));
             }
             owner.setActive(false);
             owner = ownerDAO.save(owner);
@@ -70,7 +68,7 @@ public class OwnerService implements IOwnerService {
             if (!ownerDAO.existsById(owner.getId())) {
                 log.info(messageOwnerNotExists);
                 log.info(messageExit(methodName));
-                return new ResponseMessages(List.of(messageOwnerNotExists));
+                return new Response(List.of(messageOwnerNotExists));
             }
             owner = ownerDAO.save(owner);
             log.info(messageSuccessfully);
@@ -263,7 +261,7 @@ public class OwnerService implements IOwnerService {
             ownerDAO.deleteAll();
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(messageResponse));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

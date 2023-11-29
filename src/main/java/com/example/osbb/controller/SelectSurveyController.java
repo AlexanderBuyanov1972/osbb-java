@@ -1,7 +1,7 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.service.questionnaire.ISelectQuestionnaireService;
+import com.example.osbb.service.survey.ISelectSurveyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,20 +10,21 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping(value = ApiConstants.SELECT)
-public class SelectQuestionnaireController {
+public class SelectSurveyController {
 
     @Autowired
-    private ISelectQuestionnaireService service;
+    private ISelectSurveyService service;
 
     @Autowired
+
     private HelpMethodsForController response;
 
     // ---------------------- one ---------------
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.PARAM_TITLE)
-    public ResponseEntity<?> selectAllQuestionnaireByTitle(
+    public ResponseEntity<?> selectAllSurveyByTitle(
             @PathVariable String title) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitle(title));
+                .selectAllSurveyByTitle(title));
     }
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.ALL)
     public ResponseEntity<?> selectAllTitles() {
@@ -31,85 +32,85 @@ public class SelectQuestionnaireController {
     }
 
     @GetMapping(value = ApiConstants.QUESTION + ApiConstants.PARAM_QUESTION)
-    public ResponseEntity<?> selectAllQuestionnaireByQuestion(
+    public ResponseEntity<?> selectAllSurveyByQuestion(
             @PathVariable String question) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByQuestion(question));
+                .selectAllSurveyByQuestion(question));
     }
 
     @GetMapping(value = ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME)
-    public ResponseEntity<?> selectAllQuestionnaireByFullName(
+    public ResponseEntity<?> selectAllSurveyByFullName(
             @PathVariable String fullName) {
         return response.returnResponse(service.
-                selectAllQuestionnaireByFullName(fullName));
+                selectAllSurveyByFullName(fullName));
     }
 
     @GetMapping(value = ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> selectAllQuestionnaireByApartment(
+    public ResponseEntity<?> selectAllSurveyByApartment(
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByApartment(apartment));
+                .selectAllSurveyByApartment(apartment));
     }
 
     @GetMapping(value = ApiConstants.DATE_DISPATCH + ApiConstants.PARAM_DATE_DISPATCH)
-    public ResponseEntity<?> selectAllQuestionnaireByDateDispatch(
+    public ResponseEntity<?> selectAllSurveyByDateDispatch(
             @PathVariable LocalDate dateDispatch) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByDateDispatch(dateDispatch));
+                .selectAllSurveyByDateDispatch(dateDispatch));
     }
 
     @GetMapping(value = ApiConstants.DATE_RECEIVING + ApiConstants.PARAM_DATE_RECEIVING)
-    public ResponseEntity<?> selectAllQuestionnaireByDateReceiving(
+    public ResponseEntity<?> selectAllSurveyByDateReceiving(
             @PathVariable LocalDate dateReceiving) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByDateReceiving(dateReceiving));
+                .selectAllSurveyByDateReceiving(dateReceiving));
     }
 
     // -------------- two -------------------
     @GetMapping(value = ApiConstants.FULL_NAME + ApiConstants.APARTMENT + ApiConstants.PARAM_FULL_NAME + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> selectAllQuestionnaireByFullNameAndApartment(
+    public ResponseEntity<?> selectAllSurveyByFullNameAndApartment(
             @PathVariable String fullName,
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByFullNameAndApartment(fullName, apartment));
+                .selectAllSurveyByFullNameAndApartment(fullName, apartment));
     }
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndApartment(
+    public ResponseEntity<?> selectAllSurveyByTitleAndApartment(
             @PathVariable String title,
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndApartment(title, apartment));
+                .selectAllSurveyByTitleAndApartment(title, apartment));
     }
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.FULL_NAME + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_FULL_NAME)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndFullname(
+    public ResponseEntity<?> selectAllSurveyByTitleAndFullName(
             @PathVariable String title,
             @PathVariable String fullName) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndFullName(title, fullName));
+                .selectAllSurveyByTitleAndFullName(title, fullName));
     }
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.DATE_DISPATCH + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_DATE_DISPATCH)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndDateDispatch(
+    public ResponseEntity<?> selectAllSurveyByTitleAndDateDispatch(
             @PathVariable String title,
             @PathVariable LocalDate dateDispatch) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndDateDispatch(title, dateDispatch));
+                .selectAllSurveyByTitleAndDateDispatch(title, dateDispatch));
     }
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.DATE_RECEIVING + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_DATE_RECEIVING)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndDateReceiving(
+    public ResponseEntity<?> selectAllSurveyByTitleAndDateReceiving(
             @PathVariable String title,
             @PathVariable LocalDate dateReceiving) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndDateReceiving(title, dateReceiving));
+                .selectAllSurveyByTitleAndDateReceiving(title, dateReceiving));
     }
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.QUESTION + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_QUESTION)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndQuestion(
+    public ResponseEntity<?> selectAllSurveyByTitleAndQuestion(
             @PathVariable String title,
             @PathVariable String question) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndQuestion(title, question));
+                .selectAllSurveyByTitleAndQuestion(title, question));
     }
 
 
@@ -117,12 +118,12 @@ public class SelectQuestionnaireController {
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.FULL_NAME +
             ApiConstants.APARTMENT + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_FULL_NAME + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> selectAllQuestionnaireByTitleAndFullNameAndApartment(
+    public ResponseEntity<?> selectAllSurveyByTitleAndFullNameAndApartment(
             @PathVariable String title,
             @PathVariable String fullName,
             @PathVariable String apartment) {
         return response.returnResponse(service
-                .selectAllQuestionnaireByTitleAndFullNameAndApartment(title, fullName, apartment));
+                .selectAllSurveyByTitleAndFullNameAndApartment(title, fullName, apartment));
     }
 
 

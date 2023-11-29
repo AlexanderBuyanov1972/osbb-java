@@ -3,7 +3,6 @@ package com.example.osbb.service.rate;
 import com.example.osbb.dao.RateDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
@@ -38,7 +37,7 @@ public class RateService implements IRateService {
                     .builder()
                     .data(rate)
                     .messages(List.of("Тариф создан успешно."))
-                    .build() : new ResponseMessages(errors);
+                    .build() : new Response(errors);
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
@@ -64,7 +63,7 @@ public class RateService implements IRateService {
                     .builder()
                     .data(rate)
                     .messages(List.of("Тариф обновлён успешно."))
-                    .build() : new ResponseMessages(errors);
+                    .build() : new Response(errors);
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
@@ -86,7 +85,7 @@ public class RateService implements IRateService {
                         .build();
             }
             log.info("Method getRate : exit");
-            return new ResponseMessages(List.of("Тариф с ID : " + id + " не существует."));
+            return new Response(List.of("Тариф с ID : " + id + " не существует."));
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
@@ -111,7 +110,7 @@ public class RateService implements IRateService {
             }
             log.info("Тариф с ID : " + id + " уже существует.");
             log.info("Method deleteRate : exit");
-            return new ResponseMessages(List.of("Тариф с ID : " + id + " уже существует."));
+            return new Response(List.of("Тариф с ID : " + id + " уже существует."));
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
@@ -139,7 +138,7 @@ public class RateService implements IRateService {
             log.info("Тарифы с такими ID уже существуют или...");
             log.info("Тарифы с такими датами уже существуют");
             log.info("Method createAllRate : exit");
-            return result.isEmpty() ? new ResponseMessages(List
+            return result.isEmpty() ? new Response(List
                     .of("Ни один из тарифов создан не был",
                             "Тарифы с такими ID уже существуют или...",
                             "Тарифы с такими датами уже существуют"))
@@ -172,7 +171,7 @@ public class RateService implements IRateService {
             if (result.isEmpty()) {
                 log.info("Не обновлён ни один тариф");
                 log.info("Method updateAllRate : exit");
-                return new ResponseMessages(List.of("Не обновлён ни один тариф"));
+                return new Response(List.of("Не обновлён ни один тариф"));
             }
             log.info("Успешно обновлено " + result.size() + " тарифов из " + rates.size());
             log.info("Method updateAllRate : exit");
@@ -217,7 +216,7 @@ public class RateService implements IRateService {
             rateDAO.deleteAll();
             log.info("Все тарифы успешно удалены.");
             log.info("Method deleteAllRate : exit");
-            return new ResponseMessages(List.of("Все тарифы успешно удалены."));
+            return new Response(List.of("Все тарифы успешно удалены."));
         } catch (Exception error) {
             log.error("UNEXPECTED SERVER ERROR");
             log.error(error.getMessage());
@@ -232,5 +231,12 @@ public class RateService implements IRateService {
 
     private List<Rate> listSortedByLocalDate(List<Rate> list) {
         return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
+    }
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 }

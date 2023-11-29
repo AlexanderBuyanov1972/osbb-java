@@ -75,7 +75,7 @@ public class PaymentService implements IPaymentService {
             if (!paymentDAO.existsById(id)) {
                 log.info(messageNotExists);
                 log.info(messageExit(methodName));
-                return new ResponseMessages(List.of(messageNotExists));
+                return new Response(List.of(messageNotExists));
             }
             Payment payment = paymentDAO.findById(id).get();
             log.info(messageSuccessfully);
@@ -112,7 +112,7 @@ public class PaymentService implements IPaymentService {
             } else {
                 log.info(messageNotExists);
                 log.info(messageExit(methodName));
-                return new ResponseMessages(List.of(messageNotExists));
+                return new Response(List.of(messageNotExists));
             }
         } catch (Exception e) {
             log.error(ERROR_SERVER);
@@ -144,7 +144,7 @@ public class PaymentService implements IPaymentService {
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(listSortedByDate(result))
+                    .data(result.stream().sorted(comparatorByDate()).toList())
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -159,12 +159,12 @@ public class PaymentService implements IPaymentService {
         String methodName = "getAllPayment";
         log.info(messageEnter(methodName));
         try {
-            List<Payment> result = paymentDAO.findAll();
+            List<Payment> result = paymentDAO.findAll().stream().sorted(comparatorByDate()).toList();
             String messageResponse = "Получено " + result.size() + " платежей";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return Response.builder()
-                    .data(listSortedByDate(result))
+                    .data(result)
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public class PaymentService implements IPaymentService {
             paymentDAO.deleteAll();
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return new ResponseMessages(List.of(messageSuccessfully));
+            return new Response(List.of(messageSuccessfully));
         } catch (Exception e) {
             log.error(ERROR_SERVER);
             log.error(e.getMessage());
@@ -200,14 +200,14 @@ public class PaymentService implements IPaymentService {
 
         log.info(messageEnter(methodName));
         try {
-            List<Payment> result = paymentDAO.findAllByBill(bill);
+            List<Payment> result = paymentDAO.findAllByBill(bill).stream().sorted(comparatorByDate()).toList();
             String messageResponse = "Платёжки по счёту = " + bill
                     + " получены в количестве = " + result.size() + " штук";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(listSortedByDate(result))
+                    .data(result)
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -224,14 +224,14 @@ public class PaymentService implements IPaymentService {
 
         log.info(messageEnter(methodName));
         try {
-            List<Payment> result = paymentDAO.findAllByDescription(description);
+            List<Payment> result = paymentDAO.findAllByDescription(description).stream().sorted(comparatorByDate()).toList();
             String messageResponse = "Платёжки по описанию = " + description
                     + " получены в количестве = " + result.size() + " штук";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(listSortedByDate(result))
+                    .data(result)
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -248,7 +248,8 @@ public class PaymentService implements IPaymentService {
 
         log.info(messageEnter(methodName));
         try {
-            List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to);
+            List<Payment> result = paymentDAO.findAllPaymentByBillAndDateBetween(bill, from, to)
+                    .stream().sorted(comparatorByDate()).toList();
             String messageResponse = "Платёжки по счёту = " + bill + " за период от "
                     + from.toString() + " и до " + to.toString() + " получены в количестве = "
                     + result.size() + " штук";
@@ -256,7 +257,7 @@ public class PaymentService implements IPaymentService {
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(listSortedByDate(result))
+                    .data(result)
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -274,7 +275,7 @@ public class PaymentService implements IPaymentService {
             List<Payment> result = paymentDAO.findAllPaymentByDescriptionAndDateBetween(
                     description,
                     from,
-                    to);
+                    to).stream().sorted(comparatorByDate()).toList();
             String messageResponse = "Платёжки по описанию = " + description + " за период от "
                     + from.toString() + " и до " + to.toString() + " получены в количестве = "
                     + result.size() + " штук";
@@ -282,7 +283,7 @@ public class PaymentService implements IPaymentService {
             log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(listSortedByDate(result))
+                    .data(result)
                     .messages(List.of(messageResponse))
                     .build();
         } catch (Exception e) {
@@ -371,7 +372,7 @@ public class PaymentService implements IPaymentService {
             String messageResponse = "Сформировано " + result.size() + " записей";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return listSortedByApartment(result);
+            return sortedByApartment(result);
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -816,22 +817,21 @@ public class PaymentService implements IPaymentService {
     }
 
     // sorted by id ------------------------
-    private List<Payment> listSortedById(List<Payment> list) {
+    private List<Payment> sortedById(List<Payment> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
     // sorted by apartment --------------------
-    private List<EntryBalanceHouse> listSortedByApartment(List<EntryBalanceHouse> list) {
+    private List<EntryBalanceHouse> sortedByApartment(List<EntryBalanceHouse> list) {
         return list.stream().sorted((a, b) -> Integer.parseInt(a.getApartment())
                 - Integer.parseInt(b.getApartment())).collect(Collectors.toList());
     }
 
-    // sorted by Date -------------------
-    private List<Payment> listSortedByDate(List<Payment> list) {
-        return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
+    //.sorted(comparatorByApartment())
+    private Comparator<Payment> comparatorByDate() {
+        return (a, b) -> b.getDate().compareTo(a.getDate());
     }
 
-    //.sorted(comparatorByApartment())
     private Comparator<EntryBalanceHouse> comparatorByApartment() {
         return (a, b) -> Integer.parseInt(a.getApartment())
                 - Integer.parseInt(b.getApartment());

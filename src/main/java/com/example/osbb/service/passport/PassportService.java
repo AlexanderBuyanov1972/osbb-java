@@ -1,9 +1,9 @@
 package com.example.osbb.service.passport;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.PassportDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
-import com.example.osbb.dto.response.ResponseMessages;
 import com.example.osbb.entity.owner.Passport;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class PassportService implements IPassportService {
     private static final Logger log = Logger.getLogger(PassportService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private PassportDAO passportDAO;
 
@@ -25,19 +26,22 @@ public class PassportService implements IPassportService {
     @Override
     @Transactional
     public Object createPassport(Passport passport) {
-        log.info("Method createPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Паспорт создан успешно";
+        log.info(messageEnter(methodName));
         try {
             passport = passportDAO.save(passport);
-            log.info("Паспорт создан успешно");
-            log.info("Method createPassport : exit");
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(passport)
-                    .messages(List.of("Паспорт создан успешно"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -45,73 +49,71 @@ public class PassportService implements IPassportService {
     @Override
     @Transactional
     public Object updatePassport(Passport passport) {
-        log.info("Method updatePassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Паспорт с ID : " + passport.getId() + " не существует";
+        log.info(messageEnter(methodName));
         try {
-            if (!passportDAO.existsById(passport.getId())) {
-                log.info("Паспорт с ID : " + passport.getId() + " не существует");
-                log.info("Method updatePassport : exit");
-                return new ResponseMessages(List.of("Паспорт с ID : " + passport.getId() + " не существует"));
+            if (passportDAO.existsById(passport.getId())) {
+                passport = passportDAO.save(passport);
+                messageResponse = "Паспорт с ID : " + passport.getId() + " обновлён успешно";
             }
-            passport = passportDAO.save(passport);
-            log.info("Паспорт обновлён успешно");
-            log.info("Method updatePassport : exit");
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(passport)
-                    .messages(List.of("Паспорт обновлён успешно"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object getPassport(Long id) {
-        log.info("Method getPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Паспорт с ID : " + id + " не существует";
+        log.info(messageEnter(methodName));
         try {
-            if (!passportDAO.existsById(id)) {
-                log.info("Паспорт с ID : " + id + " не существует");
-                log.info("Method getPassport : exit");
-                return new ResponseMessages(List.of("Паспорт с ID : " + id + " не существует"));
-            }
-            Passport passport = passportDAO.findById(id).get();
-            log.info("Паспорт получен успешно");
-            log.info("Method getPassport : exit");
+            Passport passport = passportDAO.findById(id).orElse(null);
+            if (passport != null)
+                messageResponse = "Паспорт с ID : " + id + " получен успешно";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
                     .data(passport)
-                    .messages(List.of("Паспорт получен успешно"))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
 
     @Override
     @Transactional
     public Object deletePassport(Long id) {
-        log.info("Method deletePassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Паспорт с ID : " + id + " не существует";
+        log.info(messageEnter(methodName));
         try {
             if (passportDAO.existsById(id)) {
                 passportDAO.deleteById(id);
-                log.info("Паспорт удалён успешно");
-                log.info("Method deletePassport : exit");
-                return Response
-                        .builder()
-                        .data(id)
-                        .messages(List.of("Паспорт удалён успешно"))
-                        .build();
+                messageResponse = "Паспорт с ID : " + id + " удалён успешно";
             }
-            log.info("Паспорт с ID : " + id + " не существует");
-            log.info("Method deletePassport : exit");
-            return new ResponseMessages(List.of("Паспорт с ID : " + id + " не существует"));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -121,7 +123,10 @@ public class PassportService implements IPassportService {
     @Override
     @Transactional
     public Object createAllPassport(List<Passport> passports) {
-        log.info("Method createAllPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Не создан ни один паспорт";
+        log.info(messageEnter(methodName));
         try {
             List<Passport> result = new ArrayList<>();
             for (Passport one : passports) {
@@ -131,21 +136,18 @@ public class PassportService implements IPassportService {
                     result.add(one);
                 }
             }
-            if (result.isEmpty()) {
-                log.info("Не создан ни один паспорт");
-                log.info("Method createAllPassport : exit");
-                return new ResponseMessages(List.of("Не создан ни один паспорт"));
-            }
-            log.info("Создано " + result.size() + " паспортов");
-            log.info("Method createAllPassport : exit");
+            if (!result.isEmpty())
+                messageResponse = "Создано " + result.size() + " паспортов";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
-                    .data(returnListSorted(result))
-                    .messages(List.of("Создано " + result.size() + " паспортов"))
+                    .data(listSorted(result))
+                    .messages(List.of())
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -153,7 +155,10 @@ public class PassportService implements IPassportService {
     @Override
     @Transactional
     public Object updateAllPassport(List<Passport> passports) {
-        log.info("Method updateAllPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Не обновлён ни один паспорт";
+        log.info(messageEnter(methodName));
         try {
             List<Passport> result = new ArrayList<>();
             for (Passport one : passports) {
@@ -163,41 +168,41 @@ public class PassportService implements IPassportService {
                     result.add(one);
                 }
             }
-            if (result.isEmpty()) {
-                log.info("Не обновлён ни один паспорт");
-                log.info("Method updateAllPassport : exit");
-                return new ResponseMessages(List.of("Не обновлён ни один паспорт"));
-            }
-            log.info("Обновлено " + result.size() + " паспортов");
-            log.info("Method updateAllPassport : exit");
+            if (!result.isEmpty())
+                messageResponse = "Обновлено " + result.size() + " паспортов";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
-                    .data(returnListSorted(result))
-                    .messages(List.of("Обновлено " + result.size() + " паспортов"))
+                    .data(listSorted(result))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object getAllPassport() {
-        log.info("Method getAllPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             List<Passport> result = passportDAO.findAll();
-            log.info("Получено " + result.size() + " паспортов");
-            log.info("Method getAllPassport : exit");
+            String messageResponse = "Получено " + result.size() + " паспортов";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response
                     .builder()
-                    .data(returnListSorted(result))
-                    .messages(List.of("Получено " + result.size() + " паспортов"))
+                    .data(listSorted(result))
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -205,16 +210,19 @@ public class PassportService implements IPassportService {
     @Override
     @Transactional
     public Object deleteAllPassport() {
-        log.info("Method deleteAllPassport : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Удалены все паспорта";
+        log.info(messageEnter(methodName));
         try {
             passportDAO.deleteAll();
-            log.info("Удалены все паспорта");
-            log.info("Method deleteAllPassport : exit");
-            return new ResponseMessages(List.of("Удалены все паспорта"));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -222,31 +230,40 @@ public class PassportService implements IPassportService {
     // ИНН -----------------------------------
     @Override
     public Object findByRegistrationNumberCardPayerTaxes(String registrationNumberCardPayerTaxes) {
-        log.info("Method findByRegistrationNumberCardPayerTaxes : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "По ИНН " + registrationNumberCardPayerTaxes + " паспорт не найден";
+        log.info(messageEnter(methodName));
         try {
-            if (!passportDAO.existsByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes)) {
-                log.info("По данному ИНН " + registrationNumberCardPayerTaxes + " паспорт не найден");
-                log.info("Method findByRegistrationNumberCardPayerTaxes : exit");
-                return new ResponseMessages(List.of("По данному ИНН " + registrationNumberCardPayerTaxes + " паспорт не найден"));
-            }
-            log.info("Паспорт найден успешно");
-            log.info("Method findByRegistrationNumberCardPayerTaxes : exit");
+            Passport passport = passportDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes);
+            if (passport != null)
+                messageResponse = "По ИНН " + registrationNumberCardPayerTaxes + " паспорт найден успешно";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
             return Response.builder()
-                    .data(passportDAO.findByRegistrationNumberCardPayerTaxes(registrationNumberCardPayerTaxes))
-                    .messages(List.of("Паспорт найден успешно"))
+                    .data(passport)
+                    .messages(List.of(messageResponse))
                     .build();
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     // sorted ------------------------------
 
-    private List<Passport> returnListSorted(List<Passport> list) {
+    private List<Passport> listSorted(List<Passport> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

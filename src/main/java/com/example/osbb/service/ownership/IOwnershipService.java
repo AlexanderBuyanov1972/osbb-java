@@ -60,4 +60,9 @@ public interface IOwnershipService {
     // получить все номера квартир по ФИО -------------
     public Object getAllApartmentByFullName(String fullName);
 
+    // получить помещение по лицевому счёту -------------
+    public Object getOwnershipByBill(String bill);
+
+
+
 }

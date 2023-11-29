@@ -10,7 +10,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResultQuestionnaire {
+public class ResultSurvey {
     // owner ----------------
     private Double processingPercentageOwner;
     private Long ownerVoted;
