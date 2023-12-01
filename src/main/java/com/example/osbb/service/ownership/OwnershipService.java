@@ -39,7 +39,7 @@ public class OwnershipService implements IOwnershipService {
         String messageResponse = "Помещение с номером лицевого счёта " + ownership.getBill() + " не существует";
         log.info(messageEnter(methodName));
         try {
-            if (!ownershipDAO.existsByBill(ownership.getBill())) {
+            if (ownershipDAO.existsByBill(ownership.getBill())) {
                 ownership = ownershipDAO.save(ownership);
                 messageResponse = "Помещение с ID : " + ownership.getId() + " создано успешно";
             }
@@ -72,7 +72,7 @@ public class OwnershipService implements IOwnershipService {
                 log.info(messageApartment);
                 return new Response(List.of(messageApartment));
             }
-            if (!ownershipDAO.existsByBill(ownership.getBill())) {
+            if (ownershipDAO.existsByBill(ownership.getBill())) {
                 log.info(messageBill);
                 return new Response(List.of(messageBill));
             }
@@ -134,7 +134,7 @@ public class OwnershipService implements IOwnershipService {
     public Object createAllOwnership(List<Ownership> ownerships) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotCreate = "Не создано ни одного объекта собственности";
+        String messageResponse = "Не создано ни одного объекта собственности";
         log.info(messageEnter(methodName));
         try {
             List<Ownership> result = new ArrayList<>();
@@ -144,7 +144,7 @@ public class OwnershipService implements IOwnershipService {
                     result.add(one);
                 }
             }
-            String messageResponse = result.isEmpty() ? messageNotCreate :
+            messageResponse = result.isEmpty() ? messageResponse :
                     "Создано " + result.size() + " объектов собственности";
             log.info(messageResponse);
             log.info(messageExit(methodName));
@@ -160,7 +160,7 @@ public class OwnershipService implements IOwnershipService {
     public Object updateAllOwnership(List<Ownership> ownerships) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotUpdate = "Не обновлено ни одного объекта собственности";
+        String messageResponse = "Не обновлено ни одного объекта собственности";
         log.info(messageEnter(methodName));
         try {
             List<Ownership> result = new ArrayList<>();
@@ -170,7 +170,7 @@ public class OwnershipService implements IOwnershipService {
                     result.add(one);
                 }
             }
-            String messageResponse = result.isEmpty() ? messageNotUpdate : "Обновлено " + result.size() + " помещений";
+            messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " помещений";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(sortedById(result), List.of(messageResponse));
@@ -184,14 +184,14 @@ public class OwnershipService implements IOwnershipService {
     public Object getAllOwnership() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotExists = "Не получено ни одного объекта собственности";
+        String messageResponse = "Не получено ни одного объекта собственности";
         log.info(messageEnter(methodName));
         try {
             List<Ownership> result = ownershipDAO.findAll()
                     .stream()
                     .sorted(comparatorOwnershipByApartment())
                     .toList();
-            String messageResponse = result.isEmpty() ? messageNotExists : "Получено " + result.size() + " помещений";
+            messageResponse = result.isEmpty() ? messageResponse : "Получено " + result.size() + " помещений";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(result, List.of(messageResponse));
@@ -206,14 +206,14 @@ public class OwnershipService implements IOwnershipService {
     public Object deleteAllOwnership() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageSuccessfully = "Все объекты собственности успешно удалены";
+        String messageResponse = "Все объекты собственности успешно удалены";
 
         log.info(messageEnter(methodName));
         try {
             ownershipDAO.deleteAll();
-            log.info(messageSuccessfully);
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(List.of(messageSuccessfully));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -227,13 +227,11 @@ public class OwnershipService implements IOwnershipService {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            double summa = ownershipDAO.findAll().stream()
-                    .mapToDouble(Ownership::getTotalArea)
-                    .sum();
-            String messageSuccessfully = "Общая площадь помещений дома составляет " + summa + " м2.";
-            log.info(messageSuccessfully);
+            double summa = ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum();
+            String messageResponse = "Общая площадь помещений дома составляет " + summa + " м2.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(summa, List.of(messageSuccessfully));
+            return new Response(summa, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -250,10 +248,10 @@ public class OwnershipService implements IOwnershipService {
                     .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
                     .mapToDouble(Ownership::getTotalArea)
                     .sum();
-            String messageSuccessfully = "Общая площадь всех квартир дома составляет " + summa + " м2.";
-            log.info(messageSuccessfully);
+            String messageResponse = "Общая площадь всех квартир дома составляет " + summa + " м2.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(summa, List.of(messageSuccessfully));
+            return new Response(summa, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -268,12 +266,11 @@ public class OwnershipService implements IOwnershipService {
         try {
             double summa = ownershipDAO.findAll().stream()
                     .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                    .mapToDouble(Ownership::getLivingArea)
-                    .sum();
-            String messageSuccessfully = "Общая жилая площадь всех квартир дома составляет " + summa + " м2.";
-            log.info(messageSuccessfully);
+                    .mapToDouble(Ownership::getLivingArea).sum();
+            String messageResponse = "Общая жилая площадь всех квартир дома составляет " + summa + " м2.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(summa, List.of(messageSuccessfully));
+            return new Response(summa, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -290,10 +287,10 @@ public class OwnershipService implements IOwnershipService {
                     .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
                     .mapToDouble(Ownership::getTotalArea)
                     .sum();
-            String messageSuccessfully = "Общая площадь всех нежилых помещений дома составляет " + summa + " м2.";
-            log.info(messageSuccessfully);
+            String messageResponse = "Общая площадь всех нежилых помещений дома составляет " + summa + " м2.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(summa, List.of(messageSuccessfully));
+            return new Response(summa, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -309,10 +306,10 @@ public class OwnershipService implements IOwnershipService {
         log.info(messageEnter(methodName));
         try {
             long count = ownershipDAO.count();
-            String messageSuccessfully = "Общее количество всех помещений дома составляет " + count + " единиц.";
-            log.info(messageSuccessfully);
+            String messageResponse = "Общее количество всех помещений дома составляет " + count + " единиц.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(count, List.of(messageSuccessfully));
+            return new Response(count, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -327,10 +324,10 @@ public class OwnershipService implements IOwnershipService {
         log.info(messageEnter(methodName));
         try {
             long count = ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT);
-            String messageSuccessfully = "Общее количество всех жилых помещений дома составляет " + count + " единиц.";
-            log.info(messageSuccessfully);
+            String messageResponse = "Общее количество всех жилых помещений дома составляет " + count + " единиц.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(count, List.of(messageSuccessfully));
+            return new Response(count, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -345,10 +342,10 @@ public class OwnershipService implements IOwnershipService {
         log.info(messageEnter(methodName));
         try {
             long count = ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM);
-            String messageSuccessfully = "Общее количество всех нежилых помещений дома составляет " + count + " единиц.";
-            log.info(messageSuccessfully);
+            String messageResponse = "Общее количество всех нежилых помещений дома составляет " + count + " единиц.";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(count, List.of(messageSuccessfully));
+            return new Response(count, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -361,16 +358,15 @@ public class OwnershipService implements IOwnershipService {
     public Object getAllOwnershipByApartment(String apartment) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotExists = "Объекты недвижимости по помещению № : " + apartment + " не зарегистрированы";
-        String messageSuccessfully = "Объекты недвижимости с помещением № : " + apartment + " получено успешно";
-
+        String messageResponse = "Объекты недвижимости по помещению № : " + apartment + " не зарегистрированы";
         log.info(messageEnter(methodName));
         try {
             List<Ownership> ownerships = ownershipDAO.findByAddressApartment(apartment)
                     .stream()
                     .sorted(comparatorOwnershipByBill())
                     .collect(Collectors.toList());
-            String messageResponse = ownerships.isEmpty() ? messageNotExists : messageSuccessfully;
+            messageResponse = ownerships.isEmpty() ? messageResponse
+                    : "Объекты недвижимости с помещением № : " + apartment + " получено успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(ownerships, List.of(messageResponse));
@@ -444,11 +440,11 @@ public class OwnershipService implements IOwnershipService {
     public Object getAllBillByApartment(String apartment) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotExists = "По помещению № : " + apartment + " лицевые счёта не найдены";
+        String messageResponse = "По помещению № : " + apartment + " лицевые счёта не найдены";
         log.info(messageEnter(methodName));
         try {
             List<String> bills = ownershipDAO.findByAddressApartment(apartment).stream().map(Ownership::getBill).toList();
-            String messageResponse = bills.isEmpty() ? messageNotExists :
+            messageResponse = bills.isEmpty() ? messageResponse :
                     "По помещению № : " + apartment + " найдено " + bills.size() + " лицевых счетов";
             log.info(messageResponse);
             log.info(messageExit(methodName));

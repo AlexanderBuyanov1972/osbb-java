@@ -1,6 +1,7 @@
 package com.example.osbb.security.jwt.filters;
 
 import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.security.dto.LoginRequest;
 import com.example.osbb.security.entity.User;
 import com.example.osbb.service.CookieService;
@@ -26,6 +27,7 @@ import java.util.Collections;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private static final Logger log = Logger.getLogger(AuthenticationFilter.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     private final ObjectMapper objectMapper;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
@@ -55,7 +57,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
         try {
-            log.info("Enter in attemptAuthentication");
+            String methodName = new Object() {
+            }.getClass().getEnclosingMethod().getName();
+
+            log.info(messageEnter(methodName));
             LoginRequest credentials = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
             log.info("credentials : " + credentials);
             request.setAttribute("password", credentials.getPassword());
@@ -66,6 +71,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             Collections.emptyList()
                     ));
         } catch (IOException e) {
+            log.error(ERROR_SERVER);
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -75,11 +82,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-        log.info("Enter in successfulAuthentication");
-        log.info("auth : " + auth);
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+
+        log.info(messageEnter(methodName));
+        log.info("Authentication auth : " + auth);
         String email = auth.getName();
         String password = request.getAttribute("password").toString();
         User user = userService.getUserByEmail(email);
+        log.info("User user : " + user);
         if (user != null) {
             String refreshToken = "Bearer " + tokenService.createTokenRefresh(user, password);
             tokenService.removeTokenByEmail(user.getEmail());
@@ -90,6 +101,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         request.setAttribute("email", email);
         request.setAttribute("password", "*****");
         chain.doFilter(request, response);
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

@@ -34,7 +34,8 @@ public class RegistryService implements IRegistryService {
 
     @Override
     public Object getRegistryOwners() {
-        String methodName = "getRegistryOwnerships";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             Map<Long, List<Record>> map = recordDAO.findAll()
@@ -45,11 +46,7 @@ public class RegistryService implements IRegistryService {
                                             Collectors.toList()))));
             log.info(SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(map.values())
-                    .messages(List.of(SUCCESSFULLY))
-                    .build();
+            return new Response(map.values(), List.of(SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -59,7 +56,8 @@ public class RegistryService implements IRegistryService {
 
     @Override
     public Object getRegistryOwnerships() {
-        String methodName = "getRegistryOwnerships";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             Map<String, List<Record>> map = recordDAO.findAll()
@@ -69,13 +67,10 @@ public class RegistryService implements IRegistryService {
                                     Collectors.filtering(s -> s.getOwnership() != null,
                                             Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
                                                     Collectors.toList()))));
+            List<List<Record>> lists = map.values().stream().sorted(comparatorListRecordByApartment()).toList();
             log.info(SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(map.values().stream().sorted(comparatorListRecordByApartment()).collect(Collectors.toList()))
-                    .messages(List.of(SUCCESSFULLY))
-                    .build();
+            return new Response(lists, List.of(SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -85,7 +80,8 @@ public class RegistryService implements IRegistryService {
 
     @Override
     public BuildingCharacteristics getBuildingCharacteristics() {
-        String methodName = "getBuildingCharacteristics";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
 
         try {

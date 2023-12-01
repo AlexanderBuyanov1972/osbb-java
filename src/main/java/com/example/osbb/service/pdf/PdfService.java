@@ -53,17 +53,14 @@ public class PdfService implements IPdfService {
     // печатать задолженность за последний календарный месяц по номеру помещения в pdf файл
     @Override
     public Object printPdfDebtByApartment(InvoiceNotification in) {
-        String methodName = "printPdfDebtByApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             printPdfFile(in);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(null)
-                    .messages(List.of(PRINT_SUCCESSFULLY))
-                    .build();
+            return new Response(List.of(PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -74,7 +71,8 @@ public class PdfService implements IPdfService {
     // печатать задолженности за последний календарный месяц по всем номерам помещений в pdf файл каждый отдельно
     @Override
     public Object printListPdfDebtAllApartment() {
-        String methodName = "printListPdfDebtAllApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             ownershipDAO.findAll()
@@ -92,7 +90,8 @@ public class PdfService implements IPdfService {
     }
 
     private void printPdfFile(InvoiceNotification in) {
-        String methodName = "printPdfFile";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
 
         log.info(messageEnter(methodName));
         try {
@@ -113,8 +112,8 @@ public class PdfService implements IPdfService {
     // печатать задолженности за последний календарный месяц по всем номерам помещений в один pdf файл
     @Override
     public Object printAllTInOnePdfDebtAllApartment() {
-        String methodName = "printAllTInOnePdfDebtAllApartment";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/allInOne");
@@ -148,7 +147,8 @@ public class PdfService implements IPdfService {
     // печатать по номеру помещения детализированный долг от начальной точки до текущего месяца один pdf файл
     @Override
     public Object printPdfDebtDetailsByApartment(String apartment) {
-        String methodName = "printPdfDebtDetailsByApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             List<DebtDetails> list = new ArrayList<>();
@@ -175,7 +175,8 @@ public class PdfService implements IPdfService {
     // печатать детализированный долг от начальной точки до текущего месяца по каждому помещению в отдельный файл
     @Override
     public Object printPdfDebtDetailsAllApartment() {
-        String methodName = "printPdfDebtDetailsAllApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             ownershipDAO.findAll()
@@ -194,7 +195,8 @@ public class PdfService implements IPdfService {
     }
 
     private void printPdfDetailsFile(DebtDetails details) {
-        String methodName = "printPdfDetailsFile";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/payments_details");
@@ -216,7 +218,8 @@ public class PdfService implements IPdfService {
     // печатать баланс дома по помещениям (задолженность/переплата)
     @Override
     public Object printPdfBalanceHouse() {
-        String methodName = "printPdfBalanceHouse";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             List<EntryBalanceHouse> list = iPaymentService.getListEntryBalanceHouse();
@@ -268,7 +271,8 @@ public class PdfService implements IPdfService {
     // печатать результаты опросов по теме -------------------
     @Override
     public Object printResultQuestionnaire(String title) {
-        String methodName = "printResultQuestionnaire";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             ResultSurvey result = iSurveyService.getResultSurveyByTitleForPrint(title);
@@ -347,7 +351,8 @@ public class PdfService implements IPdfService {
 
     // формирование объекта задолженности
     private void writeOnePdfObject(InvoiceNotification in, Document doc) {
-        String methodName = "writeOnePdfObject";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
             PdfFont font = createFont();
@@ -390,7 +395,8 @@ public class PdfService implements IPdfService {
 
     // формирование детализации объекта задолженность
     public void writeOnePdfObjectDetails(DebtDetails debtDetails, Document doc) {
-        String methodName = "writeOnePdfObjectDetails";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             PdfFont font = createFont();
@@ -437,7 +443,8 @@ public class PdfService implements IPdfService {
     // отдельные элементы для конструирования файла pdf
     // шапка для квитанций
     private void fillHeaderPdfFile(HeaderInvoiceNotification header, Document doc, PdfFont font) {
-        String methodName = "fillHeaderPdfFile";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             String str = header.getCurrentTime().toString();
@@ -465,7 +472,8 @@ public class PdfService implements IPdfService {
 
     // заголовок
     private void createHeader(String text, Document doc, PdfFont font) {
-        String methodName = "createHeader";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             Paragraph header = new Paragraph(text);
@@ -480,7 +488,8 @@ public class PdfService implements IPdfService {
     }
 
     private void createHeaderBlueviolet(String text, Document doc, PdfFont font) {
-        String methodName = "createHeaderBlueviolet";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             Color blueviolet = new DeviceRgb(138, 43, 226);
@@ -497,7 +506,8 @@ public class PdfService implements IPdfService {
 
     // заголовки в таблице debt
     private void fillListCellFirstRowDebt(Table table, PdfFont font, String beginDate, String finalDate) {
-        String methodName = "fillListCellFirstRowDebt";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         List<String> list = List.of(
                 "Долг на \n " + beginDate + " составляет, грн",
@@ -514,7 +524,8 @@ public class PdfService implements IPdfService {
 
     // заголовки в таблице debt details
     private void fillListCellFirstRowDebtDetails(Table table, PdfFont font) {
-        String methodName = "fillListCellFirstRowDebtDetails";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         List<String> list = List.of(
                 "Начальный период", "Долг на начало периода, грн", "Текущий тариф, грн/м2", "Начислено, грн",
@@ -545,7 +556,8 @@ public class PdfService implements IPdfService {
     }
 
     private void checkDir(String str) {
-        String methodName = "checkDir";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
             String[] lines = str.split("/");
@@ -568,16 +580,14 @@ public class PdfService implements IPdfService {
     @Override
     // печатать объявление о новых реквизитах по оплате за услуги ОСББ
     public Object fillPdfNewBillForPayServiceOSBB() {
-        String methodName = "fillPdfNewBillForPayServiceOSBB";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
             printPdfNewBillForPayServiceOSBB();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .messages(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY))
-                    .build();
+            return new Response(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -587,7 +597,8 @@ public class PdfService implements IPdfService {
 
 
     private void printPdfNewBillForPayServiceOSBB() {
-        String methodName = "printPdfNewBillForPayServiceOSBB";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
             checkDir("D:/pdf/for_all");
@@ -659,7 +670,8 @@ public class PdfService implements IPdfService {
     // возвращает отсортированный лист номер квартира - тип отопления ( SELECT, CENTER, AUTO_GAZ, AUTO_ELECTRO)
     @Override
     public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map) {
-        String methodName = "printQueryListHeatSupplyForApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/queries");

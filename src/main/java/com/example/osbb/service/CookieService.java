@@ -13,15 +13,20 @@ public class CookieService {
     private int ageMaxCookie;
 
     public Cookie addCookie(String name, String value) {
-        log.info("Method addCookie : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(messageEnter(methodName)));
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(ageMaxCookie);
-        log.info("Method addCookie : exit");
+        log.info("cookie : " + cookie.toString());
+        log.info(messageExit(methodName));
         return cookie;
     }
 
     public Cookie getCookie(String name, HttpServletRequest request) {
-        log.info("Method getCookie : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         Cookie cookie = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -33,7 +38,16 @@ public class CookieService {
             }
         }
         assert cookie != null;
-        log.info("Method getCookie : exit");
+        log.info("cookie : " + cookie.toString());
+        log.info(messageExit(methodName));
         return cookie;
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 }

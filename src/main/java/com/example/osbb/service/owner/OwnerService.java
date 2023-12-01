@@ -27,28 +27,23 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object createOwner(Owner owner) {
-        String methodName = "createOwner";
-        String messageOwnerAlreadyExists = "Собственник с таким Ф.И.О. и датой рождения уже существует";
-        String messageSuccessfully = "Создание собственника прошло успешно";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Собственник с таким Ф.И.О. и датой рождения уже существует";
         log.info(messageEnter(methodName));
         try {
-            if (ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
+            if (!ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
                     owner.getLastName(),
                     owner.getFirstName(),
                     owner.getSecondName(),
                     owner.getDateBirth())) {
-                log.info(messageOwnerAlreadyExists);
-                log.info(messageExit(methodName));
-                return new Response(List.of(messageOwnerAlreadyExists));
+                owner.setActive(false);
+                owner = ownerDAO.save(owner);
+                messageResponse = "Создание собственника c ID : " + owner.getId() + " прошло успешно";
             }
-            owner.setActive(false);
-            owner = ownerDAO.save(owner);
-            log.info(messageSuccessfully);
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(owner)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(owner, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -59,24 +54,18 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object updateOwner(Owner owner) {
-        String methodName = "updateOwner";
-        String messageOwnerNotExists = "Собственник с ID : " + owner.getId() + " не существует";
-        String messageSuccessfully = "Обновление собственника прошло успешно";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Собственник с ID : " + owner.getId() + " не существует";
         log.info(messageEnter(methodName));
         try {
-            if (!ownerDAO.existsById(owner.getId())) {
-                log.info(messageOwnerNotExists);
-                log.info(messageExit(methodName));
-                return new Response(List.of(messageOwnerNotExists));
+            if (ownerDAO.existsById(owner.getId())) {
+                owner = ownerDAO.save(owner);
+                messageResponse = "Обновление собственника с ID : " + owner.getId() + " прошло успешно";
             }
-            owner = ownerDAO.save(owner);
-            log.info(messageSuccessfully);
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(owner)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(owner, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -86,21 +75,16 @@ public class OwnerService implements IOwnerService {
 
     @Override
     public Object getOwner(Long id) {
-        String methodName = "getOwner";
-        String messageNotExists = "Собственник с ID : " + id + " не существует";
-        String messageSuccessfully = "Получение собственника с ID : " + id + " прошло успешно";
-        String messageResponse = "";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Собственник с ID : " + id + " не существует";
         log.info(messageEnter(methodName));
         try {
             Owner owner = ownerDAO.findById(id).orElse(null);
-            messageResponse = owner == null ? messageNotExists : messageSuccessfully;
+            messageResponse = owner == null ? messageResponse : "Получение собственника с ID : " + id + " прошло успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(owner)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(owner, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -110,23 +94,17 @@ public class OwnerService implements IOwnerService {
 
     @Override
     public Object getOwnerByFullName(String fullName) {
-        String methodName = "getOwnerByFullName";
-        String messageNotExists = "Собственник с ФИО : " + fullName + " не существует";
-        String messageSuccessfully = "Получение собственника с ФИО : " + fullName + " прошло успешно";
-        String messageResponse = "";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Собственник с ФИО : " + fullName + " не существует";
         log.info(messageEnter(methodName));
         try {
             String[] fios = fullName.split(" ");
             Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
-            messageResponse = owner == null ? messageNotExists : messageSuccessfully;
+            messageResponse = owner == null ? messageResponse : "Получение собственника с ФИО : " + fullName + " прошло успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(owner)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(owner, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -137,23 +115,18 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object deleteOwner(Long id) {
-        String methodName = "deleteOwner";
-        String messageNotExists = "Собственник с ID : " + id + " не существует";
-        String messageSuccessfully = "Удаление собственника с ID : " + id + " прошло успешно";
-        String messageResponse = messageNotExists;
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Собственник с ID : " + id + " не существует";
         log.info(messageEnter(methodName));
         try {
             if (ownerDAO.existsById(id)) {
                 ownerDAO.deleteById(id);
-                messageResponse = messageSuccessfully;
+                messageResponse = "Удаление собственника с ID : " + id + " прошло успешно";
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(id, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -165,10 +138,9 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object createAllOwner(List<Owner> owners) {
-        String methodName = "createAllOwner";
-        String messageEmpty = "Ни один из собственников не создан";
-        String messageResponse = "";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Ни один из собственников не создан";
         log.info(messageEnter(methodName));
         try {
             List<Owner> result = new ArrayList<>();
@@ -180,14 +152,10 @@ public class OwnerService implements IOwnerService {
                     result.add(one);
                 }
             }
-            messageResponse = result.isEmpty() ? messageEmpty : "Создано " + result.size() + " собственников";
+            messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(sortedByLastName(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(sortedByLastName(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -199,10 +167,9 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object updateAllOwner(List<Owner> owners) {
-        String methodName = "updateAllOwner";
-        String messageEmpty = "Ни один из собственников не обновлён";
-        String messageResponse = "";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Ни один из собственников не обновлён";
         log.info(messageEnter(methodName));
         try {
             List<Owner> result = new ArrayList<>();
@@ -213,14 +180,10 @@ public class OwnerService implements IOwnerService {
                     result.add(one);
                 }
             }
-            messageResponse = result.isEmpty() ? messageEmpty : "Обновлено " + result.size() + " собственников";
+            messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(sortedByLastName(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(sortedByLastName(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -230,19 +193,15 @@ public class OwnerService implements IOwnerService {
 
     @Override
     public Object getAllOwner() {
-        String methodName = "getAllOwner";
-        String messageResponse = "";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             List<Owner> result = ownerDAO.findAll().stream().sorted(comparatorOwnerByLastName()).toList();
-            messageResponse = "Получено " + result.size() + " собственников";
+            String messageResponse = "Получено " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(result)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(result,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -253,9 +212,9 @@ public class OwnerService implements IOwnerService {
     @Override
     @Transactional
     public Object deleteAllOwner() {
-        String methodName = "deleteAllOwner";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         String messageResponse = "Собственники удалены успешно";
-
         log.info(messageEnter(methodName));
         try {
             ownerDAO.deleteAll();
@@ -272,20 +231,15 @@ public class OwnerService implements IOwnerService {
     // count ------------------------------
     @Override
     public Object countOwners() {
-        String methodName = "countOwners";
-        String messageResponse = "";
-
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             long count = ownerDAO.count();
-            messageResponse = "Количество собственников составляет : " + count;
+            String messageResponse = "Количество собственников составляет : " + count;
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(count)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(count,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

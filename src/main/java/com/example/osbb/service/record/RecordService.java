@@ -44,19 +44,11 @@ public class RecordService implements IRecordService {
         try {
             if (record.getOwnership() == null) {
                 log.error(messageOwnershipNotExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageOwnershipNotExists))
-                        .build();
+                return new Response(List.of(messageOwnershipNotExists));
             }
             if (record.getOwner() == null) {
                 log.error(messageOwnerNotExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageOwnerNotExists))
-                        .build();
+                return new Response(List.of(messageOwnerNotExists));
             }
             if (recordDAO.existsByOwnershipBillAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
                     record.getOwnership().getBill(),
@@ -64,11 +56,7 @@ public class RecordService implements IRecordService {
                     record.getOwner().getFirstName(),
                     record.getOwner().getSecondName())) {
                 log.error(messageRecordAlreadyExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageRecordAlreadyExists))
-                        .build();
+                return new Response(List.of(messageRecordAlreadyExists));
             }
 
             Ownership ownership = ownershipDAO.save(record.getOwnership());
@@ -89,11 +77,7 @@ public class RecordService implements IRecordService {
             String messageSuccessfully = "Запись с ID : " + record.getId() + " создана успешно";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(record)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(record, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -121,36 +105,19 @@ public class RecordService implements IRecordService {
         try {
             if (record.getOwnership() == null) {
                 log.info(messageOwnershipNotExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageOwnershipNotExists))
-                        .build();
+                return new Response(List.of(messageOwnershipNotExists));
             }
             if (record.getOwner() == null) {
                 log.info(messageOwnerNotExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageOwnerNotExists))
-                        .build();
+                return new Response(List.of(messageOwnerNotExists));
             }
             if (!recordDAO.existsById(record.getId())) {
                 log.info(messageRecordNotExists);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageRecordNotExists))
-                        .build();
+                return new Response(List.of(messageRecordNotExists));
             }
-
             if (!recordDAO.existsByOwnershipIdAndOwnerId(record.getOwnership().getId(), record.getOwner().getId())) {
                 listErrors.forEach(log::info);
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(listErrors)
-                        .build();
+                return new Response(listErrors);
             }
             record.setUpdateAt(LocalDateTime.now());
             log.info(messageSuccessfully);
@@ -158,11 +125,7 @@ public class RecordService implements IRecordService {
             record = recordDAO.save(record);
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(record)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(record, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -174,20 +137,14 @@ public class RecordService implements IRecordService {
     public Object getRecord(Long id) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageSuccessfully = "Запись с ID : " + id + " получена успешно";
         String messageResponse = "Запись с ID : " + id + " не существует";
-
         log.info(messageEnter(methodName));
         try {
             Record record = recordDAO.findById(id).orElse(null);
-            messageResponse = record == null ? messageResponse : messageSuccessfully;
+            messageResponse = record == null ? messageResponse : "Запись с ID : " + id + " получена успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(record)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(record, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -201,7 +158,6 @@ public class RecordService implements IRecordService {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         String messageResponse = "Запись с ID : " + id + " не существует";
-
         log.info(messageEnter(methodName));
         try {
             if (recordDAO.existsById(id)) {
@@ -210,7 +166,7 @@ public class RecordService implements IRecordService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder().data(id).messages(List.of(messageResponse)).build();
+            return new Response(id, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -239,11 +195,7 @@ public class RecordService implements IRecordService {
             messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " записей";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(returnListSortedById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -257,7 +209,6 @@ public class RecordService implements IRecordService {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         String messageResponse = "Не обновлено ни одной записи";
-
         log.info(messageEnter(methodName));
         List<Record> result = new ArrayList<>();
         try {
@@ -272,11 +223,7 @@ public class RecordService implements IRecordService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " записей";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(returnListSortedById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -294,11 +241,7 @@ public class RecordService implements IRecordService {
             String messageSuccessfully = "Получено " + result.size() + " записей";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(returnListSortedById(result))
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(returnListSortedById(result), List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -356,15 +299,11 @@ public class RecordService implements IRecordService {
         log.info(messageEnter(methodName));
         try {
             List<Record> records = recordDAO.findByOwnerId(id);
-            String messageSuccessfully = "Записи по собственнику с ID : " + id
+            String messageResponse = "Записи по собственнику с ID : " + id
                     + " получены успешно в количестве " + records.size() + " штук";
-            log.info(messageSuccessfully);
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(records)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(records, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -376,22 +315,17 @@ public class RecordService implements IRecordService {
     public Object getRecordByApartmentAndFullName(String apartment, String fullName) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageSuccessfully = "Запись с помещением № " + apartment + " и ФИО : " + fullName + " успешно получена";
-        String messageNotExists = "Запись с помещением № " + apartment + " и ФИО : " + fullName + " не найдена";
-
+        String messageResponse = "Запись с помещением № " + apartment + " и ФИО : " + fullName + " не найдена";
         log.info(messageEnter(methodName));
         String[] fios = fullName.split(" ");
         try {
             Record record = recordDAO.findByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(
                     apartment, fios[0], fios[1], fios[2]);
-            String messageResponse = record == null ? messageNotExists : messageSuccessfully;
+            messageResponse = record == null ? messageResponse :
+                    "Запись с помещением № " + apartment + " и ФИО : " + fullName + " успешно получена";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(record)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(record,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -416,11 +350,7 @@ public class RecordService implements IRecordService {
             if (record == null) {
                 log.info(messageNotExists);
                 log.info(messageExit(methodName));
-                return Response
-                        .builder()
-                        .data(null)
-                        .messages(List.of(messageNotExists))
-                        .build();
+                return new Response(List.of(messageNotExists));
             }
             recordDAO.deleteById(record.getId());
             if (isRecordListEmptyByOwnerId(ownerId)) {
@@ -431,11 +361,7 @@ public class RecordService implements IRecordService {
             }
             log.info(messageDeleteSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(record.getId())
-                    .messages(List.of(messageDeleteSuccessfully))
-                    .build();
+            return new Response(record.getId(),List.of(messageDeleteSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

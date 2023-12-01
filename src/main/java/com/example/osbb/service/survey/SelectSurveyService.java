@@ -32,14 +32,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .filter(el -> el.getDateReceiving() == null)
                     .sorted((a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment()))
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "Получено по теме \"" + title + "\" " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -53,19 +49,11 @@ public class SelectSurveyService implements ISelectSurveyService {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            List<String> list = surveyDAO.findAll()
-                    .stream()
-                    .map(Survey::getTitle)
-                    .distinct()
-                    .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            List<String> list = surveyDAO.findAll().stream().map(Survey::getTitle).distinct().toList();
+            String messageResponse = "Всего тем опросов получено " + list.size() + " штук";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -80,17 +68,11 @@ public class SelectSurveyService implements ISelectSurveyService {
         log.info(messageEnter(methodName));
         try {
             List<Survey> list = surveyDAO.findByQuestion(question)
-                    .stream()
-                    .filter(el -> el.getDateReceiving() == null)
-                    .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+                    .stream().filter(el -> el.getDateReceiving() == null).toList();
+            String messageResponse = "По  вопросу \"" + question + "\" получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -99,20 +81,16 @@ public class SelectSurveyService implements ISelectSurveyService {
     }
 
     @Override
-    public Object selectAllSurveyByFullName(String fullname) {
+    public Object selectAllSurveyByFullName(String fullName) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            List<Survey> list = surveyDAO.findByFullName(fullname);
-            String messageResponse = "Получено " + list.size() + " объектов";
+            List<Survey> list = surveyDAO.findByFullName(fullName);
+            String messageResponse = "По ФИО : " + fullName + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -130,14 +108,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По помещению № " + apartment + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -155,14 +129,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По дате инициализации опроса  : " + dateDispatch.toString() + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -180,14 +150,11 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По дате прохождения опроса " + dateReceiving.toString()
+                    + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -207,14 +174,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По вопросу : \"" + question + "\" получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -232,14 +195,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По помещению № " + apartment + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -257,14 +216,10 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getAnswer() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По ФИО " + fullname + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -282,14 +237,11 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По ФИО : " + fullName + " и помещению № "
+                    + apartment + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -307,14 +259,12 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По теме опроса \"" + title
+                    + "\" и дате инициализации " + dateDispatch.toString()
+                    + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -329,14 +279,12 @@ public class SelectSurveyService implements ISelectSurveyService {
         log.info(messageEnter(methodName));
         try {
             List<Survey> list = surveyDAO.findByTitleAndDateReceiving(title, dateReceiving);
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По теме опроса \"" + title
+                    + "\" и дате прохождения опроса " + dateReceiving.toString()
+                    + " получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -356,14 +304,11 @@ public class SelectSurveyService implements ISelectSurveyService {
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)
                     .toList();
-            String messageResponse = "Получено " + list.size() + " объектов";
+            String messageResponse = "По теме опроса \"" + title + ", ФИО : " + fullName
+                    + " и помещению № " + apartment + "получено " + list.size() + " объектов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(list, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

@@ -23,30 +23,35 @@ public class UserService {
     private TokenService tokenService;
 
     public User createUser(User user) {
-        log.info("Method createUser : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         if (!userDAO.existsByUsername(user.getUsername()) && !userDAO.existsByEmail(user.getEmail())) {
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
-            log.info("Пользователь успешно создан");
-            log.info("Method createUser : exit");
-            return userDAO.save(user);
+            user = userDAO.save(user);
+            log.info("Пользователь успешно создан : " + user);
+            log.info(messageExit(methodName));
+            return user;
         } else {
             log.info("Пользователь с такими данными уже существует");
-            log.info("Method createUser : exit");
+            log.info(messageExit(methodName));
             return null;
         }
     }
 
     public User updateUser(User user) {
-        log.info("Method updateUser : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         if (userDAO.existsByUsername(user.getUsername()) && userDAO.existsByEmail(user.getEmail())) {
             user.setUpdatedAt(LocalDateTime.now());
             log.info("Пользователь обновлён успешно");
-            log.info("Method updateUser : exit");
+            log.info(messageExit(methodName));
             return userDAO.save(user);
         }
-        log.info("Пользователь с такими данными нне существует");
-        log.info("Method updateUser : exit");
+        log.info("Пользователь с такими данными не существует");
+        log.info(messageExit(methodName));
         return null;
     }
 
@@ -61,14 +66,14 @@ public class UserService {
     // for controller ------------------------
 
     public Object getUserForController(Long id) {
-        log.info("Method getUserForController : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
-            log.info("Пользователь получен успешно.");
-            return Response
-                    .builder()
-                    .data(new UserDto(getUser(id)))
-                    .messages(List.of("Пользователь получен успешно."))
-                    .build();
+            User user = getUser(id);
+            String messageResponse = "Пользователь c ID : " + user.getId() + " получен успешно";
+            log.info(messageResponse);
+            return new Response(new UserDto(user), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -77,19 +82,20 @@ public class UserService {
     }
 
     public Object deleteUserForController(Long id) {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Пользователь с id : " + id + " не найден";
         try {
-            log.info("Method deleteUserForController : enter");
+            log.info(messageEnter(methodName));
             User user = getUser(id);
             if (user != null) {
                 tokenService.removeTokenByEmail(user.getEmail());
                 deleteUser(id);
-                log.info("Пользователь удалён успешно.");
-                log.info("Method deleteUserForController : exit");
-                return new Response(List.of("Пользователь удалён успешно."));
+                messageResponse = "Пользователь с ID : " + id + " удалён успешно";
             }
-            log.info("Пользователь с id : " + id + " не найден.");
-            log.info("Method deleteUserForController : exit");
-            return new ErrorResponseMessages(List.of("Пользователь с id : " +  id + " не найден."));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -109,6 +115,14 @@ public class UserService {
 
     public User getUserByActivationLink(String link) {
         return userDAO.findByActivationLink(link);
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

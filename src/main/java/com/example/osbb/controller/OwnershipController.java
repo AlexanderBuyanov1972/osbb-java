@@ -123,7 +123,6 @@ public class OwnershipController {
         return response.returnResponse(service.getAllBillByApartment(apartment));
     }
 
-
     // get all apartments by full name -----------------------
     @GetMapping(ApiConstants.FULL_NAME + ApiConstants.PARAM_FULL_NAME)
     public ResponseEntity<?> getAllApartmentByFullName(@PathVariable String fullName) {

@@ -28,18 +28,13 @@ public class AddressService implements IAddressService {
     public Object createAddress(Address address) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Адресс создан успешно";
         log.info(messageEnter(methodName));
         try {
             address = addressDAO.save(address);
-
+            String messageResponse = "Адресс с ID : " + address.getId() + " создан успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(address)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(address, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -52,22 +47,16 @@ public class AddressService implements IAddressService {
     public Object updateAddress(Address address) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageNotExists = "Адресс с ID : " + address.getId() + " не существует";
-        String messageSuccessfully = "Адресс обновлён успешно";
+        String messageResponse = "Адресс с ID : " + address.getId() + " не существует";
         log.info(messageEnter(methodName));
         try {
-            if (!addressDAO.existsById(address.getId())) {
-                log.info(messageNotExists);
-                return new Response(List.of(messageNotExists));
+            if (addressDAO.existsById(address.getId())) {
+                address = addressDAO.save(address);
+                messageResponse = "Адресс c ID : " + address.getId() + " обновлён успешно";
             }
-            address = addressDAO.save(address);
-            log.info(messageSuccessfully);
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(address)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(address, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -88,18 +77,13 @@ public class AddressService implements IAddressService {
                 messageResponse = "Адресс c ID : " + id + " получен успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(address)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(address, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
-
 
     @Override
     @Transactional
@@ -116,11 +100,7 @@ public class AddressService implements IAddressService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(id, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -150,11 +130,7 @@ public class AddressService implements IAddressService {
             messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " адрессов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(sortedById(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(sortedById(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -182,11 +158,7 @@ public class AddressService implements IAddressService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " адрессов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(sortedById(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(sortedById(result),List.of(messageResponse));
         } catch (
                 Exception error) {
             log.error(ERROR_SERVER);
@@ -206,11 +178,7 @@ public class AddressService implements IAddressService {
             List<Address> result = addressDAO.findAll();
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(sortedById(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(sortedById(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -254,10 +222,7 @@ public class AddressService implements IAddressService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(address)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(address,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

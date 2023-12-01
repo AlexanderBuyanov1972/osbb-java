@@ -28,16 +28,13 @@ public class PassportService implements IPassportService {
     public Object createPassport(Passport passport) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Паспорт создан успешно";
         log.info(messageEnter(methodName));
         try {
             passport = passportDAO.save(passport);
+            String messageResponse = "Паспорт с ID : " + passport.getId() + " создан успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(passport)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(passport, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -60,10 +57,7 @@ public class PassportService implements IPassportService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(passport)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(passport,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -84,10 +78,7 @@ public class PassportService implements IPassportService {
                 messageResponse = "Паспорт с ID : " + id + " получен успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(passport)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(passport,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -140,10 +131,7 @@ public class PassportService implements IPassportService {
                 messageResponse = "Создано " + result.size() + " паспортов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(listSorted(result))
-                    .messages(List.of())
-                    .build();
+            return new Response(listSorted(result),List.of());
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -172,10 +160,7 @@ public class PassportService implements IPassportService {
                 messageResponse = "Обновлено " + result.size() + " паспортов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -194,11 +179,7 @@ public class PassportService implements IPassportService {
             String messageResponse = "Получено " + result.size() + " паспортов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -240,10 +221,7 @@ public class PassportService implements IPassportService {
                 messageResponse = "По ИНН " + registrationNumberCardPayerTaxes + " паспорт найден успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(passport)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(passport,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

@@ -123,11 +123,7 @@ public class PhotoService implements IPhotoService {
             messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " фото";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -154,11 +150,7 @@ public class PhotoService implements IPhotoService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " фото";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -176,11 +168,7 @@ public class PhotoService implements IPhotoService {
             String messageResponse = "Получено " + result.size() + " фото";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

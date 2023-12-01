@@ -31,11 +31,7 @@ public class VehicleService implements IVehicleService {
             vehicle = vehicleDAO.save(vehicle);
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(vehicle)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(vehicle, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -78,11 +74,7 @@ public class VehicleService implements IVehicleService {
                 messageResponse = "Транспортное средство c ID : " + id + " получено успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(vehicle)
-                    .messages(List.of())
-                    .build();
+            return new Response(vehicle, List.of());
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

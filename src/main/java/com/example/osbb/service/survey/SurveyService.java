@@ -40,16 +40,13 @@ public class SurveyService implements ISurveyService {
     public Object getResultSurveyByTitle(String title) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageSuccessfully = "Результаты опроса " + title + " обработаны";
+        String messageSuccessfully = "Результаты опроса по теме \"" + title + "\" обработаны";
         log.info(messageEnter(methodName));
         try {
             ResultSurvey rq = getResultSurveyByTitleForPrint(title);
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response.builder()
-                    .data(rq)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(rq, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -282,11 +279,7 @@ public class SurveyService implements ISurveyService {
                     + surveys.get(0).getTitle() + "\"";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(size)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(size, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -327,10 +320,7 @@ public class SurveyService implements ISurveyService {
             //------------ finish -----------------
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -349,7 +339,7 @@ public class SurveyService implements ISurveyService {
             String messageSuccessfully = "Получено " + list.size() + " записей";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response.builder().data(list).messages(List.of(messageSuccessfully)).build();
+            return new Response(list, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -408,11 +398,7 @@ public class SurveyService implements ISurveyService {
                     .toList();
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(list)
-                    .messages(List.of(messageSuccessfully))
-                    .build();
+            return new Response(list, List.of(messageSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -425,6 +411,7 @@ public class SurveyService implements ISurveyService {
     private String mapOwnerToFullName(Owner o) {
         return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
     }
+
     private Comparator<Survey> comparatorSurveyByApartment() {
         return (a, b) -> Integer.parseInt(a.getApartment())
                 - Integer.parseInt(b.getApartment());

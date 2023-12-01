@@ -37,7 +37,9 @@ public class TokenService {
     private Long time = 24 * 60 * 60 * 1000L;
 
     public void saveRefreshToken(String email, String refreshToken) {
-        log.info("Method saveRefreshToken : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             if (!email.isEmpty() && !refreshToken.isEmpty()) {
                 tokenDAO.removeByEmail(email);
@@ -46,7 +48,7 @@ public class TokenService {
                         .token(refreshToken)
                         .build());
             }
-            log.info("Method saveRefreshToken : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -57,7 +59,9 @@ public class TokenService {
 
 
     public RefreshToken getTokenByEmail(String email) {
-        log.info("Method getTokenByEmail : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             return !email.isEmpty() ? tokenDAO.findTokenByEmail(email) : null;
         } catch (Exception error) {
@@ -68,13 +72,14 @@ public class TokenService {
     }
 
     public void removeTokenByEmail(String email) {
-        log.info("Method removeTokenByEmail : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             RefreshToken token = getTokenByEmail(email);
-            if (token != null) {
+            if (token != null)
                 tokenDAO.delete(token);
-            }
-            log.info("Method removeTokenByEmail : exit");
+            log.info(messageExit(methodName));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -84,10 +89,13 @@ public class TokenService {
 
 
     public String createTokenAccess(User user) {
-        log.info("Method createTokenAccess : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             long now = System.currentTimeMillis();
             List<String> authorities = List.of(user.getRole().toString());
+            log.info(messageExit(methodName));
             return Jwts.builder()
                     .setSubject(user.getEmail())
                     .claim(AUTHORIZATION, authorities)
@@ -104,10 +112,13 @@ public class TokenService {
 
 
     public String createTokenRefresh(User user, String password) {
-        log.info("Method createTokenRefresh : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             long now = System.currentTimeMillis();
             List<String> authorities = List.of(user.getRole().toString());
+            log.info(messageExit(methodName));
             return Jwts.builder()
                     .setIssuer("Stormpath")
                     .setSubject(user.getEmail())
@@ -130,7 +141,9 @@ public class TokenService {
     }
 
     public Claims getClaimsAccess(String token) {
-        log.info("Method getClaimsAccess : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             return Jwts.parser()
                     .setSigningKey(secretAccessToken.getBytes(StandardCharsets.UTF_8))
@@ -144,7 +157,9 @@ public class TokenService {
     }
 
     public Claims getClaimsRefresh(String token) {
-        log.info("Method getClaimsRefresh : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             return Jwts.parser()
                     .setSigningKey(secretRefreshToken.getBytes(StandardCharsets.UTF_8))
@@ -155,6 +170,14 @@ public class TokenService {
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 
 }

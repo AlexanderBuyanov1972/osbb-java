@@ -1,5 +1,6 @@
 package com.example.osbb.service.rate;
 
+import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.RateDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
@@ -17,104 +18,94 @@ import java.util.stream.Collectors;
 @Service
 public class RateService implements IRateService {
     private static final Logger log = Logger.getLogger(RateService.class);
+    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private RateDAO rateDAO;
 
     // ---------------- one -----------------
     @Override
     public Object createRate(Rate rate) {
-        log.info("Method createRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Тариф с датой : " + rate.getDate() + " уже существует.";
         try {
-            List<String> errors = new ArrayList<>();
-            if (rateDAO.existsByDate(rate.getDate())) {
-                log.info("Тариф с датой : " + rate.getDate() + " уже существует.");
-                errors.add("Тариф с датой : " + rate.getDate() + " уже существует.");
+            if (!rateDAO.existsByDate(rate.getDate())) {
+                rate = rateDAO.save(rate);
+                messageResponse = "Тариф с ID : " + rate.getId() + " создан успешно";
             }
-            rate = rateDAO.save(rate);
-            log.info("Тариф создан успешно.");
-            log.info("Method createRate : exit");
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(rate)
-                    .messages(List.of("Тариф создан успешно."))
-                    .build() : new Response(errors);
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(rate, List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object updateRate(Rate rate) {
-        log.info("Method updateRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Тариф с ID : " + rate.getId() + " не существует";
         try {
-            List<String> errors = new ArrayList<>();
-            if (!rateDAO.existsById(rate.getId())) {
-                log.info("Тариф с ID : " + rate.getId() + " не существует.");
-                errors.add("Тариф с ID : " + rate.getId() + " не существует.");
+            if (rateDAO.existsById(rate.getId())) {
+                rateDAO.delete(rate);
+                rate = rateDAO.save(rate);
+                messageResponse = "Тариф с ID : " + rate.getId() + " обновлён успешно";
             }
-            rateDAO.delete(rate);
-            rate = rateDAO.save(rate);
-            log.info("Тариф обновлён успешно.");
-            log.info("Method updateRate : exit");
-            return errors.isEmpty() ? Response
-                    .builder()
-                    .data(rate)
-                    .messages(List.of("Тариф обновлён успешно."))
-                    .build() : new Response(errors);
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(rate, List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object getRate(Long id) {
-        log.info("Method getRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Тариф с ID : " + id + " не существует.";
         try {
-            if (rateDAO.existsById(id)) {
-                log.info("Method getRate : exit");
-                return Response
-                        .builder()
-                        .data(rateDAO.findById(id).get())
-                        .messages(List.of("Тариф получен успешно."))
-                        .build();
-            }
-            log.info("Method getRate : exit");
-            return new Response(List.of("Тариф с ID : " + id + " не существует."));
+            Rate rate = rateDAO.findById(id).orElse(null);
+            if (rate != null)
+                messageResponse = "Тариф с ID : " + id + " получен успешно";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(rate, List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object deleteRate(Long id) {
-        log.info("Method deleteRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Тариф с ID : " + id + " не существует";
+        log.info(messageEnter(methodName));
         try {
             if (rateDAO.existsById(id)) {
                 rateDAO.deleteById(id);
-                log.info("Тариф удален успешно.");
-                log.info("Method deleteRate : exit");
-                return Response
-                        .builder()
-                        .data(id)
-                        .messages(List.of("Тариф удален успешно."))
-                        .build();
+                messageResponse = "Тариф с ID : " + id + " удалён успешно";
             }
-            log.info("Тариф с ID : " + id + " уже существует.");
-            log.info("Method deleteRate : exit");
-            return new Response(List.of("Тариф с ID : " + id + " уже существует."));
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(id, List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -122,7 +113,10 @@ public class RateService implements IRateService {
     // ------------------ all -----------------------
     @Override
     public Object createAllRate(List<Rate> rates) {
-        log.info("Method createAllRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        String messageResponse = "Ни один из тарифов создан не был";
+        log.info(messageEnter(methodName));
         try {
             List<Rate> result = new ArrayList<>();
             for (Rate rate : rates) {
@@ -130,27 +124,18 @@ public class RateService implements IRateService {
                         !rateDAO.existsByDate(rate.getDate())) {
                     rate = rateDAO.save(rate);
                     log.info("Тариф с ID : " + rate.getId() + " создан успешно");
-                    log.info("Тариф сохранён успешно");
                     result.add(rate);
                 }
             }
-            log.info("Ни один из тарифов создан не был");
-            log.info("Тарифы с такими ID уже существуют или...");
-            log.info("Тарифы с такими датами уже существуют");
-            log.info("Method createAllRate : exit");
-            return result.isEmpty() ? new Response(List
-                    .of("Ни один из тарифов создан не был",
-                            "Тарифы с такими ID уже существуют или...",
-                            "Тарифы с такими датами уже существуют"))
-                    : Response
-                    .builder()
-                    .data(listSortedByLocalDate(result))
-                    .messages(List.of("Успешно создано " + result.size() + " тарифов из " + rates.size()))
-                    .build();
+            messageResponse = result.isEmpty() ? messageResponse :
+                    "Успешно создано " + result.size() + " тарифов из " + rates.size();
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(sortedByLocalDate(result), List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -158,7 +143,10 @@ public class RateService implements IRateService {
     @Override
     @Transactional
     public Object updateAllRate(List<Rate> rates) {
-        log.info("Method updateAllRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Не обновлён ни один тариф";
         try {
             List<Rate> result = new ArrayList<>();
             for (Rate rate : rates) {
@@ -168,42 +156,35 @@ public class RateService implements IRateService {
                     result.add(rate);
                 }
             }
-            if (result.isEmpty()) {
-                log.info("Не обновлён ни один тариф");
-                log.info("Method updateAllRate : exit");
-                return new Response(List.of("Не обновлён ни один тариф"));
-            }
-            log.info("Успешно обновлено " + result.size() + " тарифов из " + rates.size());
-            log.info("Method updateAllRate : exit");
-            return Response
-                    .builder()
-                    .data(listSortedByLocalDate(result))
-                    .messages(List.of("Успешно обновлено " + result.size() + " тарифов из " + rates.size()))
-                    .build();
-        } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            messageResponse = result.isEmpty() ? messageResponse :
+                    "Успешно обновлено " + result.size() + " тарифов из " + rates.size();
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(sortedByLocalDate(result), List.of(messageResponse));
+        } catch (
+                Exception error) {
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
     @Override
     public Object getAllRate() {
-        log.info("Method getAllRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             List<Rate> result = rateDAO.findAll();
-            log.info("Tарифы получены успешно");
-            log.info("Method getAllRate : exit");
-            return Response
-                    .builder()
-                    .data(listSortedByLocalDate(result))
-                    .messages(List.of("Tарифы получены успешно"))
-                    .build();
+            String messageResponse = "Tарифы получены успешно";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(sortedByLocalDate(result), List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
@@ -211,27 +192,31 @@ public class RateService implements IRateService {
     @Override
     @Transactional
     public Object deleteAllRate() {
-        log.info("Method deleteAllRate : enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             rateDAO.deleteAll();
-            log.info("Все тарифы успешно удалены.");
-            log.info("Method deleteAllRate : exit");
-            return new Response(List.of("Все тарифы успешно удалены."));
+            String messageResponse = "Все тарифы успешно удалены";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
-            log.error("UNEXPECTED SERVER ERROR");
+            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of("UNEXPECTED SERVER ERROR", error.getMessage()));
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
     }
 
-    private List<Rate> listSortedById(List<Rate> list) {
+    private List<Rate> sortedById(List<Rate> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
 
-    private List<Rate> listSortedByLocalDate(List<Rate> list) {
+    private List<Rate> sortedByLocalDate(List<Rate> list) {
         return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
     }
+
     private String messageEnter(String name) {
         return "Method " + name + " : enter";
     }

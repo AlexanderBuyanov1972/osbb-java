@@ -31,7 +31,8 @@ public class QueriesService implements IQueriesService {
 
     @Override
     public Object queryListHeatSupplyForApartment() {
-        String methodName = "queryListHeatSupplyForApartment";
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             Map<String, List<ApartmentHeatSupply>> map = ownershipDAO.findAll()

@@ -16,8 +16,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+
 public class AuthorizationFilter extends OncePerRequestFilter {
-private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
+    private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
     private final TokenService tokenService;
     private final UserService userService;
 
@@ -31,8 +32,11 @@ private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
                                     HttpServletResponse response,
                                     FilterChain filterChain
     ) throws jakarta.servlet.ServletException, IOException {
-        log.info("Enter in doFilterInternal");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         String valueHeader = request.getHeader("Authorization");
+        log.info("String valueHeader : " + valueHeader);
         if (tokenService.validateToken(valueHeader)) {
             try {
                 Claims claims = tokenService.getClaimsAccess(valueHeader.substring(7));
@@ -40,7 +44,9 @@ private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
                 String email = claims.getSubject();
                 log.info(email);
                 User user = userService.getUserByEmail(email);
+                log.info("User user : " + user);
                 CustomUserDetails customUserDetails = CustomUserDetails.fromUserEntityToCustomUserDetails(user);
+                log.info("customUserDetails : " + customUserDetails);
                 SecurityContextHolder.getContext().setAuthentication(
                         new UsernamePasswordAuthenticationToken(
                                 email,
@@ -51,6 +57,15 @@ private static final Logger log = Logger.getLogger(AuthorizationFilter.class);
                 SecurityContextHolder.clearContext();
             }
         }
+        log.info(messageExit(methodName));
         filterChain.doFilter(request, response);
+    }
+
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
+
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
     }
 }

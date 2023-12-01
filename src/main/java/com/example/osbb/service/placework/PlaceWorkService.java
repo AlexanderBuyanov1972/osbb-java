@@ -29,17 +29,13 @@ public class PlaceWorkService implements IPlaceWorkService {
     public Object createPlaceWork(PlaceWork placeWork) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Место работы создано успешно";
         log.info(messageEnter(methodName));
         try {
             placeWork = placeWorkDAO.save(placeWork);
+            String messageResponse = "Место работы c ID : " + placeWork.getId() + " создано успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(placeWork)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(placeWork,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -61,11 +57,7 @@ public class PlaceWorkService implements IPlaceWorkService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(placeWork)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(placeWork,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -107,11 +99,7 @@ public class PlaceWorkService implements IPlaceWorkService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(id)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(id,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -139,11 +127,7 @@ public class PlaceWorkService implements IPlaceWorkService {
                 messageResponse = "Создано " + result.size() + " успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -171,11 +155,7 @@ public class PlaceWorkService implements IPlaceWorkService {
                 messageResponse = "Обновлено " + result.size() + " рабочих мест";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -193,11 +173,7 @@ public class PlaceWorkService implements IPlaceWorkService {
             String messageResponse = "Получено " + result.size() + " рабочих мест";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(listSorted(result))
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(listSorted(result),List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

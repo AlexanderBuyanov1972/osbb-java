@@ -47,14 +47,20 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
     public Object registration(HttpServletRequest request) {
-        log.info("Method registration - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        log.info(messageEnter(methodName));
         try {
             RegistrationRequest body = objectMapper.readValue(request.getInputStream(), RegistrationRequest.class);
+            log.info("RegistrationRequest body : " + body);
             String hashPassword = passwordEncoder.encode(body.getPassword());
+            log.info("hashPassword : " + hashPassword);
             String activationLink = UUID.randomUUID().toString().replace("-", "");
+            log.info("activationLink : " + activationLink);
             String path = ApiConstants.URL_SERVER + ApiConstants.ACTIVATE + "/" + activationLink;
+            log.info("String path : " + path);
             User user = User
                     .builder()
                     .username(body.getUsername())
@@ -65,15 +71,11 @@ public class AuthService {
                     .activated(false)
                     .build();
             userService.createUser(user);
+            log.info("Пользователь создан успешно");
             mailService.sendActivationMail(path);
-            log.info("Регистрация прошла успешно");
-            log.info("Method registration - exit");
-            return Response
-                    .builder()
-                    .data(new UserDto(user))
-                    .messages(List.of("Регистрация прошла успешно"))
-                    .build();
-
+            log.info("Письмо на электронную почту отправлено успешно");
+            log.info(messageExit(methodName));
+            return new Response(new UserDto(user), List.of("Регистрация прошла успешно"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -82,10 +84,14 @@ public class AuthService {
     }
 
     public Object login(HttpServletRequest request) {
-        log.info("Method login - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+
         try {
+            log.info(messageEnter(methodName));
             String email = request.getAttribute("email").toString();
             log.info("email : " + email);
+            log.info(messageExit(methodName));
             return doMain(email);
         } catch (Exception error) {
             log.error(ERROR_SERVER);
@@ -96,7 +102,10 @@ public class AuthService {
     }
 
     public Object logout(HttpServletRequest request, HttpServletResponse response) {
-        log.info("Method logout - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Е-маил повреждён или не существует";
         try {
             String accessToken = request.getHeader("Authorization");
             log.info("accessToken : " + accessToken);
@@ -104,10 +113,11 @@ public class AuthService {
                 Claims claims = tokenService.getClaimsAccess(accessToken.substring(7));
                 String email = claims.getSubject();
                 if (email == null) {
-                    log.error("Email invalid or is not exists.");
-                    return new ErrorResponseMessages(List.of("Email invalid or is not exists."));
+                    log.error(messageResponse);
+                    return new ErrorResponseMessages(List.of(messageResponse));
                 }
                 tokenService.removeTokenByEmail(email);
+                log.info("Удаление токена произведено успешно");
 //                Cookie cookie = cookieService.getCookie("refreshToken", request);
 //                if (cookie == null) {
 //                    log.info("Cookie file is missing or damaged.");
@@ -115,12 +125,14 @@ public class AuthService {
 //                }
 //                cookie.setMaxAge(0);
 //                response.addCookie(cookie);
-                log.info("Выход из системы осуществлён успешно");
-                log.info("Method logout - exit");
-                return new Response(List.of("Выход из системы осуществлён успешно"));
+                messageResponse = "Выход из системы осуществлён успешно";
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(List.of(messageResponse));
             }
-            log.info("Access token invalid or is not exists");
-            return new ErrorResponseMessages(List.of("Access token invalid or is not exists"));
+            messageResponse = "Токен доступа повреждён или не существует";
+            log.info(messageResponse);
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -129,36 +141,47 @@ public class AuthService {
     }
 
     public Object activate(HttpServletRequest request) {
-        log.info("Method activate - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Активация прошла успешно";
         try {
             String url = new URL(request.getRequestURL().toString()).toString();
+            log.info("Полученный URL из запроса : " + url);
             String link = url.substring(url.lastIndexOf("/") + 1).trim();
             log.info("Линк активации : " + link);
             User user = userService.getUserByActivationLink(link);
+            log.info("Полученный пользователь по линку : " + user);
             if (user != null) {
+                log.info("user != null : " + (user != null));
                 user.setActivated(true);
-                userService.updateUser(user);
-                log.info("user : " + user);
-                log.error("Активация прошла успешно");
-                log.info("Method activate - enter");
-                return Response.builder()
-                        .data(new UserDto(user))
-                        .messages(List.of("Активация прошла успешно"))
-                        .build();
+                log.info("user.setActivated(true)");
+                user = userService.updateUser(user);
+                log.info("Пользователь успешно обновлён");
+                log.info("Обновлённый user : " + user);
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(new UserDto(user), List.of(messageResponse));
             }
+            messageResponse = "Пользователь по данному активационному линку не существует";
+            log.info(messageResponse);
+            log.info(messageExit(methodName));
+            return new Response(List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-        log.info("The user for this activation link does not exist");
-        return new ErrorResponseMessages(List.of("The user for this activation link does not exist"));
     }
 
     public Object refresh(HttpServletRequest request) {
-        log.info("Method refresh - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             String email = request.getAttribute("email").toString();
+            log.info("request.getAttribute(\"email\").toString() : " + email);
+            log.info(messageExit(methodName));
             return doMain(email);
         } catch (Exception error) {
             log.error(ERROR_SERVER);
@@ -168,13 +191,17 @@ public class AuthService {
     }
 
     public Object check(HttpServletRequest request) {
-        log.info("Method check - enter");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
         try {
             String url = new URL(request.getRequestURL().toString()).toString();
+            log.info("Полученный URL из запроса : " + url);
             String link = url.substring(url.lastIndexOf("/") + 1).trim();
             log.info("Линк активации :  " + link);
             User user = userService.getUserByActivationLink(link);
-            log.info("email : " + user.getEmail());
+            log.info("Полученный пользователь по линку активации : " + user);
+            log.info(messageExit(methodName));
             return doMain(user.getEmail());
         } catch (Exception error) {
             log.error(ERROR_SERVER);
@@ -184,14 +211,21 @@ public class AuthService {
     }
 
     private Object doMain(String email) {
-        log.error("Entered the doMain method.");
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        String messageResponse = "Авторизация прошла успешно";
         // --------------------------------------------------------
         User user = userService.getUserByEmail(email);
+        log.info("Пользователь полученный по емаил : " + user);
         if (user != null) {
+            log.info("(user != null) : " + (user != null));
             String refreshToken = tokenService.getTokenByEmail(email).getToken();
+            log.info("Рефреш токен : " + refreshToken);
             if (refreshToken != null) {
                 String accessToken = "Bearer " + tokenService.createTokenAccess(
                         user);
+                log.info("Токен доступа : " + accessToken);
                 Claims claimsAccessToken = tokenService.getClaimsAccess(accessToken.substring(7));
                 log.info("claimsAccessToken : " + claimsAccessToken);
                 Claims claimsRefreshToken = tokenService.getClaimsRefresh(refreshToken.substring(7));
@@ -207,17 +241,24 @@ public class AuthService {
                         .refreshTokenExpiredAt(claimsRefreshToken.getExpiration())
                         .userDto(new UserDto(user))
                         .build();
-                return Response.builder()
-                        .data(tudto)
-                        .messages(List.of("Авторизация прошла успешно"))
-                        .build();
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(tudto, List.of(messageResponse));
             }
-            log.error("Пользователь не авторизован");
-            return new ErrorResponseMessages(List.of("Пользователь не авторизован"));
+            messageResponse = "Пользователь не авторизован";
+            log.error(messageResponse);
+            return new Response(List.of(messageResponse));
         }
-        log.info("Пользователь с  email : " + email + " не существует");
-        return new ErrorResponseMessages(List.of("Пользователь с  email : " + email + " не существует"));
+        messageResponse = "Пользователь с  email : " + email + " не существует";
+        log.error(messageResponse);
+        return new Response(List.of(messageResponse));
     }
 
+    private String messageEnter(String name) {
+        return "Method " + name + " : enter";
+    }
 
+    private String messageExit(Object name) {
+        return "Method " + name + " : exit";
+    }
 }
