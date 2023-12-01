@@ -95,6 +95,7 @@ public class PaymentController {
     public ResponseEntity<?> getBalance() {
         return response.returnResponse(service.getBalanceAllPayment());
     }
+
     // получить лист помещений в разрезе оплаты (задолженость/переплата) за услуги ОСББ -----
     @GetMapping(ApiConstants.BALANCE + ApiConstants.ALL)
     public ResponseEntity<?> getBalanceHouse() {
@@ -102,9 +103,14 @@ public class PaymentController {
     }
 
     // debt -----------------
-    @GetMapping(ApiConstants.DEBT + ApiConstants.PARAM_APARTMENT)
+    @GetMapping(ApiConstants.DEBT + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
     public ResponseEntity<?> getDebtByApartment(@PathVariable String apartment) {
         return response.returnResponse(service.getDebtByApartment(apartment));
+    }
+
+    @GetMapping(ApiConstants.DEBT + ApiConstants.BILL + ApiConstants.PARAM_BILL)
+    public ResponseEntity<?> getDebtByBill(@PathVariable String bill) {
+        return response.returnResponse(service.getDebtByBill(bill));
     }
 
     @GetMapping(ApiConstants.DEBT + ApiConstants.DETAILS + ApiConstants.PARAM_APARTMENT)
