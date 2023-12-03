@@ -607,13 +607,6 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             PdfFont font = createFont();
             List<Paragraph> list = new ArrayList<>();
-            list.add(new Paragraph("Голова правління ОСББ \"Свободи 51\" ___________________________ Олена ПАСЬКО"));
-            list.add(new Paragraph("М.П.")
-                    .setTextAlignment(TextAlignment.RIGHT)
-                    .setMarginTop(20)
-                    .setMarginRight(30)
-                    .setMarginBottom(10)
-                    .setFontSize(12));
             list.add(new Paragraph("Реквізити:")
                     .setFontSize(12)
                     .setUnderline()
@@ -683,6 +676,113 @@ public class PdfService implements IPdfService {
             createTable(map.get("CENTER"), doc, font, "централизованное");
             createTable(map.get("AUTO_GAZ"), doc, font, "автономное (газовое)");
             createTable(map.get("AUTO_ELECTRO"), doc, font, "автономное (электрическое)");
+            doc.close();
+            log.info(messageExit(methodName));
+        } catch (FileNotFoundException error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
+        }
+    }
+
+    @Override
+    public void printQueryReport_2023_11() {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        try {
+            checkDir("D:/pdf/queries");
+            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Отчёт о деятельности ОСББ за ноябрь 2023 года" + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+
+            Paragraph ph = new Paragraph("Отчёт о работе ОСББ Свободы-51 за ноябрь 2023 года.");
+            ph.setFont(font);
+            ph.setTextAlignment(TextAlignment.CENTER).setFontSize(14).setBold();
+            doc.add(ph);
+
+            List<String> list = List.of("1. Поданы документы на участие в городской программе софинансирования (выделение денег на модернизацию системы энергоснабжения дома).",
+
+                    "2. Обратились к мэру города с просьбой о благоустройстве двора и установки забора со стороны ул.Широкой и с пр. Свободы",
+
+                    "3. Проведена обрезка кустов и кронирование деревьев.",
+
+                    "4. Установлены бетонные столбы и налажено освещение двора.",
+
+                    "5. Произведен осмотр подвальных помещений, крыши, электрощитовой и подъездов, определён объём работ.",
+
+                    "6. В подвале подъезда №2  отведено место для уборки двора  и подъездов. Наняты уборщицы.  Благодарим Владимира (квартира №40) за установку замка.",
+
+                    "7. В подвале подъезда №6 проведен свет, установлены лампочки и выключатель.",
+
+                    "8. На чердаке (над квартирой №38), в связи с аварийной ситуацией, произведена замены участка трубы длиной 2,7 метра.",
+
+                    "9. В квартире № 44 проводятся технические работы по теплоснабжению.",
+
+                    "10. Произведена замена сальника на задвижке подачи теплоносителя в подвале подъезда № 6.");
+
+            for (String line : list) {
+                Paragraph paragraph = new Paragraph();
+                paragraph.setFont(font);
+                paragraph.add(line);
+                doc.add(paragraph);
+            }
+            Paragraph pf = new Paragraph("Уважаемые жильцы!!! Убедительная просьба платить вовремя за услуги по содержанию нашего дома. Сделаем вместе наш дом уютным и комфортным");
+            pf.setFont(font);
+            pf.setTextAlignment(TextAlignment.CENTER).setFontSize(14).setBold().setMarginBottom(20).setMarginTop(20);
+            doc.add(pf);
+
+//            --------------------------------------------------------------
+            List<Paragraph> list2 = new ArrayList<>();
+
+            list2.add(new Paragraph("Реквізити:")
+                    .setFontSize(12)
+                    .setUnderline()
+                    .setMarginTop(20)
+                    .setBold());
+
+            Paragraph p1 = new Paragraph();
+            p1.add(new Text("Отримувач: ").setFontSize(12).setBold());
+            p1.add("ОСББ \"Свободи 51\"");
+            list2.add(p1);
+
+            Paragraph p2 = new Paragraph();
+            p2.add("Код ЄДРПОУ: ");
+            p2.add(new Text("44987443,").setUnderline());
+            list2.add(p2);
+            list2.add(new Paragraph("МФО 305299"));
+
+            Paragraph p3 = new Paragraph();
+            p3.add("р/р ");
+            p3.add(new Text("UA 9130 5299 0000 0260 0005 0586 588    в АТ КБ \"ПРИВАТ БАНК\"").setUnderline());
+            list2.add(p3);
+
+            list2.add(new Paragraph("Призначення: ")
+                    .setFontSize(12)
+                    .setMarginBottom(0)
+                    .setBold()
+            );
+
+            list2.add(new Paragraph("Внесок за утримання/управління будинку та прибудинкової територїї, кв.№ ____ або ")
+                    .setMarginTop(0).setMarginBottom(0));
+            list2.add(new Paragraph(" № __________________ (особового рахунку).").setMarginTop(0));
+
+            list2.add(new Paragraph("Телефон цілодобової аварійної служби ОСББ \"Свободи 51\": ").setFontSize(12)
+                    .setMarginBottom(0));
+
+            list2.add(new Paragraph("097-659-29-10")
+                    .setFontSize(14)
+                    .setUnderline()
+                    .setMarginTop(0)
+                    .setBold());
+            for (Paragraph paragraph : list2) {
+                paragraph.setFont(font);
+                doc.add(paragraph);
+            }
+
+
+//            ----------------------------------------------------------------
             doc.close();
             log.info(messageExit(methodName));
         } catch (FileNotFoundException error) {

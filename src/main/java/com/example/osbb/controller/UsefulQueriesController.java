@@ -23,4 +23,9 @@ public class UsefulQueriesController {
         return response.returnResponse(service.queryListHeatSupplyForApartment());
     }
 
+    @GetMapping(ApiConstants.REPORT)
+    public ResponseEntity<?> queryReport_2023_11() {
+        return response.returnResponse(service.queryReport_2023_11());
+    }
+
 }

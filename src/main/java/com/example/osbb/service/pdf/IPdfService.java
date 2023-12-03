@@ -24,8 +24,11 @@ public interface IPdfService {
 
     // result questionnaire -------------
     public Object printResultQuestionnaire(String title);
+
     public Object fillPdfNewBillForPayServiceOSBB();
 
     // возвращает отсортированный лист номер квартиры - тип отопления
     public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map);
+
+    public void printQueryReport_2023_11();
 }

@@ -28,7 +28,6 @@ public class QueriesService implements IQueriesService {
     private IPdfService iPdfService;
 
 
-
     @Override
     public Object queryListHeatSupplyForApartment() {
         String methodName = new Object() {
@@ -52,7 +51,25 @@ public class QueriesService implements IQueriesService {
 
     }
 
-// sorted ---------------------
+    @Override
+    public Object queryReport_2023_11() {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        try {
+            iPdfService.printQueryReport_2023_11();
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new Response(List.of("Отчёт о деятельности ОСББ за ноябрь 2023 года", PRINT_SUCCESSFULLY));
+        } catch (Exception error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+        }
+
+    }
+
+    // sorted ---------------------
     private Comparator<ApartmentHeatSupply> comparatorApartmentHeatSupply() {
         return (a, b) -> {
             return a.getHeatSupply().compareTo(b.getHeatSupply()) != 0 ?

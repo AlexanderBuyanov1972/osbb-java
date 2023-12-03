@@ -24,6 +24,7 @@ public class ApiConstants {
     public static final String ADDRESS = "/address";
     public static final String APARTMENT = "/apartment";
     public static final String ID = "/id";
+    public static final String REPORT = "/report";
     public static final String CHARACTERISTICS = "/characteristics";
 
     // payment ---------------
