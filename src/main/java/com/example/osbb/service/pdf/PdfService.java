@@ -601,7 +601,7 @@ public class PdfService implements IPdfService {
         }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
-            checkDir("D:/pdf/for_all");
+            checkDir("D:/pdf/queries");
             PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Платёжные реквизиты ОСББ" + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);

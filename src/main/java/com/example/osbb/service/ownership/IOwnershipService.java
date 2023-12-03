@@ -63,6 +63,7 @@ public interface IOwnershipService {
     // получить помещение по лицевому счёту -------------
     public Object getOwnershipByBill(String bill);
 
+    public Object getMapApartmentListIdAndBill();
 
 
 }

@@ -23,6 +23,7 @@ public class ApiConstants {
     public static final String OWNERSHIP = "/ownership";
     public static final String ADDRESS = "/address";
     public static final String APARTMENT = "/apartment";
+    public static final String ID = "/id";
     public static final String CHARACTERISTICS = "/characteristics";
 
     // payment ---------------
@@ -73,7 +74,7 @@ public class ApiConstants {
     public static final String SS = "/**";
 
     // params {} -----------------------
-    public static final String ID = "/{id}";
+    public static final String PARAM_ID = "/{id}";
     public static final String PARAM_STREET = "/{street}";
     public static final String PARAM_HOUSE = "/{house}";
     public static final String PARAM_TITLE = "/{title}";

@@ -15,7 +15,7 @@ public interface ISelectSurveyService {
 
     public Object selectAllSurveyByTitleAndQuestion(String title, String question);
 
-    public Object selectAllSurveyByTitleAndApartment(String title, String apartment);
+    public Object selectAllSurveyByTitleAndId(String title, Long id);
 
     public Object selectAllSurveyByTitleAndFullName(String title, String fullName);
 

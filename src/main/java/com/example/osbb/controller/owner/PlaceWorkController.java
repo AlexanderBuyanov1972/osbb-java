@@ -32,12 +32,12 @@ public class PlaceWorkController {
         return response.returnResponse(service.updatePlaceWork(placeWork));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getPlaceWork(@PathVariable Long id) {
         return response.returnResponse(service.getPlaceWork(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deletePlaceWork(@PathVariable Long id) {
         return response.returnResponse(service.deletePlaceWork(id));
     }

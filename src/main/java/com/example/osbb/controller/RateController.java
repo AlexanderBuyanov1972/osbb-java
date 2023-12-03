@@ -1,7 +1,6 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.Rate;
 import com.example.osbb.service.rate.IRateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +31,12 @@ public class RateController {
         return response.returnResponse(service.updateRate(rate));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getRate(@PathVariable Long id) {
         return response.returnResponse(service.getRate(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteRate(@PathVariable Long id) {
         return response.returnResponse(service.deleteRate(id));
     }

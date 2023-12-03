@@ -1,7 +1,6 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.service.ownership.IOwnershipService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +31,12 @@ public class OwnershipController {
         return response.returnResponse(service.updateOwnership(one));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getOwnership(@PathVariable Long id) {
         return response.returnResponse(service.getOwnership(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteOwnership(@PathVariable Long id) {
         return response.returnResponse(service.deleteOwnership(id));
     }
@@ -128,10 +127,16 @@ public class OwnershipController {
     public ResponseEntity<?> getAllApartmentByFullName(@PathVariable String fullName) {
         return response.returnResponse(service.getAllApartmentByFullName(fullName));
     }
+
     // get all apartments by full name -----------------------
     @GetMapping(ApiConstants.BILL + ApiConstants.PARAM_BILL)
     public ResponseEntity<?> getOwnershipByBill(@PathVariable String bill) {
         return response.returnResponse(service.getOwnershipByBill(bill));
+    }
+
+    @GetMapping(ApiConstants.APARTMENT + ApiConstants.BILL)
+    public ResponseEntity<?> getMapApartmentListIdAndBill() {
+        return response.returnResponse(service.getMapApartmentListIdAndBill());
     }
 
 }

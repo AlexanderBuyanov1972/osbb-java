@@ -1,7 +1,6 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.Payment;
 import com.example.osbb.service.payment.IPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,12 @@ public class PaymentController {
         return response.returnResponse(service.createPayment(payment));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getPayment(@PathVariable Long id) {
         return response.returnResponse(service.getPayment(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deletePayment(@PathVariable Long id) {
         return response.returnResponse(service.deletePayment(id));
     }
@@ -90,6 +89,7 @@ public class PaymentController {
         return response.returnResponse(service.getSummaAllPaymentByBillAndDateBetween(bill, from, to));
     }
 
+    //PAYMENT + BALANCE -----------------------
     // получить баланс всех платежей и приходных, и расходных -----
     @GetMapping(ApiConstants.BALANCE)
     public ResponseEntity<?> getBalance() {
@@ -102,20 +102,17 @@ public class PaymentController {
         return response.returnResponse(service.getBalanceHouse());
     }
 
-    // debt -----------------
-    @GetMapping(ApiConstants.DEBT + ApiConstants.APARTMENT + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getDebtByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getDebtByApartment(apartment));
+    // PAYMENT + DEBT -----------------------------------------------------------------------
+    // долг помещения по ID
+    @GetMapping(ApiConstants.DEBT + ApiConstants.PARAM_ID)
+    public ResponseEntity<?> getDebtById(@PathVariable Long id) {
+        return response.returnResponse(service.getDebtById(id));
     }
 
-    @GetMapping(ApiConstants.DEBT + ApiConstants.BILL + ApiConstants.PARAM_BILL)
-    public ResponseEntity<?> getDebtByBill(@PathVariable String bill) {
-        return response.returnResponse(service.getDebtByBill(bill));
-    }
-
-    @GetMapping(ApiConstants.DEBT + ApiConstants.DETAILS + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> getDetailsDebtByApartment(@PathVariable String apartment) {
-        return response.returnResponse(service.getDetailsDebtByApartment(apartment));
+    // детализация долга помещения по ID
+    @GetMapping(ApiConstants.DEBT + ApiConstants.DETAILS + ApiConstants.PARAM_ID)
+    public ResponseEntity<?> getDetailsDebtById(@PathVariable Long id) {
+        return response.returnResponse(service.getDetailsDebtById(id));
     }
 
 

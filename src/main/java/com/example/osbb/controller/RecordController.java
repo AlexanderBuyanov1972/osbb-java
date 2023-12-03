@@ -35,13 +35,13 @@ public class RecordController {
         return response.returnResponse(service.updateRecord(record));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getRecord(@PathVariable Long id) {
         log.info(messageEnter("getRecord"));
         return response.returnResponse(service.getRecord(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteRecord(@PathVariable Long id) {
         log.info(messageEnter("deleteRecord"));
         return response.returnResponse(service.deleteRecord(id));
@@ -75,13 +75,13 @@ public class RecordController {
 
     // other ---------------------------
 
-    @GetMapping(ApiConstants.OWNERSHIP + ApiConstants.ID)
+    @GetMapping(ApiConstants.OWNERSHIP + ApiConstants.PARAM_ID)
     public ResponseEntity<?> getRoomAndListClientByOwnershipId(@PathVariable Long id) {
         log.info(messageEnter("getRoomAndListClientByOwnershipId"));
         return response.returnResponse(service.getAllRecordByOwnershipId(id));
     }
 
-    @GetMapping(ApiConstants.OWNER + ApiConstants.ID)
+    @GetMapping(ApiConstants.OWNER + ApiConstants.PARAM_ID)
     public ResponseEntity<?> getClientAndListRoomByOwnerId(@PathVariable Long id) {
         log.info(messageEnter("getClientAndListRoomByOwnerId"));
         return response.returnResponse(service.getAllRecordByOwnerId(id));

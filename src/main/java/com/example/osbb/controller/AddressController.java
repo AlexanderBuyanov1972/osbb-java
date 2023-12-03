@@ -1,7 +1,6 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
 import com.example.osbb.entity.ownership.Address;
 import com.example.osbb.service.address.IAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class AddressController {
         return response.returnResponse(service.updateAddress(address));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getAddress(@PathVariable Long id) {
         return response.returnResponse(service.getAddress(id));
     }
@@ -41,7 +40,7 @@ public class AddressController {
         return response.returnResponse(service.getAddressStart());
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteAddress(@PathVariable Long id) {
         return response.returnResponse(service.deleteAddress(id));
     }

@@ -4,8 +4,10 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
+import com.example.osbb.dto.IdAndBill;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
+import com.example.osbb.entity.Survey;
 import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +55,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object updateOwnership(Ownership ownership) {
@@ -87,6 +91,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     @Override
     public Object getOwnership(Long id) {
         String methodName = new Object() {
@@ -106,6 +111,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     @Override
     @Transactional
     public Object deleteOwnership(Long id) {
@@ -128,6 +134,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // all -------------------------------------
     @Override
     @Transactional
@@ -155,6 +162,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object updateAllOwnership(List<Ownership> ownerships) {
@@ -180,6 +188,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     public Object getAllOwnership() {
         String methodName = new Object() {
@@ -201,6 +210,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object deleteAllOwnership() {
@@ -220,6 +230,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // summa ----------------------
     @Override
     public Object summaAreaRooms() {
@@ -238,6 +249,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     public Object summaAreaApartment() {
         String methodName = new Object() {
@@ -258,6 +270,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     public Object summaAreaLivingApartment() {
         String methodName = new Object() {
@@ -277,6 +290,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     public Object summaAreaNonResidentialRoom() {
         String methodName = new Object() {
@@ -298,6 +312,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     // count --------------------
     @Override
     public Object countRooms() {
@@ -317,6 +332,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     @Override
     public Object countApartment() {
         String methodName = new Object() {
@@ -335,6 +351,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     @Override
     public Object countNonResidentialRoom() {
         String methodName = new Object() {
@@ -353,6 +370,7 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     // получить все помещения по номеру помещения --------------
     @Override
     public Object getAllOwnershipByApartment(String apartment) {
@@ -376,6 +394,7 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     //  получить все помещения по ФИО --------------------
     @Override
     public Object getAllApartmentByFullName(String fullName) {
@@ -415,11 +434,13 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // получить помещение по лицевому счёту -------------
     @Override
     public Object getOwnershipByBill(String bill) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
+
         String messageResponse = "Помещение по лицевому счёту № : " + bill + " не существует";
         log.info(messageEnter(methodName));
         try {
@@ -435,6 +456,27 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
+    @Override
+    public Object getMapApartmentListIdAndBill() {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        log.info(messageEnter(methodName));
+        try {
+            Map<String, List<IdAndBill>> map = ownershipDAO.findAll().stream()
+                    .collect(Collectors.groupingBy(s -> s.getAddress().getApartment(),
+                            Collectors.mapping(s -> new IdAndBill(s.getId(), s.getBill()), Collectors.toList())));
+            log.info("Map<String, List<IdAndBill>> map = " + map);
+            log.info(messageExit(methodName));
+            return new Response(map, List.of("Карта получена успешно"));
+        } catch (
+                Exception error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+        }
+    }
+
     // получить все лицевые счета по номеру помещения ----------------
     @Override
     public Object getAllBillByApartment(String apartment) {
@@ -457,22 +499,27 @@ public class OwnershipService implements IOwnershipService {
         }
 
     }
+
     // sorted -----------------------------------
     private List<Ownership> sortedById(List<Ownership> list) {
         return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
     }
+
     //.sorted(comparatorByApartment())
     private Comparator<Ownership> comparatorOwnershipByApartment() {
         return (a, b) -> Integer.parseInt(a.getAddress().getApartment())
                 - Integer.parseInt(b.getAddress().getApartment());
     }
+
     //.sorted(comparatorByBill())
     private Comparator<Ownership> comparatorOwnershipByBill() {
         return (a, b) -> a.getBill().compareTo(b.getBill());
     }
+
     private String messageEnter(String name) {
         return "Method " + name + " : enter";
     }
+
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
     }

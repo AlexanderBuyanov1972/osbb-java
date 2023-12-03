@@ -18,12 +18,12 @@ public class UserController {
     private HelpMethodsForController response;
 
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         return response.returnResponse(service.getUserForController(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public Object deleteUser(@PathVariable Long id) {
         return response.returnResponse(service.deleteUserForController(id));
     }

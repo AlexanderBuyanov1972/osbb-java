@@ -1,6 +1,7 @@
 package com.example.osbb.service.survey;
 
 import com.example.osbb.controller.constants.MessageConstants;
+import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.SurveyDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
@@ -19,6 +20,8 @@ public class SelectSurveyService implements ISelectSurveyService {
 
     @Autowired
     SurveyDAO surveyDAO;
+    @Autowired
+    OwnershipDAO ownershipDAO;
 
     //  one -------------------------------------
     @Override
@@ -186,11 +189,12 @@ public class SelectSurveyService implements ISelectSurveyService {
     }
 
     @Override
-    public Object selectAllSurveyByTitleAndApartment(String title, String apartment) {
+    public Object selectAllSurveyByTitleAndId(String title, Long id ) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
+            String apartment = ownershipDAO.findById(id).get().getAddress().getApartment();
             List<Survey> list = surveyDAO.findByTitleAndApartment(title, apartment)
                     .stream()
                     .filter(el -> el.getDateReceiving() == null)

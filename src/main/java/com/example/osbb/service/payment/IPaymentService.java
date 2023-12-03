@@ -48,6 +48,7 @@ public interface IPaymentService {
 
     public Object getBalanceHouse();
 
+
     public Object getSummaAllPaymentByBill(String bill);
 
     public Object getSummaAllPaymentByDescription(String description);
@@ -63,19 +64,17 @@ public interface IPaymentService {
             LocalDateTime to);
 
     // summa ------------------------------------
-    // get invoice notification by apartment --------
-    public Object getDebtByApartment(String apartment);
+    // get invoice notification by ID --------
+    public Object getDebtById(Long id);
 
-    public Object getDebtByBill(String bill);
+    // get invoice notification by ID and last month --------
+    public Object getDetailsDebtById(Long id);
+
 
 //    public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment);
 
     public InvoiceNotification getDebtInvoiceNotificationByBill(String bill);
 
-    // get invoice notification by apartment and last month --------
-    public Object getDetailsDebtByApartment(String apartment);
-
-    public Object getDetailsDebtByBill(String bill);
 
 //    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
 

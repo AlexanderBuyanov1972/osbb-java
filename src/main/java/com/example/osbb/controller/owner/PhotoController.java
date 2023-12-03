@@ -32,12 +32,12 @@ public class PhotoController {
         return response.returnResponse(service.updatePhoto(photo));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getPhoto(@PathVariable Long id) {
         return response.returnResponse(service.getPhoto(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deletePhoto(@PathVariable Long id) {
         return response.returnResponse(service.deletePhoto(id));
     }

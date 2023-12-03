@@ -31,12 +31,12 @@ public class VehicleController {
         return response.returnResponse(service.updateVehicle(vehicle));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getVehicle(@PathVariable Long id) {
         return response.returnResponse(service.getVehicle(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteVehicle(@PathVariable Long id) {
         return response.returnResponse(service.deleteVehicle(id));
     }
@@ -65,7 +65,7 @@ public class VehicleController {
 
     // ----------- get Vehicle By Number Vehicle ------------
 
-    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.ID)
+    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.PARAM_ID)
     public ResponseEntity<?> getVehicleByNumberVehicle( @PathVariable String numberVehicle) {
         return response.returnResponse(service.getVehicleByNumberVehicle(numberVehicle));
     }

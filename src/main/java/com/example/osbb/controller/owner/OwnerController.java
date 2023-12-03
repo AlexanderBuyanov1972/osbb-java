@@ -32,12 +32,12 @@ public class OwnerController {
         return response.returnResponse(service.updateOwner(owner));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getOwner(@PathVariable Long id) {
         return response.returnResponse(service.getOwner(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deleteOwner(@PathVariable Long id) {
         return response.returnResponse(service.deleteOwner(id));
     }

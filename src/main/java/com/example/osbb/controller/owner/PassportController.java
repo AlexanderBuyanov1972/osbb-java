@@ -32,12 +32,12 @@ public class PassportController {
         return response.returnResponse(service.updatePassport(password));
     }
 
-    @GetMapping(ApiConstants.ID)
+    @GetMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> getPassword(@PathVariable Long id) {
         return response.returnResponse(service.getPassport(id));
     }
 
-    @DeleteMapping(ApiConstants.ID)
+    @DeleteMapping(ApiConstants.PARAM_ID)
     public ResponseEntity<?> deletePassword(@PathVariable Long id) {
         return response.returnResponse(service.deletePassport(id));
     }
@@ -66,7 +66,7 @@ public class PassportController {
 
     // ----------- street, house and number apartment ------------
 
-    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.ID)
+    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.PARAM_ID)
     public ResponseEntity<?> getByRegistrationNumberCardPayerTaxes(@PathVariable String number) {
         return response.returnResponse(service.findByRegistrationNumberCardPayerTaxes(number));
     }

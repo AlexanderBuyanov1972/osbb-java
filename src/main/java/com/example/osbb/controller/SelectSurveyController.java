@@ -26,6 +26,7 @@ public class SelectSurveyController {
         return response.returnResponse(service
                 .selectAllSurveyByTitle(title));
     }
+
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.ALL)
     public ResponseEntity<?> selectAllTitles() {
         return response.returnResponse(service.selectAllTitles());
@@ -74,13 +75,11 @@ public class SelectSurveyController {
         return response.returnResponse(service
                 .selectAllSurveyByFullNameAndApartment(fullName, apartment));
     }
-
-    @GetMapping(value = ApiConstants.TITLE + ApiConstants.APARTMENT + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_APARTMENT)
-    public ResponseEntity<?> selectAllSurveyByTitleAndApartment(
-            @PathVariable String title,
-            @PathVariable String apartment) {
+// выбрать все опросы по теме и ID помещения
+    @GetMapping(value = ApiConstants.TITLE + ApiConstants.ID + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_ID)
+    public ResponseEntity<?> getAllSurveyByTitleAndById(@PathVariable String title, @PathVariable Long id) {
         return response.returnResponse(service
-                .selectAllSurveyByTitleAndApartment(title, apartment));
+                .selectAllSurveyByTitleAndId(title, id));
     }
 
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.FULL_NAME + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_FULL_NAME)
@@ -90,6 +89,7 @@ public class SelectSurveyController {
         return response.returnResponse(service
                 .selectAllSurveyByTitleAndFullName(title, fullName));
     }
+
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.DATE_DISPATCH + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_DATE_DISPATCH)
     public ResponseEntity<?> selectAllSurveyByTitleAndDateDispatch(
             @PathVariable String title,
@@ -105,6 +105,7 @@ public class SelectSurveyController {
         return response.returnResponse(service
                 .selectAllSurveyByTitleAndDateReceiving(title, dateReceiving));
     }
+
     @GetMapping(value = ApiConstants.TITLE + ApiConstants.QUESTION + ApiConstants.PARAM_TITLE + ApiConstants.PARAM_QUESTION)
     public ResponseEntity<?> selectAllSurveyByTitleAndQuestion(
             @PathVariable String title,
@@ -128,7 +129,6 @@ public class SelectSurveyController {
 
 
     // ------------------------------------------------------------------------------
-
 
 
 }

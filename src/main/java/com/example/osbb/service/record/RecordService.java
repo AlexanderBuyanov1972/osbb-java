@@ -74,15 +74,23 @@ public class RecordService implements IRecordService {
             log.info("Установлена дата создания записи");
 
             record = recordDAO.save(record);
-            String messageSuccessfully = "Запись с ID : " + record.getId() + " создана успешно";
-            log.info(messageSuccessfully);
+            String messageResponse = "Зарегистрирована собственность в помещение № : " +
+                    record.getOwnership().getAddress().getApartment() + " на собственника ФИО : " +
+                    mapOwnerToFullName(record.getOwner()) + " в размере доли : " + record.getShare() +
+                    " на дату : " + mapLocalDateTime(record.getCreateAt());
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(record, List.of(messageSuccessfully));
+            return new Response(record, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
+    }
+
+    private String mapLocalDateTime(LocalDateTime date) {
+        String line = date.toString().replace("T", " время : ");
+        return line.substring(0, line.indexOf("."));
     }
 
     @Transactional
@@ -325,7 +333,7 @@ public class RecordService implements IRecordService {
                     "Запись с помещением № " + apartment + " и ФИО : " + fullName + " успешно получена";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(record,List.of(messageResponse));
+            return new Response(record, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -361,7 +369,7 @@ public class RecordService implements IRecordService {
             }
             log.info(messageDeleteSuccessfully);
             log.info(messageExit(methodName));
-            return new Response(record.getId(),List.of(messageDeleteSuccessfully));
+            return new Response(record.getId(), List.of(messageDeleteSuccessfully));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

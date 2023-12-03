@@ -442,49 +442,30 @@ public class PaymentService implements IPaymentService {
 
     // get invoice notification by apartment за последний месяц
     @Override
-    public Object getDebtByApartment(String apartment) {
+    public Object getDebtById(Long id) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Долг по помещению № " + apartment + " получен успешно";
+
+        String messageResponse = "";
         log.info(messageEnter(methodName));
         try {
-            List<InvoiceNotification> list = new ArrayList<>();
-            List<String> bills = getListBillByApartment(apartment);
-            bills.forEach(e -> {
-                list.add(getDebtInvoiceNotificationByBill(e));
-            });
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(list, List.of(messageResponse));
-        } catch (
-                Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+            Ownership ownership = ownershipDAO.findById(id).orElse(null);
+            if (ownership == null) {
+                messageResponse = "Помещения с ID : " + id + " не существует. Долг не может быть получен";
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(List.of(messageResponse));
+            }
 
-    }
-
-    private List<String> getListBillByApartment(String apartment) {
-        return ownershipDAO.findByAddressApartment(apartment)
-                .stream().map(Ownership::getBill).collect(Collectors.toList());
-    }
-
-
-    @Override
-    public Object getDebtByBill(String bill) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageEmpty = "Долги не могут быть начислены, нет полного месяца обслуживания";
-        String messageSuccessfully = "Долг по лицевому счёту № " + bill + " получен успешно";
-        log.info(messageEnter(methodName));
-        try {
-            InvoiceNotification in = getDebtInvoiceNotificationByBill(bill);
-            String messageResponse = in.getBody().getDebtAtFinalizingPeriod() == 0.00 ? messageEmpty : messageSuccessfully;
+            InvoiceNotification in = getDebtInvoiceNotificationByBill(ownership.getBill());
+            messageResponse = " Уведомление о задолженности по помещению № : "
+                    + ownership.getAddress().getApartment() + " получено успешно";
+            log.info("Уведомление по долгу  : " + in.toString());
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(in, List.of(messageResponse));
-        } catch (Exception error) {
+        } catch (
+                Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
@@ -588,37 +569,23 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-    public Object getDetailsDebtByApartment(String apartment) {
+    public Object getDetailsDebtById(Long id) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Детализация долга по помещению № " + apartment + " получена успешно";
+        String messageResponse = "";
         log.info(messageEnter(methodName));
         try {
-            List<String> bills = getListBillByApartment(apartment);
-            List<DebtDetails> list = new ArrayList<>();
-            bills.forEach(bill -> {
-                list.add(getDetailsDebtInvoiceNotificationByBill(bill));
-            });
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(list, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-
-        }
-
-    }
-
-    @Override
-    public Object getDetailsDebtByBill(String bill) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Детализация долга по лицевому счёту № " + bill + " получена успешно";
-        log.info(messageEnter(methodName));
-        try {
-            DebtDetails dd = getDetailsDebtInvoiceNotificationByBill(bill);
+            Ownership ownership = ownershipDAO.findById(id).orElse(null);
+            if (ownership == null) {
+                messageResponse = "Помещения с ID : " + id + " не существует. Детализированный долг не может быть получен";
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(List.of(messageResponse));
+            }
+            DebtDetails dd = getDetailsDebtInvoiceNotificationByBill(ownership.getBill());
+            log.info("Уведомление по детализации долга получено успешно : " + dd.toString());
+            messageResponse = "Уведомление о детализации долга по помещению № : " + ownership.getAddress().getApartment()
+                    + " получено успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(dd, List.of(messageResponse));
@@ -771,3 +738,44 @@ public class PaymentService implements IPaymentService {
 
 
 }
+
+//    @Override
+//    public Object getDetailsDebtByBill(String bill) {
+//        String methodName = new Object() {
+//        }.getClass().getEnclosingMethod().getName();
+//        String messageResponse = "Детализация долга по лицевому счёту № " + bill + " получена успешно";
+//        log.info(messageEnter(methodName));
+//        try {
+//            DebtDetails dd = getDetailsDebtInvoiceNotificationByBill(bill);
+//            log.info(messageResponse);
+//            log.info(messageExit(methodName));
+//            return new Response(dd, List.of(messageResponse));
+//        } catch (Exception error) {
+//            log.error(ERROR_SERVER);
+//            log.error(error.getMessage());
+//            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+//
+//        }
+//
+//    }
+
+//    @Override
+//    public Object getDebtByBill(String bill) {
+//        String methodName = new Object() {
+//        }.getClass().getEnclosingMethod().getName();
+//        String messageEmpty = "Долги не могут быть начислены, нет полного месяца обслуживания";
+//        String messageSuccessfully = "Долг по лицевому счёту № " + bill + " получен успешно";
+//        log.info(messageEnter(methodName));
+//        try {
+//            InvoiceNotification in = getDebtInvoiceNotificationByBill(bill);
+//            String messageResponse = in.getBody().getDebtAtFinalizingPeriod() == 0.00 ? messageEmpty : messageSuccessfully;
+//            log.info(messageResponse);
+//            log.info(messageExit(methodName));
+//            return new Response(in, List.of(messageResponse));
+//        } catch (Exception error) {
+//            log.error(ERROR_SERVER);
+//            log.error(error.getMessage());
+//            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+//        }
+//
+//    }
