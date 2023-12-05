@@ -40,13 +40,21 @@ public class SurveyService implements ISurveyService {
     public Object getResultSurveyByTitle(String title) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageSuccessfully = "Результаты опроса по теме \"" + title + "\" обработаны";
+        String messageResponse = "Результаты опроса по теме \"" + title + "\" обработаны";
+        List<String> list = List.of("Подготовлена карта для голосования имеет размер НОЛЬ",
+                "Подсчёт результатов голосования невозможен.",
+                "Нужен хотя бы один проголосовавший.");
         log.info(messageEnter(methodName));
         try {
             ResultSurvey rq = getResultSurveyByTitleForPrint(title);
-            log.info(messageSuccessfully);
+            if (rq == null) {
+                list.forEach(log::info);
+                log.info(messageExit(methodName));
+                return new Response(list);
+            }
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(rq, List.of(messageSuccessfully));
+            return new Response(rq, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -70,10 +78,20 @@ public class SurveyService implements ISurveyService {
             log.info("Подготовлен базовый лист в размере : " + baseList.size());
 
             Map<String, Map<TypeOfAnswer, Long>> mapVotedOwner = createMapVotedOwner(baseList);
-            log.info("Подготовлен карта голосования личным участием в размере : " + mapVotedOwner.size());
+            int size = mapVotedOwner.size();
+            log.info("Подготовлена карта голосования личным участием в размере : " + mapVotedOwner.size());
+            if (size == 0) {
+                log.info(messageExit(methodName));
+                return null;
+            }
 
             Map<String, Map<TypeOfAnswer, Double>> mapVotedArea = createMapVotedArea(baseList);
-            log.info("Подготовлен карта голосования квадратными метрами в размере : " + mapVotedArea.size());
+            log.info("Подготовлена карта голосования квадратными метрами в размере : " + mapVotedArea.size());
+            size = mapVotedArea.size();
+            if (size == 0) {
+                log.info(messageExit(methodName));
+                return null;
+            }
 
             String question = new ArrayList<>(mapVotedArea.keySet()).get(0);
             log.info("Вопрос String question = new ArrayList<>(mapVotedArea.keySet()).get(0); ---> " + question);
@@ -217,7 +235,6 @@ public class SurveyService implements ISurveyService {
         }
     }
 
-
     private ShareTotalAreaQuestionAnswer computeShare(Survey q) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
@@ -336,7 +353,7 @@ public class SurveyService implements ISurveyService {
         try {
             List<Survey> list = surveyDAO.findAll().stream().filter(el -> el.getDateReceiving() == null)
                     .sorted(comparatorSurveyByApartment()).toList();
-            String messageSuccessfully = "Получено " + list.size() + " записей";
+            String messageSuccessfully = "Получено по всем опросам " + list.size() + " записей";
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
             return new Response(list, List.of(messageSuccessfully));

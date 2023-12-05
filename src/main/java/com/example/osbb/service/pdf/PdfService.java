@@ -3,12 +3,12 @@ package com.example.osbb.service.pdf;
 import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.DebtDetails;
-import com.example.osbb.dto.HeaderInvoiceNotification;
+import com.example.osbb.dto.HeaderDebt;
 import com.example.osbb.dto.ResultSurvey;
 import com.example.osbb.dto.queries.ApartmentHeatSupply;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.InvoiceNotification;
+import com.example.osbb.dto.Debt;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfAnswer;
@@ -35,7 +35,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 public class PdfService implements IPdfService {
@@ -52,7 +51,7 @@ public class PdfService implements IPdfService {
     // debt -----------------------------------------------------------------------------------------------
     // печатать задолженность за последний календарный месяц по номеру помещения в pdf файл
     @Override
-    public Object printPdfDebtByApartment(InvoiceNotification in) {
+    public Object printDebt(Debt in) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -70,14 +69,14 @@ public class PdfService implements IPdfService {
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в pdf файл каждый отдельно
     @Override
-    public Object printListPdfDebtAllApartment() {
+    public Object printAllDebt() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             ownershipDAO.findAll()
                     .stream()
-                    .map(el -> iPaymentService.getDebtInvoiceNotificationByBill(
+                    .map(el -> iPaymentService.getDebtByBill(
                             el.getBill()))
                     .forEach(this::printPdfFile);
             log.info(messageExit(methodName));
@@ -89,19 +88,15 @@ public class PdfService implements IPdfService {
         }
     }
 
-    private void printPdfFile(InvoiceNotification in) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-
-        log.info(messageEnter(methodName));
+    private void printPdfFile(Debt in) {
         try {
             checkDir("D:/pdf/payments");
-            PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_" + in.getHeader().getBill() + ".pdf");
+            PdfWriter writer = new PdfWriter("D:/pdf/payments/payment_"
+                    + in.getHeader().getBill() + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
             writeOnePdfObject(in, doc);
             doc.close();
-            log.info(messageExit(methodName));
         } catch (FileNotFoundException error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -111,7 +106,7 @@ public class PdfService implements IPdfService {
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в один pdf файл
     @Override
-    public Object printAllTInOnePdfDebtAllApartment() {
+    public Object printAllInOneDebtAllApartment() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -123,9 +118,8 @@ public class PdfService implements IPdfService {
             Document doc = new Document(pdfDoc);
             ownershipDAO.findAll()
                     .stream()
-                    .map(el -> iPaymentService.getDebtInvoiceNotificationByBill(
-                            el.getBill()))
-                    .sorted(comparatorByApartment())
+                    .map(el -> iPaymentService.getDebtByBill(
+                            el.getBill())).sorted(comparatorByBill())
                     .forEach(el -> {
                         writeOnePdfObject(el, doc);
                         if (count.get() % 4 == 0)
@@ -146,17 +140,21 @@ public class PdfService implements IPdfService {
     // debt details -------------------------------------------------------------------------------------------
     // печатать по номеру помещения детализированный долг от начальной точки до текущего месяца один pdf файл
     @Override
-    public Object printPdfDebtDetailsByApartment(String apartment) {
+    public Object printDebtDetails(Long id) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            List<DebtDetails> list = new ArrayList<>();
-            List<String> bills = getListBillByApartment(apartment);
-            bills.forEach(bill -> {
-                list.add(iPaymentService.getDetailsDebtInvoiceNotificationByBill(bill));
-            });
-            list.forEach(this::printPdfDetailsFile);
+            Ownership ownership = ownershipDAO.findById(id).orElse(null);
+            if (ownership == null) {
+                String messageResponse = "Помещение с ID : " + id + " не найдено," +
+                        " распечатать детализированный долг не представляется возможным";
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(List.of(messageResponse));
+            }
+            DebtDetails dd = iPaymentService.getDetailsDebtByBill(ownership.getBill());
+            printDetailsFile(dd);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
             return new Response(List.of(PRINT_SUCCESSFULLY));
@@ -165,28 +163,20 @@ public class PdfService implements IPdfService {
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-    }
-
-    private List<String> getListBillByApartment(String apartment) {
-        return ownershipDAO.findByAddressApartment(apartment)
-                .stream().map(Ownership::getBill).collect(Collectors.toList());
     }
 
     // печатать детализированный долг от начальной точки до текущего месяца по каждому помещению в отдельный файл
     @Override
-    public Object printPdfDebtDetailsAllApartment() {
+    public Object printAllDebtDetails() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            ownershipDAO.findAll()
-                    .stream()
-                    .map(el -> iPaymentService.getDetailsDebtInvoiceNotificationByBill(
-                            el.getBill()))
-                    .forEach(this::printPdfDetailsFile);
+            ownershipDAO.findAll().stream().map(el -> iPaymentService.getDetailsDebtByBill(
+                    el.getBill())).forEach(this::printDetailsFile);
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new Response(List.of(PRINT_SUCCESSFULLY));
+            return new Response(List.of(PRINT_SUCCESSFULLY, "Распечатка детализированого долга по каждому помещению"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -194,13 +184,14 @@ public class PdfService implements IPdfService {
         }
     }
 
-    private void printPdfDetailsFile(DebtDetails details) {
+    private void printDetailsFile(DebtDetails details) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
             checkDir("D:/pdf/payments_details");
-            PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_" + details.getHeader().getBill() + ".pdf");
+            PdfWriter writer = new PdfWriter("D:/pdf/payments_details/payment_details_"
+                    + details.getHeader().getBill() + ".pdf");
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document doc = new Document(pdfDoc);
             writeOnePdfObjectDetails(details, doc);
@@ -217,7 +208,7 @@ public class PdfService implements IPdfService {
     // balance ------------------------------------------------------------------------------------------------
     // печатать баланс дома по помещениям (задолженность/переплата)
     @Override
-    public Object printPdfBalanceHouse() {
+    public Object printBalanceHouse() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -270,7 +261,7 @@ public class PdfService implements IPdfService {
     // опросы ------------------------------------------------------------------------------------------
     // печатать результаты опросов по теме -------------------
     @Override
-    public Object printResultQuestionnaire(String title) {
+    public Object printResultSurvey(String title) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -284,7 +275,7 @@ public class PdfService implements IPdfService {
             Color teal = new DeviceRgb(0, 128, 128);
             Color blueviolet = new DeviceRgb(138, 43, 226);
             // start ------------------
-            createHeaderBlueviolet("Тема опроса : " + title, doc, font);
+            createHeaderBlueViolet("Тема опроса : " + title, doc, font);
             // 1 ---------------
             createHeader("Обработано " + result.getProcessingPercentageArea()
                     + "% в метрах квадратных", doc, font);
@@ -292,22 +283,22 @@ public class PdfService implements IPdfService {
                     + " из " + result.getSummaArea()
                     + " метров квадратных", doc, font);
             for (String key : result.getMapVotedArea().keySet()) {
+
                 Paragraph header = new Paragraph(key);
                 header.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(12).setFontColor(teal);
                 doc.add(header);
 
-                String text = "ЗА : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.BEHIND));
-                Paragraph line = new Paragraph(text);
+                Paragraph line = new Paragraph("ЗА : "
+                        + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.BEHIND)));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
 
-                text = "ПРОТИВ : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.AGAINST));
-                line = new Paragraph(text);
+                line = new Paragraph("ПРОТИВ : "
+                        + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.AGAINST)));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
-
-                text = "ВОЗДЕРЖАЛИСЬ : " + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.ABSTAINED));
-                line = new Paragraph(text);
+                line = new Paragraph("ВОЗДЕРЖАЛИСЬ : "
+                        + formatDoubleValue(result.getMapVotedArea().get(key).get(TypeOfAnswer.ABSTAINED)));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
             }
@@ -322,18 +313,15 @@ public class PdfService implements IPdfService {
                 header.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(12).setFontColor(teal);
                 doc.add(header);
 
-                String text = "ЗА : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.BEHIND);
-                Paragraph line = new Paragraph(text);
+                Paragraph line = new Paragraph("ЗА : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.BEHIND));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
 
-                text = "ПРОТИВ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.AGAINST);
-                line = new Paragraph(text);
+                line = new Paragraph("ПРОТИВ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.AGAINST));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
 
-                text = "ВОЗДЕРЖАЛИСЬ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.ABSTAINED);
-                line = new Paragraph(text);
+                line = new Paragraph("ВОЗДЕРЖАЛИСЬ : " + result.getMapVotedOwner().get(key).get(TypeOfAnswer.ABSTAINED));
                 line.setTextAlignment(TextAlignment.LEFT).setFont(font).setFontSize(10);
                 doc.add(line);
             }
@@ -350,7 +338,7 @@ public class PdfService implements IPdfService {
     }
 
     // формирование объекта задолженности
-    private void writeOnePdfObject(InvoiceNotification in, Document doc) {
+    private void writeOnePdfObject(Debt in, Document doc) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         try {
@@ -359,7 +347,7 @@ public class PdfService implements IPdfService {
             // заголовок -----------------------
             createHeader("Счёт-уведомление по оплате за услуги по управлению ОСББ", doc, font);
             // шапка -> параграфы
-            fillHeaderPdfFile(in.getHeader(), doc, font);
+            fillHeaderFile(in.getHeader(), doc, font);
             // таблица ----------------------------
             float[] pointColumnWidths = {40F, 40F, 40F, 40F, 40F, 40F, 40F};
             Table table = new Table(pointColumnWidths);
@@ -368,7 +356,6 @@ public class PdfService implements IPdfService {
             fillListCellFirstRowDebt(table, font,
                     in.getBody().getBeginningPeriod().toString(),
                     in.getBody().getFinalizingPeriod().toString());
-
             // вторая линия -----------------------------
             List<String> listCellTwo = List.of(
                     in.getBody().getDebtAtBeginningPeriod().toString(),
@@ -403,7 +390,7 @@ public class PdfService implements IPdfService {
             // заголовок -----------------------
             createHeader("Детализация долга за услуги по управлению ОСББ", doc, font);
             // шапка -> параграфы
-            fillHeaderPdfFile(debtDetails.getHeader(), doc, font);
+            fillHeaderFile(debtDetails.getHeader(), doc, font);
             // таблица ----------------------------
             float[] pointColumnWidths = {40F, 40F, 40F, 40F, 40F, 40F, 40F, 40F, 40F};
             Table table = new Table(pointColumnWidths);
@@ -442,7 +429,7 @@ public class PdfService implements IPdfService {
 
     // отдельные элементы для конструирования файла pdf
     // шапка для квитанций
-    private void fillHeaderPdfFile(HeaderInvoiceNotification header, Document doc, PdfFont font) {
+    private void fillHeaderFile(HeaderDebt header, Document doc, PdfFont font) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -470,39 +457,6 @@ public class PdfService implements IPdfService {
         }
     }
 
-    // заголовок
-    private void createHeader(String text, Document doc, PdfFont font) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            Paragraph header = new Paragraph(text);
-            header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13);
-            doc.add(header);
-            log.info(messageExit(methodName));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
-    }
-
-    private void createHeaderBlueviolet(String text, Document doc, PdfFont font) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            Color blueviolet = new DeviceRgb(138, 43, 226);
-            Paragraph header = new Paragraph(text);
-            header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13).setFontColor(blueviolet);
-            doc.add(header);
-            log.info(messageExit(methodName));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
-    }
 
     // заголовки в таблице debt
     private void fillListCellFirstRowDebt(Table table, PdfFont font, String beginDate, String finalDate) {
@@ -522,39 +476,72 @@ public class PdfService implements IPdfService {
         log.info(messageExit(methodName));
     }
 
-    // заголовки в таблице debt details
-    private void fillListCellFirstRowDebtDetails(Table table, PdfFont font) {
+
+    @Override
+    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
+    public Object printNewBillForPayServiceOSBB() {
+        String methodName = new Object() {
+        }.getClass().getEnclosingMethod().getName();
+        try {
+            log.info(messageEnter(methodName));
+            checkDir("D:/pdf/queries");
+            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Платёжные реквизиты ОСББ" + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+            // --- начало ----------
+            dateTimeNow(doc, font);
+            bankAccountForPayment(doc, font);
+            numberPhoneEmergencyService(doc, font);
+            // --- конец -----------
+            doc.close();
+            log.info(PRINT_SUCCESSFULLY);
+            log.info(messageExit(methodName));
+            return new Response(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY));
+        } catch (Exception error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+        }
+    }
+
+    @Override
+    public void printQueryReport_2023_11() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
-        List<String> list = List.of(
-                "Начальный период", "Долг на начало периода, грн", "Текущий тариф, грн/м2", "Начислено, грн",
-                "Монетизация субсидий, грн", "Монетизация льгот, грн",
-                "Оплачено, грн", "Долг на конец период, грн", "  Конечный период  "
-        );
-        for (String line : list) {
-            Cell cell = new Cell();
-            cell.add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font);
-            table.addCell(cell);
+        try {
+            checkDir("D:/pdf/queries");
+            String text = "Отчёт о деятельности ОСББ \"Cвободы - 51\" за ноябрь 2023 года.";
+            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "отчётЗаНоябрь2023" + ".pdf");
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
+            PdfFont font = createFont();
+            // старт -------------------------------
+            dateTimeNow(doc, font);
+            createHeader(text, doc, font);
+            createListText(TextsAndLists.report_2023_11, doc, font);
+            appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
+            bankAccountForPayment(doc, font);
+            // финиш ----------------------------------
+            doc.close();
+            log.info(messageExit(methodName));
+        } catch (FileNotFoundException error) {
+            log.error(ERROR_SERVER);
+            log.error(error.getMessage());
+            throw new RuntimeException(error.getMessage());
         }
-        log.info(messageExit(methodName));
     }
 
-    // sorted ----------
-    private Comparator<InvoiceNotification> comparatorByApartment() {
-        return (a, b) -> Integer.parseInt(a.getHeader().getAddress().getApartment())
-                - Integer.parseInt(b.getHeader().getAddress().getApartment());
+    // *************************** вспомогательные функции ******************************
+    private void createHeaderBlueViolet(String text, Document doc, PdfFont font) {
+        Color blueViolet = new DeviceRgb(138, 43, 226);
+        Paragraph header = new Paragraph(text);
+        header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(13).setFontColor(blueViolet);
+        doc.add(header);
     }
 
-    //Округление дробной части до 2-х запятых
-    private Double formatDoubleValue(Double var) {
-        return Math.rint(100.0 * var) / 100.0;
-    }
-
-    private String getString(Double summa) {
-        return summa > 0 ? "Задолженость : " + summa : "Переплата : " + summa;
-    }
-
+    // создание директории, например ("D:/pdf/queries")  ------------------------
     private void checkDir(String str) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
@@ -574,224 +561,9 @@ public class PdfService implements IPdfService {
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
-
     }
 
-    @Override
-    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
-    public Object fillPdfNewBillForPayServiceOSBB() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        try {
-            log.info(messageEnter(methodName));
-            printPdfNewBillForPayServiceOSBB();
-            log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of("Распечатать платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
-    }
-
-
-    private void printPdfNewBillForPayServiceOSBB() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        try {
-            log.info(messageEnter(methodName));
-            checkDir("D:/pdf/queries");
-            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Платёжные реквизиты ОСББ" + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            PdfFont font = createFont();
-            List<Paragraph> list = new ArrayList<>();
-            list.add(new Paragraph("Реквізити:")
-                    .setFontSize(12)
-                    .setUnderline()
-                    .setBold());
-
-            Paragraph p1 = new Paragraph();
-            p1.add(new Text("Отримувач: ").setFontSize(12).setBold());
-            p1.add("ОСББ \"Свободи 51\"");
-            list.add(p1);
-
-            Paragraph p2 = new Paragraph();
-            p2.add("Код ЄДРПОУ: ");
-            p2.add(new Text("44987443,").setUnderline());
-            list.add(p2);
-            list.add(new Paragraph("МФО 305299"));
-
-            Paragraph p3 = new Paragraph();
-            p3.add("р/р ");
-            p3.add(new Text("UA 9130 5299 0000 0260 0005 0586 588    в АТ КБ \"ПРИВАТ БАНК\"").setUnderline());
-            list.add(p3);
-
-            list.add(new Paragraph("Призначення: ")
-                    .setFontSize(12)
-                    .setMarginBottom(0)
-                    .setBold()
-            );
-
-            list.add(new Paragraph("Внесок за утримання/управління будинку та прибудинкової територїї, кв.№ ____ або ")
-                    .setMarginTop(0).setMarginBottom(0));
-            list.add(new Paragraph(" № __________________ (особового рахунку).").setMarginTop(0));
-
-            list.add(new Paragraph("Телефон цілодобової аварійної служби ОСББ \"Свободи 51\": ").setFontSize(12)
-                    .setMarginBottom(0));
-
-            list.add(new Paragraph("097-659-29-10")
-                    .setFontSize(14)
-                    .setUnderline()
-                    .setMarginTop(0)
-                    .setBold());
-            for (Paragraph paragraph : list) {
-                paragraph.setFont(font);
-                doc.add(paragraph);
-            }
-            doc.close();
-            log.info(messageExit(methodName));
-        } catch (FileNotFoundException error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
-
-    }
-
-    // возвращает отсортированный лист номер квартира - тип отопления ( SELECT, CENTER, AUTO_GAZ, AUTO_ELECTRO)
-    @Override
-    public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            checkDir("D:/pdf/queries");
-            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Поквартирная типизация отопления" + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            PdfFont font = createFont();
-            doc.add(new Paragraph().add(dateTimeNow()).setFont(font));
-            createTable(map.get("CENTER"), doc, font, "централизованное");
-            createTable(map.get("AUTO_GAZ"), doc, font, "автономное (газовое)");
-            createTable(map.get("AUTO_ELECTRO"), doc, font, "автономное (электрическое)");
-            doc.close();
-            log.info(messageExit(methodName));
-        } catch (FileNotFoundException error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
-    }
-
-    @Override
-    public void printQueryReport_2023_11() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            checkDir("D:/pdf/queries");
-            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Отчёт о деятельности ОСББ за ноябрь 2023 года" + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
-            PdfFont font = createFont();
-
-            Paragraph ph = new Paragraph("Отчёт о работе ОСББ Свободы-51 за ноябрь 2023 года.");
-            ph.setFont(font);
-            ph.setTextAlignment(TextAlignment.CENTER).setFontSize(14).setBold();
-            doc.add(ph);
-
-            List<String> list = List.of("1. Поданы документы на участие в городской программе софинансирования (выделение денег на модернизацию системы энергоснабжения дома).",
-
-                    "2. Обратились к мэру города с просьбой о благоустройстве двора и установки забора со стороны ул.Широкой и с пр. Свободы",
-
-                    "3. Проведена обрезка кустов и кронирование деревьев.",
-
-                    "4. Установлены бетонные столбы и налажено освещение двора.",
-
-                    "5. Произведен осмотр подвальных помещений, крыши, электрощитовой и подъездов, определён объём работ.",
-
-                    "6. В подвале подъезда №2  отведено место для уборки двора  и подъездов. Наняты уборщицы.  Благодарим Владимира (квартира №40) за установку замка.",
-
-                    "7. В подвале подъезда №6 проведен свет, установлены лампочки и выключатель.",
-
-                    "8. На чердаке (над квартирой №38), в связи с аварийной ситуацией, произведена замены участка трубы длиной 2,7 метра.",
-
-                    "9. В квартире № 44 проводятся технические работы по теплоснабжению.",
-
-                    "10. Произведена замена сальника на задвижке подачи теплоносителя в подвале подъезда № 6.");
-
-            for (String line : list) {
-                Paragraph paragraph = new Paragraph();
-                paragraph.setFont(font);
-                paragraph.add(line);
-                doc.add(paragraph);
-            }
-            Paragraph pf = new Paragraph("Уважаемые жильцы!!! Убедительная просьба платить вовремя за услуги по содержанию нашего дома. Сделаем вместе наш дом уютным и комфортным");
-            pf.setFont(font);
-            pf.setTextAlignment(TextAlignment.CENTER).setFontSize(14).setBold().setMarginBottom(20).setMarginTop(20);
-            doc.add(pf);
-
-//            --------------------------------------------------------------
-            List<Paragraph> list2 = new ArrayList<>();
-
-            list2.add(new Paragraph("Реквізити:")
-                    .setFontSize(12)
-                    .setUnderline()
-                    .setMarginTop(20)
-                    .setBold());
-
-            Paragraph p1 = new Paragraph();
-            p1.add(new Text("Отримувач: ").setFontSize(12).setBold());
-            p1.add("ОСББ \"Свободи 51\"");
-            list2.add(p1);
-
-            Paragraph p2 = new Paragraph();
-            p2.add("Код ЄДРПОУ: ");
-            p2.add(new Text("44987443,").setUnderline());
-            list2.add(p2);
-            list2.add(new Paragraph("МФО 305299"));
-
-            Paragraph p3 = new Paragraph();
-            p3.add("р/р ");
-            p3.add(new Text("UA 9130 5299 0000 0260 0005 0586 588    в АТ КБ \"ПРИВАТ БАНК\"").setUnderline());
-            list2.add(p3);
-
-            list2.add(new Paragraph("Призначення: ")
-                    .setFontSize(12)
-                    .setMarginBottom(0)
-                    .setBold()
-            );
-
-            list2.add(new Paragraph("Внесок за утримання/управління будинку та прибудинкової територїї, кв.№ ____ або ")
-                    .setMarginTop(0).setMarginBottom(0));
-            list2.add(new Paragraph(" № __________________ (особового рахунку).").setMarginTop(0));
-
-            list2.add(new Paragraph("Телефон цілодобової аварійної служби ОСББ \"Свободи 51\": ").setFontSize(12)
-                    .setMarginBottom(0));
-
-            list2.add(new Paragraph("097-659-29-10")
-                    .setFontSize(14)
-                    .setUnderline()
-                    .setMarginTop(0)
-                    .setBold());
-            for (Paragraph paragraph : list2) {
-                paragraph.setFont(font);
-                doc.add(paragraph);
-            }
-
-
-//            ----------------------------------------------------------------
-            doc.close();
-            log.info(messageExit(methodName));
-        } catch (FileNotFoundException error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
-    }
-
+    // создание таблицы для поквартирного учёта типизации систем отопления
     private void createTable(List<ApartmentHeatSupply> list, Document doc, PdfFont font, String message) {
         // заголовок раздела - Тип отопления
         Paragraph p = new Paragraph();
@@ -820,7 +592,24 @@ public class PdfService implements IPdfService {
         doc.add(table1);
     }
 
-    // font
+    // заголовок ---------------------------------
+    private void createHeader(String text, Document doc, PdfFont font) {
+        Paragraph header = new Paragraph(text);
+        header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(14).setBold();
+        doc.add(header);
+    }
+
+    // лист сообщений - перечень ----------------------------------------
+    private void createListText(List<String> list, Document doc, PdfFont font) {
+        for (String line : list) {
+            Paragraph paragraph = new Paragraph();
+            paragraph.setFont(font);
+            paragraph.add(line);
+            doc.add(paragraph);
+        }
+    }
+
+    // font -----------------------------------
     private PdfFont createFont() {
         String methodName = "createFont";
         log.info(messageEnter(methodName));
@@ -833,6 +622,92 @@ public class PdfService implements IPdfService {
         }
     }
 
+    // расчётный счёт для оплаты за услуги ОСББ ------------------
+    private void bankAccountForPayment(Document doc, PdfFont font) {
+        List<Paragraph> list2 = new ArrayList<>();
+        list2.add(new Paragraph("Реквізити:")
+                .setFontSize(12)
+                .setUnderline()
+                .setMarginTop(20)
+                .setBold());
+        Paragraph p1 = new Paragraph();
+        p1.add(new Text("Отримувач: ").setFontSize(12).setBold());
+        p1.add("ОСББ \"Свободи 51\"");
+        list2.add(p1);
+        Paragraph p2 = new Paragraph();
+        p2.add("Код ЄДРПОУ: ");
+        p2.add(new Text("44987443,").setUnderline());
+        list2.add(p2);
+        list2.add(new Paragraph("МФО 305299"));
+        Paragraph p3 = new Paragraph();
+        p3.add("р/р ");
+        p3.add(new Text("UA 9130 5299 0000 0260 0005 0586 588    в АТ КБ \"ПРИВАТ БАНК\"").setUnderline());
+        list2.add(p3);
+        list2.add(new Paragraph("Призначення: ")
+                .setFontSize(12)
+                .setMarginBottom(0)
+                .setBold()
+        );
+        list2.add(new Paragraph("Внесок за утримання/управління будинку та прибудинкової територїї, кв.№ ____ або ")
+                .setMarginTop(0).setMarginBottom(0));
+        list2.add(new Paragraph(" № __________________ (особового рахунку).").setMarginTop(0));
+
+        list2.add(new Paragraph("При оплате обязательно указывайте номер квартиры и за какой месяц. Спасибо.")
+                .setFontSize(12).setMarginBottom(0).setBold().setTextAlignment(TextAlignment.CENTER));
+        for (Paragraph paragraph : list2) {
+            paragraph.setFont(font);
+            doc.add(paragraph);
+        }
+    }
+
+    // номер телефона аварийной службы ---------------
+    private void numberPhoneEmergencyService(Document doc, PdfFont font) {
+        Paragraph p1 = new Paragraph("Телефон цілодобової аварійної служби ОСББ \"Свободи 51\": ");
+        p1.setFontSize(12).setMarginBottom(0).setFont(font);
+        doc.add(p1);
+        Paragraph p2 = new Paragraph("097-659-29-10");
+        p2.setFontSize(14).setUnderline().setMarginTop(0).setBold().setFont(font);
+        doc.add(p2);
+    }
+
+    // обращение к жильцам дома ----------------
+    private void appealToTheResidentsOfTheHouse(String text, Document doc, PdfFont font) {
+        Paragraph pf = new Paragraph(text);
+        pf.setFont(font);
+        pf.setTextAlignment(TextAlignment.CENTER).setFontSize(14).setBold().setMarginBottom(20).setMarginTop(20);
+        doc.add(pf);
+    }
+
+    // заголовки в таблице debt details --------------------------
+    private void fillListCellFirstRowDebtDetails(Table table, PdfFont font) {
+        for (String line : TextsAndLists.forTableDebtDetails) {
+            Cell cell = new Cell();
+            cell.add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font);
+            table.addCell(cell);
+        }
+    }
+
+
+    // sorted ----------
+    private Comparator<Debt> comparatorByBill() {
+        return (a, b) -> Integer.parseInt(a.getHeader().getBill())
+                - Integer.parseInt(b.getHeader().getBill());
+    }
+
+    //Округление дробной части до 2-х запятых
+    private Double formatDoubleValue(Double var) {
+        return Math.rint(100.0 * var) / 100.0;
+    }
+
+    private String getString(Double summa) {
+        return summa > 0 ? "Задолженость : " + summa : "Переплата : " + summa;
+    }
+
+
+    //    Paragraph p = new Paragraph();
+//p.add("The beginning of the line ");
+//p.add(new Text("          (fill in your name)          ").setTextRise(-10).setUnderline().setFontSize(8));
+//p.add(" end of the line");
     private String messageEnter(String name) {
         return "Method " + name + " : enter";
     }
@@ -841,15 +716,10 @@ public class PdfService implements IPdfService {
         return "Method " + name + " : exit";
     }
 
-    private String dateTimeNow() {
+    private void dateTimeNow(Document doc, PdfFont font) {
         String time = LocalDateTime.now().toString().replace("T", ", текущее время :  ");
-        return "Текущая дата : " + time.substring(0, time.indexOf("."));
+        time = "Текущая дата : " + time.substring(0, time.indexOf("."));
+        Paragraph p = new Paragraph(time);
+        doc.add(p.setFont(font).setFontSize(8).setTextAlignment(TextAlignment.LEFT));
     }
-
-
-//    Paragraph p = new Paragraph();
-//p.add("The beginning of the line ");
-//p.add(new Text("          (fill in your name)          ").setTextRise(-10).setUnderline().setFontSize(8));
-//p.add(" end of the line");
-
 }

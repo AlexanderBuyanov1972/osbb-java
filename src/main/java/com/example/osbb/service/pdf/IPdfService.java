@@ -1,34 +1,27 @@
 package com.example.osbb.service.pdf;
 
-import com.example.osbb.dto.InvoiceNotification;
-import com.example.osbb.dto.queries.ApartmentHeatSupply;
-
-import java.util.List;
-import java.util.Map;
+import com.example.osbb.dto.Debt;
 
 public interface IPdfService {
     // debt ---------------------------
-    public Object printPdfDebtByApartment(InvoiceNotification invoiceNotification);
+    public Object printDebt(Debt debt);
 
-    public Object printListPdfDebtAllApartment();
+    public Object printAllDebt();
 
-    public Object printAllTInOnePdfDebtAllApartment();
+    public Object printAllInOneDebtAllApartment();
 
     // debt details -----------------------
-    public Object printPdfDebtDetailsByApartment(String apartment);
+    public Object printDebtDetails(Long id);
 
-    public Object printPdfDebtDetailsAllApartment();
+    public Object printAllDebtDetails();
 
     // balance house -------------
-    public Object printPdfBalanceHouse();
+    public Object printBalanceHouse();
 
     // result questionnaire -------------
-    public Object printResultQuestionnaire(String title);
+    public Object printResultSurvey(String title);
 
-    public Object fillPdfNewBillForPayServiceOSBB();
-
-    // возвращает отсортированный лист номер квартиры - тип отопления
-    public void printQueryListHeatSupplyForApartment(Map<String, List<ApartmentHeatSupply>> map);
+    public Object printNewBillForPayServiceOSBB();
 
     public void printQueryReport_2023_11();
 }

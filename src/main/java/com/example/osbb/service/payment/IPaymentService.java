@@ -1,7 +1,7 @@
 package com.example.osbb.service.payment;
 
 import com.example.osbb.dto.DebtDetails;
-import com.example.osbb.dto.InvoiceNotification;
+import com.example.osbb.dto.Debt;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.entity.Payment;
 
@@ -28,17 +28,9 @@ public interface IPaymentService {
 
     public Object getAllPaymentByBill(String bill);
 
-    public Object getAllPaymentByDescription(String description);
-
 
     public Object getAllPaymentByBillAndDateBetween(
             String bill,
-            LocalDateTime from,
-            LocalDateTime to
-    );
-
-    public Object getAllPaymentByDescriptionAndDateBetween(
-            String description,
             LocalDateTime from,
             LocalDateTime to
     );
@@ -51,15 +43,9 @@ public interface IPaymentService {
 
     public Object getSummaAllPaymentByBill(String bill);
 
-    public Object getSummaAllPaymentByDescription(String description);
 
     public Object getSummaAllPaymentByBillAndDateBetween(
             String bill,
-            LocalDateTime from,
-            LocalDateTime to);
-
-    public Object getSummaAllPaymentByDescriptionAndDateBetween(
-            String description,
             LocalDateTime from,
             LocalDateTime to);
 
@@ -70,15 +56,9 @@ public interface IPaymentService {
     // get invoice notification by ID and last month --------
     public Object getDetailsDebtById(Long id);
 
+    public Debt getDebtByBill(String bill);
 
-//    public InvoiceNotification getDebtInvoiceNotificationByApartment(String apartment);
-
-    public InvoiceNotification getDebtInvoiceNotificationByBill(String bill);
-
-
-//    public DebtDetails getDetailsDebtInvoiceNotificationByApartment(String apartment);
-
-    public DebtDetails getDetailsDebtInvoiceNotificationByBill(String bill);
+    public DebtDetails getDetailsDebtByBill(String bill);
 
     public List<EntryBalanceHouse> getListEntryBalanceHouse();
 

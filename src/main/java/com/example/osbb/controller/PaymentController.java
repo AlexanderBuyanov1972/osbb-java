@@ -57,7 +57,7 @@ public class PaymentController {
 
     //получить все платёжки по счёту
     @GetMapping(ApiConstants.ALL + ApiConstants.PARAM_BILL)
-    public ResponseEntity<?> getAllPaymentComingByBill(@PathVariable String bill) {
+    public ResponseEntity<?> getAllPaymentByBill(@PathVariable String bill) {
         return response.returnResponse(service.getAllPaymentByBill(bill));
     }
 

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BodyInvoiceNotification {
+public class BodyDebt {
     private LocalDate beginningPeriod;
     private Double debtAtBeginningPeriod;
     private Double rate;

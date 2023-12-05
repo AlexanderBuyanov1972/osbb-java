@@ -53,7 +53,7 @@ public class SelectSurveyService implements ISelectSurveyService {
         log.info(messageEnter(methodName));
         try {
             List<String> list = surveyDAO.findAll().stream().map(Survey::getTitle).distinct().toList();
-            String messageResponse = "Всего тем опросов получено " + list.size() + " штук";
+            String messageResponse = "Тем опросов зарегистрировано " + list.size() + " штук";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(list, List.of(messageResponse));

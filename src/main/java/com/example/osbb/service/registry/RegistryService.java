@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class RegistryService implements IRegistryService {
     private static final Logger log = Logger.getLogger(RegistryService.class);
     private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
-    private final String SUCCESSFULLY = "Операция прошла успешно";
     @Autowired
     private OwnerDAO ownerDAO;
     @Autowired
@@ -44,9 +43,10 @@ public class RegistryService implements IRegistryService {
                             Collectors.filtering(s -> s.getOwnership() != null,
                                     Collectors.groupingBy(s -> s.getOwner().getId(),
                                             Collectors.toList()))));
-            log.info(SUCCESSFULLY);
+            String messageResponse = "Реестр объектов недвижимости получен успешно";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(map.values(), List.of(SUCCESSFULLY));
+            return new Response(map.values(), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -68,9 +68,10 @@ public class RegistryService implements IRegistryService {
                                             Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
                                                     Collectors.toList()))));
             List<List<Record>> lists = map.values().stream().sorted(comparatorListRecordByApartment()).toList();
-            log.info(SUCCESSFULLY);
+            String messageResponse = "Реестр собственников получен успешно";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(lists, List.of(SUCCESSFULLY));
+            return new Response(lists, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -79,7 +80,7 @@ public class RegistryService implements IRegistryService {
     }
 
     @Override
-    public BuildingCharacteristics getBuildingCharacteristics() {
+    public Object getBuildingCharacteristics() {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
@@ -103,9 +104,10 @@ public class RegistryService implements IRegistryService {
                             .mapToDouble(Ownership::getTotalArea).sum()))
                     .addressDto(AddressDto.getAddressDto())
                     .build();
-            log.info(SUCCESSFULLY);
+            String messageResponse = "Характеристики здания получены успешно";
+            log.info(messageResponse);
             log.info(messageExit(methodName));
-            return bc;
+            return new Response(bc, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

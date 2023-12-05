@@ -2,15 +2,12 @@ package com.example.osbb.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DebtDetails {
+public class Debt {
     private HeaderDebt header;
-    private List<BodyDebt> list;
-
+    private BodyDebt body;
 }

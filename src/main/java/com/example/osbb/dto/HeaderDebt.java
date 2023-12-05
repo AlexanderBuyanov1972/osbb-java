@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class HeaderInvoiceNotification {
+public class HeaderDebt {
     private Address address;
     private String bill;
     private Double area;

@@ -76,7 +76,7 @@ public class OwnershipService implements IOwnershipService {
                 log.info(messageApartment);
                 return new Response(List.of(messageApartment));
             }
-            if (ownershipDAO.existsByBill(ownership.getBill())) {
+            if (!ownershipDAO.existsByBill(ownership.getBill())) {
                 log.info(messageBill);
                 return new Response(List.of(messageBill));
             }
