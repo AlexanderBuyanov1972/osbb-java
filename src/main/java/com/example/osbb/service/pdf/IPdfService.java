@@ -1,10 +1,14 @@
 package com.example.osbb.service.pdf;
 
-import com.example.osbb.dto.Debt;
+
+import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
+import com.example.osbb.dto.DebtDetails;
+
+import java.util.List;
 
 public interface IPdfService {
     // debt ---------------------------
-    public Object printDebt(Debt debt);
+    public Object printDebt(DebtDetails debt);
 
     public Object printAllDebt();
 
@@ -15,13 +19,10 @@ public interface IPdfService {
 
     public Object printAllDebtDetails();
 
-    // balance house -------------
-    public Object printBalanceHouse();
-
-    // result questionnaire -------------
+     // result survey -------------
     public Object printResultSurvey(String title);
 
-    public Object printNewBillForPayServiceOSBB();
-
     public void printQueryReport_2023_11();
+
+    public void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list);
 }

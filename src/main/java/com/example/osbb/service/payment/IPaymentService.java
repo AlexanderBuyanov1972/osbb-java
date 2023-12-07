@@ -1,7 +1,6 @@
 package com.example.osbb.service.payment;
 
 import com.example.osbb.dto.DebtDetails;
-import com.example.osbb.dto.Debt;
 import com.example.osbb.dto.response.EntryBalanceHouse;
 import com.example.osbb.entity.Payment;
 
@@ -56,7 +55,7 @@ public interface IPaymentService {
     // get invoice notification by ID and last month --------
     public Object getDetailsDebtById(Long id);
 
-    public Debt getDebtByBill(String bill);
+    public DebtDetails getDebtByBill(String bill);
 
     public DebtDetails getDetailsDebtByBill(String bill);
 

@@ -13,19 +13,34 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsefulQueriesController {
 
     @Autowired
-    private IQueriesService service;
+    private IQueriesService iQueriesService;
 
     @Autowired
     private HelpMethodsForController response;
+    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
+    @GetMapping(ApiConstants.PAYMENT + ApiConstants.NEW_BILL)
+    public ResponseEntity<?> queryNewBillForPayServiceOSBB() {
+        return response.returnResponse(iQueriesService.queryNewBillForPayServiceOSBB());
+    }
 
     @GetMapping(ApiConstants.APARTMENT + ApiConstants.HEAT_SUPPLY)
     public ResponseEntity<?> queryListHeatSupplyForApartment() {
-        return response.returnResponse(service.queryListHeatSupplyForApartment());
+        return response.returnResponse(iQueriesService.queryListHeatSupplyForApartment());
     }
 
     @GetMapping(ApiConstants.REPORT)
     public ResponseEntity<?> queryReport_2023_11() {
-        return response.returnResponse(service.queryReport_2023_11());
+        return response.returnResponse(iQueriesService.queryReport_2023_11());
+    }
+
+    @GetMapping(ApiConstants.APARTMENT + ApiConstants.BILL+ ApiConstants.FULL_NAME)
+    public ResponseEntity<?> queryListApartmentBillFullNamePhoneNumber() {
+        return response.returnResponse(iQueriesService.queryListApartmentBillFullNamePhoneNumber());
+    }
+
+    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.BALANCE)
+    public ResponseEntity<?> queryBalanceHouse() {
+        return response.returnResponse(iQueriesService.queryBalanceHouse());
     }
 
 }

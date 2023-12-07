@@ -7,7 +7,6 @@ import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.BodyDebt;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderDebt;
-import com.example.osbb.dto.Debt;
 import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.Payment;
 import com.example.osbb.entity.ownership.Address;
@@ -330,7 +329,6 @@ public class PaymentService implements IPaymentService {
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
-
     }
 
 
@@ -339,7 +337,6 @@ public class PaymentService implements IPaymentService {
     public Object getDebtById(Long id) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-
         String messageResponse = "";
         log.info(messageEnter(methodName));
         try {
@@ -350,7 +347,13 @@ public class PaymentService implements IPaymentService {
                 log.info(messageExit(methodName));
                 return new Response(List.of(messageResponse));
             }
-            Debt in = getDebtByBill(ownership.getBill());
+            DebtDetails in = getDebtByBill(ownership.getBill());
+            if (in == null) {
+                messageResponse = "Долги не могут быть начислены, нет полного месяца обслуживания";
+                log.info(messageResponse);
+                log.info(messageExit(methodName));
+                return new Response(List.of(messageResponse));
+            }
             messageResponse = " Уведомление о задолженности по помещению № : "
                     + ownership.getAddress().getApartment() + " получено успешно";
             log.info(messageResponse);
@@ -362,14 +365,12 @@ public class PaymentService implements IPaymentService {
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-
     }
 
     @Override
-    public Debt getDebtByBill(String bill) {
+    public DebtDetails getDebtByBill(String bill) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageEmpty = "Долги не могут быть начислены, нет полного месяца обслуживания";
         try {
             log.info(messageEnter(methodName));
             // дата начала оплаты за услуги ОСББ -----------------------
@@ -391,7 +392,6 @@ public class PaymentService implements IPaymentService {
             log.info("Address : " + address);
             // заголовок для квитанции
             HeaderDebt header = createHeaderDebt(bill, address, totalAreaRoom);
-
             if (start.minusDays(1).isBefore(from)) {
                 // сумма произведеной оплаты от start до начала периода ------
                 Double summaPaid = getSummaFromListPayment(paymentDAO.findAllPaymentByBillAndDateBetween(
@@ -406,8 +406,6 @@ public class PaymentService implements IPaymentService {
                 Double debtAtBeginningPeriod = formatDoubleValue(summaAccruals - summaPaid);
                 log.info("Начисленная сумма от начальной точки начисления  до первого числа прошлого месяца текущего года = "
                         + debtAtBeginningPeriod);
-
-
                 // начисление за месяц **************************************************
                 Double summaAccrualsMonth = formatDoubleValue(rateDAO.findByDate(from).getValue() * totalAreaRoom);
                 log.info("Начисленная сумма за промежуток времени от заданой даты до сегодняшнего дня минус один месяц = "
@@ -417,11 +415,11 @@ public class PaymentService implements IPaymentService {
                         bill,
                         mapLocalDateToLocaldateTime(from.minusDays(1)),
                         mapLocalDateToLocaldateTime(to.plusDays(1))));
-                // льготы
+                // льготы .....
                 Double recalculationForServicesNotReceived = formatDoubleValue(0.00);
                 Double subsidyMonetization = formatDoubleValue(0.00);
                 Double monetizationBenefits = formatDoubleValue(0.00);
-                // долг составляет ...
+                // долг составляет .....
                 Double debt = formatDoubleValue(debtAtBeginningPeriod
                         + summaAccrualsMonth
                         - summaPaidMonth);
@@ -448,13 +446,9 @@ public class PaymentService implements IPaymentService {
                         .finalizingPeriod(to)
                         .build();
                 log.info(messageExit(methodName));
-                return new Debt(header, body);
-            } else {
-                BodyDebt body = createEmptyBodyDebt(from);
-                log.info(messageEmpty);
-                log.info(messageExit(methodName));
-                return new Debt(header, body);
+                return new DebtDetails(header, List.of(body));
             }
+            return null;
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -573,22 +567,6 @@ public class PaymentService implements IPaymentService {
                 .bill(bill)
                 .area(formatDoubleValue(totalArea))
                 .currentTime(LocalDateTime.now())
-                .build();
-    }
-
-    private BodyDebt createEmptyBodyDebt(LocalDate to) {
-        return BodyDebt
-                .builder()
-                .beginningPeriod(to)
-                .debtAtBeginningPeriod(0.00)
-                .rate(0.00)
-                .accrued(0.00)
-                .recalculationForServicesNotReceived(0.00)
-                .subsidyMonetization(0.00)
-                .monetizationBenefits(0.00)
-                .paid(0.00)
-                .debtAtFinalizingPeriod(formatDoubleValue(0.00))
-                .finalizingPeriod(to.plusMonths(1).minusDays(1))
                 .build();
     }
 

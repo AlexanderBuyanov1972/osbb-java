@@ -1,7 +1,7 @@
 package com.example.osbb.controller;
 
 import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.dto.Debt;
+import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.service.pdf.IPdfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class PrintController {
     // debt --------------
     // печатать одну квитанцию по конкретному помещению за последний месяц
     @PostMapping(ApiConstants.PAYMENT + ApiConstants.DEBT)
-    public ResponseEntity<?> printDebt(@RequestBody Debt debt) {
+    public ResponseEntity<?> printDebt(@RequestBody DebtDetails debt) {
         return response.returnResponse(service.printDebt(debt));
     }
 
@@ -50,17 +50,6 @@ public class PrintController {
     @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.DETAILS)
     public ResponseEntity<?> printAllDebtDetails() {
         return response.returnResponse(service.printAllDebtDetails());
-    }
-    // balance -------------------
-    // печатать баланса
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.BALANCE)
-    public ResponseEntity<?> printBalanceHouse() {
-        return response.returnResponse(service.printBalanceHouse());
-    }
-    // печатать объявление о новых реквизитах по оплате за услуги ОСББ
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.NEW_BILL)
-    public ResponseEntity<?> printNewBillForPayServiceOSBB() {
-        return response.returnResponse(service.printNewBillForPayServiceOSBB());
     }
 
 

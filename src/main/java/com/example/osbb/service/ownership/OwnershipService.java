@@ -39,12 +39,13 @@ public class OwnershipService implements IOwnershipService {
     public Object createOwnership(Ownership ownership) {
         String methodName = new Object() {
         }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Помещение с номером лицевого счёта " + ownership.getBill() + " не существует";
+
+        String messageResponse = "Помещение с номером лицевого счёта " + ownership.getBill() + " уже существует";
         log.info(messageEnter(methodName));
         try {
-            if (ownershipDAO.existsByBill(ownership.getBill())) {
+            if (!ownershipDAO.existsByBill(ownership.getBill())) {
                 ownership = ownershipDAO.save(ownership);
-                messageResponse = "Помещение с ID : " + ownership.getId() + " создано успешно";
+                messageResponse = "Помещение № " + ownership.getAddress().getApartment()+ " создано успешно";
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
@@ -100,7 +101,8 @@ public class OwnershipService implements IOwnershipService {
         log.info(messageEnter(methodName));
         try {
             Ownership ownership = ownershipDAO.findById(id).orElse(null);
-            messageResponse = ownership == null ? messageResponse : "Помещение с ID : " + id + " получено успешно";
+            messageResponse = ownership == null ? messageResponse :
+                    "Помещение № " + ownership.getAddress().getApartment() + " получено успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(ownership, List.of(messageResponse));

@@ -100,9 +100,8 @@ public class WebSecurityConfig {
                 .requestMatchers(ApiConstants.RATE, ApiConstants.RATE + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.SURVEYS, ApiConstants.SURVEYS + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .requestMatchers(ApiConstants.OWNERSHIP, ApiConstants.OWNERSHIP + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
-
+                .requestMatchers(ApiConstants.QUERIES, ApiConstants.QUERIES + ApiConstants.SS).hasAnyRole("ADMIN", "MANAGER")
                 .anyRequest().authenticated());
-
         // filters
         http.addFilter(new AuthenticationFilter(authenticationManagerBean(), userService, tokenService, cookieService));
         http.addFilter(new RefreshFilter(authenticationManagerBean(), tokenService, cookieService, userService));

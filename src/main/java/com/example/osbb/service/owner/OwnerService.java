@@ -19,10 +19,8 @@ import java.util.stream.Collectors;
 public class OwnerService implements IOwnerService {
     private static final Logger log = Logger.getLogger(IOwnerService.class);
     private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
-
     @Autowired
     private OwnerDAO ownerDAO;
-
     // one --------------------------------
     @Override
     @Transactional
@@ -81,7 +79,8 @@ public class OwnerService implements IOwnerService {
         log.info(messageEnter(methodName));
         try {
             Owner owner = ownerDAO.findById(id).orElse(null);
-            messageResponse = owner == null ? messageResponse : "Получение собственника с ID : " + id + " прошло успешно";
+            messageResponse = owner == null ? messageResponse :
+                    "Собственник " + mapOwnerToFullName(owner) + " получен успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(owner, List.of(messageResponse));
@@ -248,6 +247,10 @@ public class OwnerService implements IOwnerService {
     }
 
     // sorted -------------------------------------------------------------
+
+    private String mapOwnerToFullName(Owner o) {
+        return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
+    }
     private List<Owner> sortedByLastName(List<Owner> list) {
         return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }
