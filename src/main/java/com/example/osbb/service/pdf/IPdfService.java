@@ -22,7 +22,5 @@ public interface IPdfService {
      // result survey -------------
     public Object printResultSurvey(String title);
 
-    public void printQueryReport_2023_11();
-
     public void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list);
 }

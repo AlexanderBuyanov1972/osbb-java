@@ -13,7 +13,7 @@ import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.service.payment.IPaymentService;
 import com.example.osbb.service.pdf.IPdfService;
 import com.example.osbb.service.pdf.PdfService;
-import com.example.osbb.service.record.IRecordService;
+import com.example.osbb.service.pdf.TextsAndLists;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -60,20 +60,18 @@ public class QueriesService implements IQueriesService {
         }.getClass().getEnclosingMethod().getName();
         try {
             log.info(messageEnter(methodName));
-            checkDir("D:/pdf/queries");
-            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Платёжные реквизиты ОСББ" + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
+            String path = "D:/pdf/queries";
+            checkDir(path);
+            String text = "Платёжные реквизиты ОСББ";
+            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
             PdfFont font = createFont();
             pdfService.dateTimeNow(doc, font);
-            // --- начало ----------
             pdfService.bankAccountForPayment(doc, font);
             pdfService.numberPhoneEmergencyService(doc, font);
-            // --- конец -----------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new Response(List.of("Платёжные реквизиты ОСББ", PRINT_SUCCESSFULLY + "/queries"));
+            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -87,24 +85,23 @@ public class QueriesService implements IQueriesService {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            checkDir("D:/pdf/queries");
-            PdfWriter writer = new PdfWriter("D:/pdf/queries/" + "Поквартирная типизация отопления" + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
+            String path = "D:/pdf/queries";
+            checkDir(path);
+            String text = "Поквартирная типизация отопления";
+            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
             PdfFont font = createFont();
             // начало ------------------------
             Map<String, List<ApartmentHeatSupply>> map = ownershipDAO.findAll().stream().map(ApartmentHeatSupply::new)
                     .sorted(comparatorApartmentHeatSupply()).collect(groupingBy(ApartmentHeatSupply::getHeatSupply));
-            doc.add(new Paragraph().add(dateTimeNow()).setFont(font));
-            createTable(map.get("CENTER"), doc, font, "централизованное");
-            createTable(map.get("AUTO_GAZ"), doc, font, "автономное (газовое)");
-            createTable(map.get("AUTO_ELECTRO"), doc, font, "автономное (электрическое)");
+            doc.add(new Paragraph().add(currentDate()).setFont(font));
+            createTableForListApartmentBillFullNamePhoneNumber(map.get("CENTER"), doc, font, "централизованное");
+            createTableForListApartmentBillFullNamePhoneNumber(map.get("AUTO_GAZ"), doc, font, "автономное (газовое)");
+            createTableForListApartmentBillFullNamePhoneNumber(map.get("AUTO_ELECTRO"), doc, font, "автономное (электрическое)");
             // финиш ---------------------------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new Response(List.of("Поквартирная типизация отопления",
-                    PRINT_SUCCESSFULLY + "/queries"));
+            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -119,17 +116,27 @@ public class QueriesService implements IQueriesService {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            iPdfService.printQueryReport_2023_11();
+            String path = "D:/pdf/queries";
+            checkDir(path);
+            String text = "Отчёт о деятельности ОСББ \"Cвободы - 51\" за ноябрь 2023 года.";
+            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
+            PdfFont font = createFont();
+            dateTimeNow(doc, font);
+            // старт -------------------------------
+            createHeader(text, doc, font);
+            pdfService.createListText(TextsAndLists.report_2023_11, doc, font);
+            pdfService.appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
+            pdfService.bankAccountForPayment(doc, font);
+            // финиш ----------------------------------
+            doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
-            return new Response(List.of("Отчёт о деятельности ОСББ за ноябрь 2023 года",
-                    PRINT_SUCCESSFULLY + "/queries"));
+            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-
     }
 
     @Override
@@ -153,7 +160,6 @@ public class QueriesService implements IQueriesService {
         }
     }
 
-    // печатать баланс дома по помещениям (задолженность/переплата)
     @Override
     public Object queryBalanceHouse() {
         String methodName = new Object() {
@@ -161,12 +167,12 @@ public class QueriesService implements IQueriesService {
         log.info(messageEnter(methodName));
         try {
             List<EntryBalanceHouse> list = iPaymentService.getListEntryBalanceHouse();
-            Double summa = formatDoubleValue(list.stream().mapToDouble(EntryBalanceHouse::getSumma).reduce(0, (a, b) -> a + b));
-            checkDir("D:/pdf/balance");
+//            Double summa = formatDoubleValue(list.stream()
+//                    .mapToDouble(EntryBalanceHouse::getSumma).reduce(0, (a, b) -> a + b));
+            String path = "D:/pdf/balance";
+            checkDir(path);
             String text = "Задолженость по оплате за услуги ОСББ по помещениям";
-            PdfWriter writer = new PdfWriter("D:/pdf/balance/" + text + ".pdf");
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document doc = new Document(pdfDoc);
+            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
             PdfFont font = createFont();
             log.info("Текущая дата");
             dateTimeNow(doc, font);
@@ -177,24 +183,17 @@ public class QueriesService implements IQueriesService {
             Table table = new Table(pointColumnWidths);
             table.setMarginTop(10).setMarginBottom(10);
             log.info("Заполняем заголовки таблицы");
-            for (String line : List.of("Помещение №", "Лицевой счёт", "Задолженость/Переплата")) {
-                Cell cell = new Cell();
-                cell.add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font);
-                table.addCell(cell);
-            }
+            List<String> listHeader = List.of("Помещение №", "Лицевой счёт", "Задолженость/Переплата");
+            createHeaderTable(listHeader, table, doc, font);
             log.info("Заполняем строки таблицы");
             list.forEach(
                     el -> {
-                        for (String s : List.of(el.getApartment(), el.getBill(), el.getSumma().toString())) {
-                            Cell cell = new Cell();
-                            cell.add(s).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9);
-                            table.addCell(cell);
-                        }
+                        for (String s : List.of(el.getApartment(), el.getBill(), el.getSumma().toString()))
+                            table.addCell(new Cell().add(s).setTextAlignment(TextAlignment.CENTER)
+                                    .setFont(font).setFontSize(9));
                     }
             );
-            log.info("Перед сохранением таблицы в DOC");
             doc.add(table);
-            log.info("После сохранения таблицы в DOC");
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
             log.info(messageExit(methodName));
@@ -220,7 +219,7 @@ public class QueriesService implements IQueriesService {
 
     // ************** help function ************************
 
-    private String dateTimeNow() {
+    private String currentDate() {
         String time = LocalDateTime.now().toString().replace("T", ", текущее время :  ");
         return "Текущая дата : " + time.substring(0, time.indexOf("."));
     }
@@ -235,12 +234,6 @@ public class QueriesService implements IQueriesService {
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
-    }
-
-    private void createHeader(String text, Document doc, PdfFont font) {
-        Paragraph header = new Paragraph(text);
-        header.setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(14).setBold();
-        doc.add(header);
     }
 
     private void checkDir(String str) {
@@ -265,32 +258,31 @@ public class QueriesService implements IQueriesService {
 
     }
 
-    private void createTable(List<ApartmentHeatSupply> list, Document doc, PdfFont font, String message) {
-        // заголовок раздела - Тип отопления
-        Paragraph p = new Paragraph();
-        p.add("Тип отопления - " + message + ", в количестве " + list.size() + " л.с.").setFont(font);
-        doc.add(p);
-        //создаём таблицу
+    private void createHeader(String text, Document doc, PdfFont font) {
+        doc.add(new Paragraph(text).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(14).setBold());
+    }
+
+    private void createHeaderTable(List<String> list, Table table, Document doc, PdfFont font) {
+        for (String line : list)
+            table.addCell(new Cell().add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font));
+    }
+
+
+    private void createTableForListApartmentBillFullNamePhoneNumber(
+            List<ApartmentHeatSupply> list, Document doc, PdfFont font, String message) {
+        doc.add(new Paragraph().add("Тип отопления - " + message + ", в количестве " + list.size() + " л.с.").setFont(font));
         float[] pointColumnWidths = {200F, 200F};
-        Table table1 = new Table(pointColumnWidths);
-        table1.setMarginTop(7).setMarginBottom(7);
-        // заполняем заголовки таблицы
-        for (String line : List.of("Помещение №", "Тип отопления")) {
-            Cell cell = new Cell();
-            cell.add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font);
-            table1.addCell(cell);
-        }
-        // заполняем строки таблицы
+        Table table = new Table(pointColumnWidths);
+        table.setMarginTop(7).setMarginBottom(7);
+        List<String> listHeader = List.of("Помещение №", "Тип отопления");
+        createHeaderTable(listHeader, table, doc, font);
         list.forEach(
                 el -> {
-                    for (String line : List.of(el.getApartment(), el.getHeatSupply())) {
-                        Cell cell = new Cell();
-                        cell.add(line).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9);
-                        table1.addCell(cell);
-                    }
+                    for (String line : List.of(el.getApartment(), el.getHeatSupply()))
+                        table.addCell(new Cell().add(line).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9));
                 }
         );
-        doc.add(table1);
+        doc.add(table);
     }
 
     private String mapOwnerToFullName(Owner o) {
@@ -300,6 +292,7 @@ public class QueriesService implements IQueriesService {
     private Double formatDoubleValue(Double var) {
         return Math.rint(100.0 * var) / 100.0;
     }
+
     public void dateTimeNow(Document doc, PdfFont font) {
         String time = LocalDateTime.now().toString().replace("T", ", текущее время :  ");
         time = "Текущая дата : " + time.substring(0, time.indexOf("."));
@@ -308,7 +301,6 @@ public class QueriesService implements IQueriesService {
     }
 
     // sorted ---------------------
-
     private Comparator<ApartmentHeatSupply> comparatorApartmentHeatSupply() {
         return (a, b) -> {
             return a.getHeatSupply().compareTo(b.getHeatSupply()) != 0 ?
@@ -331,5 +323,4 @@ public class QueriesService implements IQueriesService {
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
     }
-
 }
