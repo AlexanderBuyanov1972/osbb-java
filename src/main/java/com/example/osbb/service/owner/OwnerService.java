@@ -5,6 +5,8 @@ import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.owner.Owner;
+import com.example.osbb.service.Comparators;
+import com.example.osbb.service.FunctionHelp;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,11 @@ public class OwnerService implements IOwnerService {
     private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private OwnerDAO ownerDAO;
+    @Autowired
+    private FunctionHelp functionHelp;
+    @Autowired
+    private Comparators comparators;
+
     // one --------------------------------
     @Override
     @Transactional
@@ -80,7 +87,7 @@ public class OwnerService implements IOwnerService {
         try {
             Owner owner = ownerDAO.findById(id).orElse(null);
             messageResponse = owner == null ? messageResponse :
-                    "Собственник " + mapOwnerToFullName(owner) + " получен успешно";
+                    "Собственник " + functionHelp.mapOwnerToFullName(owner) + " получен успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
             return new Response(owner, List.of(messageResponse));
@@ -154,7 +161,7 @@ public class OwnerService implements IOwnerService {
             messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(sortedByLastName(result), List.of(messageResponse));
+            return new Response(comparators.sortedByLastName(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -182,7 +189,7 @@ public class OwnerService implements IOwnerService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(sortedByLastName(result), List.of(messageResponse));
+            return new Response(comparators.sortedByLastName(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -196,11 +203,11 @@ public class OwnerService implements IOwnerService {
         }.getClass().getEnclosingMethod().getName();
         log.info(messageEnter(methodName));
         try {
-            List<Owner> result = ownerDAO.findAll().stream().sorted(comparatorOwnerByLastName()).toList();
+            List<Owner> result = ownerDAO.findAll().stream().sorted(comparators.comparatorByLastName()).toList();
             String messageResponse = "Получено " + result.size() + " собственников";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(result,List.of(messageResponse));
+            return new Response(result, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -238,26 +245,12 @@ public class OwnerService implements IOwnerService {
             String messageResponse = "Количество собственников составляет : " + count;
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(count,List.of(messageResponse));
+            return new Response(count, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-    }
-
-    // sorted -------------------------------------------------------------
-
-    private String mapOwnerToFullName(Owner o) {
-        return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
-    }
-    private List<Owner> sortedByLastName(List<Owner> list) {
-        return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
-    }
-
-    //.sorted(comparatorByBill())
-    private Comparator<Owner> comparatorOwnerByLastName() {
-        return (a, b) -> a.getLastName().compareTo(b.getLastName());
     }
 
     private String messageEnter(String name) {
@@ -267,5 +260,4 @@ public class OwnerService implements IOwnerService {
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
     }
-
 }

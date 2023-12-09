@@ -10,6 +10,8 @@ import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.enums.TypeOfRoom;
+import com.example.osbb.service.Comparators;
+import com.example.osbb.service.FunctionHelp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,10 @@ public class RegistryService implements IRegistryService {
     private OwnershipDAO ownershipDAO;
     @Autowired
     private RecordDAO recordDAO;
+    @Autowired
+    private FunctionHelp functionHelp;
+    @Autowired
+    private Comparators comparators;
 
 
     @Override
@@ -67,7 +73,7 @@ public class RegistryService implements IRegistryService {
                                     Collectors.filtering(s -> s.getOwnership() != null,
                                             Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
                                                     Collectors.toList()))));
-            List<List<Record>> lists = map.values().stream().sorted(comparatorListRecordByApartment()).toList();
+            List<List<Record>> lists = map.values().stream().sorted(comparators.comparatorRecordByApartment()).toList();
             String messageResponse = "Реестр собственников получен успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));
@@ -92,14 +98,14 @@ public class RegistryService implements IRegistryService {
                     .countRooms(ownershipDAO.count())
                     .countApartment(ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT))
                     .countNonResidentialRoom(ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                    .summaTotalArea(formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()))
-                    .summaTotalAreaApartment(formatDoubleValue(ownershipDAO.findAll().stream()
+                    .summaTotalArea(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()))
+                    .summaTotalAreaApartment(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
                             .mapToDouble(Ownership::getTotalArea).sum()))
-                    .summaLivingAreaApartment(formatDoubleValue(ownershipDAO.findAll().stream()
+                    .summaLivingAreaApartment(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
                             .mapToDouble(Ownership::getLivingArea).sum()))
-                    .summaTotalAreaNonResidentialRoom(formatDoubleValue(ownershipDAO.findAll().stream()
+                    .summaTotalAreaNonResidentialRoom(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
                             .mapToDouble(Ownership::getTotalArea).sum()))
                     .addressDto(AddressDto.getAddressDto())
@@ -113,15 +119,6 @@ public class RegistryService implements IRegistryService {
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
-    }
-
-    private Double formatDoubleValue(Double var) {
-        return Math.rint(100.0 * var) / 100.0;
-    }
-
-    private Comparator<List<Record>> comparatorListRecordByApartment() {
-        return (a, b) -> Integer.parseInt(a.get(0).getOwnership().getAddress().getApartment())
-                - Integer.parseInt(b.get(0).getOwnership().getAddress().getApartment());
     }
 
 

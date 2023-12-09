@@ -11,6 +11,7 @@ import com.example.osbb.entity.Survey;
 import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfRoom;
+import com.example.osbb.service.Comparators;
 import jakarta.transaction.Transactional;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class OwnershipService implements IOwnershipService {
     private RecordDAO recordDAO;
     @Autowired
     private OwnerDAO ownerDAO;
+    @Autowired
+    private Comparators comparators;
 
     // one --------------------------------------------
     @Override
@@ -45,7 +48,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             if (!ownershipDAO.existsByBill(ownership.getBill())) {
                 ownership = ownershipDAO.save(ownership);
-                messageResponse = "Помещение № " + ownership.getAddress().getApartment()+ " создано успешно";
+                messageResponse = "Помещение № " + ownership.getAddress().getApartment() + " создано успешно";
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
@@ -157,7 +160,7 @@ public class OwnershipService implements IOwnershipService {
                     "Создано " + result.size() + " объектов собственности";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(sortedById(result), List.of(messageResponse));
+            return new Response(comparators.sortedOwnershipById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -183,7 +186,7 @@ public class OwnershipService implements IOwnershipService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " помещений";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(sortedById(result), List.of(messageResponse));
+            return new Response(comparators.sortedOwnershipById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -200,7 +203,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Ownership> result = ownershipDAO.findAll()
                     .stream()
-                    .sorted(comparatorOwnershipByApartment())
+                    .sorted(comparators.comparatorByApartment())
                     .toList();
             messageResponse = result.isEmpty() ? messageResponse : "Получено " + result.size() + " помещений";
             log.info(messageResponse);
@@ -383,7 +386,7 @@ public class OwnershipService implements IOwnershipService {
         try {
             List<Ownership> ownerships = ownershipDAO.findByAddressApartment(apartment)
                     .stream()
-                    .sorted(comparatorOwnershipByBill())
+                    .sorted(comparators.comparatorByBill())
                     .collect(Collectors.toList());
             messageResponse = ownerships.isEmpty() ? messageResponse
                     : "Объекты недвижимости с помещением № : " + apartment + " получено успешно";
@@ -500,22 +503,6 @@ public class OwnershipService implements IOwnershipService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
 
-    }
-
-    // sorted -----------------------------------
-    private List<Ownership> sortedById(List<Ownership> list) {
-        return list.stream().sorted((a, b) -> (int) (a.getId() - b.getId())).collect(Collectors.toList());
-    }
-
-    //.sorted(comparatorByApartment())
-    private Comparator<Ownership> comparatorOwnershipByApartment() {
-        return (a, b) -> Integer.parseInt(a.getAddress().getApartment())
-                - Integer.parseInt(b.getAddress().getApartment());
-    }
-
-    //.sorted(comparatorByBill())
-    private Comparator<Ownership> comparatorOwnershipByBill() {
-        return (a, b) -> a.getBill().compareTo(b.getBill());
     }
 
     private String messageEnter(String name) {
