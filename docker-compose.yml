@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+
+  db:
+    container_name: postgres-db
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=testes
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  osbb-java:
+    container_name: osbb-java
+    image: osbb-java
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '9000:9000'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/testes
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    restart: always
+    depends_on:
+      - db
+
+  osbb-vue:
+    container_name: osbb-vue
+    image: osbb-vue:latest
+    ports:
+      - '8080:8080'
+    restart: always
+    depends_on:
+      - osbb-java
+
+volumes:
+  db-data:
