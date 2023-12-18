@@ -118,7 +118,7 @@ public class QueriesService implements IQueriesService {
         try {
             String path = "D:/pdf/queries";
             checkDir(path);
-            String text = "Отчёт о деятельности ОСББ \"Cвободы - 51\" за ноябрь 2023 года.";
+            String text = "Отчёт о деятельности ОСББ Cвободы - 51 за ноябрь 2023 года";
             Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
             PdfFont font = createFont();
             dateTimeNow(doc, font);

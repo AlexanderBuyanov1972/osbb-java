@@ -17,7 +17,7 @@ services:
 
   osbb-java:
     container_name: osbb-java
-    image: osbb-java
+    image: osbb-java:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
 
   osbb-vue:
     container_name: osbb-vue
-    image: osbb-vue:latest
+    image: osbb-vue
     ports:
       - '8080:8080'
     restart: always
