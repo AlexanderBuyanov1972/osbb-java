@@ -5,15 +5,9 @@ import com.example.osbb.enums.TypeOfHeatSupply;
 import com.example.osbb.enums.TypeOfRoom;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "ownerships")
 public class Ownership {
@@ -58,7 +52,7 @@ public class Ownership {
     private String heatMeter;
     @Column(name = "bill")
     private String bill;
-    @Column(name="additional_information")
+    @Column(name = "additional_information")
     private String additionalInformation;
 
     // one to one -------------------------
@@ -73,6 +67,202 @@ public class Ownership {
     @JsonIgnore
     private List<Record> records;
 
+    public Ownership() {
+    }
+
+    public Ownership(long id, TypeOfRoom typeRoom, double totalArea, double livingArea, String documentConfirmsRightOwn, int numberRooms, boolean loggia, String gasSupply, String gasMeter, String waterSupply, String waterMeter, String sewerage, TypeOfHeatSupply heatSupply, String heatMeter, String bill, String additionalInformation, Address address, List<Record> records) {
+        this.id = id;
+        this.typeRoom = typeRoom;
+        this.totalArea = totalArea;
+        this.livingArea = livingArea;
+        this.documentConfirmsRightOwn = documentConfirmsRightOwn;
+        this.numberRooms = numberRooms;
+        this.loggia = loggia;
+        this.gasSupply = gasSupply;
+        this.gasMeter = gasMeter;
+        this.waterSupply = waterSupply;
+        this.waterMeter = waterMeter;
+        this.sewerage = sewerage;
+        this.heatSupply = heatSupply;
+        this.heatMeter = heatMeter;
+        this.bill = bill;
+        this.additionalInformation = additionalInformation;
+        this.address = address;
+        this.records = records;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public TypeOfRoom getTypeRoom() {
+        return typeRoom;
+    }
+
+    public double getTotalArea() {
+        return totalArea;
+    }
+
+    public double getLivingArea() {
+        return livingArea;
+    }
+
+    public String getDocumentConfirmsRightOwn() {
+        return documentConfirmsRightOwn;
+    }
+
+    public int getNumberRooms() {
+        return numberRooms;
+    }
+
+    public boolean isLoggia() {
+        return loggia;
+    }
+
+    public String getGasSupply() {
+        return gasSupply;
+    }
+
+    public String getGasMeter() {
+        return gasMeter;
+    }
+
+    public String getWaterSupply() {
+        return waterSupply;
+    }
+
+    public String getWaterMeter() {
+        return waterMeter;
+    }
+
+    public String getSewerage() {
+        return sewerage;
+    }
+
+    public TypeOfHeatSupply getHeatSupply() {
+        return heatSupply;
+    }
+
+    public String getHeatMeter() {
+        return heatMeter;
+    }
+
+    public String getBill() {
+        return bill;
+    }
+
+    public String getAdditionalInformation() {
+        return additionalInformation;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public List<Record> getRecords() {
+        return records;
+    }
+
+    public Ownership setId(long id) {
+        this.id = id;
+        return this;
+    }
+
+    public Ownership setTypeRoom(TypeOfRoom typeRoom) {
+        this.typeRoom = typeRoom;
+        return this;
+    }
+
+    public Ownership setTotalArea(double totalArea) {
+        this.totalArea = totalArea;
+        return this;
+    }
+
+    public Ownership setLivingArea(double livingArea) {
+        this.livingArea = livingArea;
+        return this;
+    }
+
+    public Ownership setDocumentConfirmsRightOwn(String documentConfirmsRightOwn) {
+        this.documentConfirmsRightOwn = documentConfirmsRightOwn;
+        return this;
+    }
+
+    public Ownership setNumberRooms(int numberRooms) {
+        this.numberRooms = numberRooms;
+        return this;
+    }
+
+    public Ownership setLoggia(boolean loggia) {
+        this.loggia = loggia;
+        return this;
+    }
+
+    public Ownership setGasSupply(String gasSupply) {
+        this.gasSupply = gasSupply;
+        return this;
+    }
+
+    public Ownership setGasMeter(String gasMeter) {
+        this.gasMeter = gasMeter;
+        return this;
+    }
+
+    public Ownership setWaterSupply(String waterSupply) {
+        this.waterSupply = waterSupply;
+        return this;
+    }
+
+    public Ownership setWaterMeter(String waterMeter) {
+        this.waterMeter = waterMeter;
+        return this;
+    }
+
+    public Ownership setSewerage(String sewerage) {
+        this.sewerage = sewerage;
+        return this;
+    }
+
+    public Ownership setHeatSupply(TypeOfHeatSupply heatSupply) {
+        this.heatSupply = heatSupply;
+        return this;
+    }
+
+    public Ownership setHeatMeter(String heatMeter) {
+        this.heatMeter = heatMeter;
+        return this;
+    }
+
+    public Ownership setBill(String bill) {
+        this.bill = bill;
+        return this;
+    }
+
+    public Ownership setAdditionalInformation(String additionalInformation) {
+        this.additionalInformation = additionalInformation;
+        return this;
+    }
+
+    public Ownership setAddress(Address address) {
+        this.address = address;
+        return this;
+    }
+
+    public Ownership setRecords(List<Record> records) {
+        this.records = records;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Ownership = { id = " + id + ", typeRoom = " + typeRoom + ", totalArea = " + totalArea +
+                ", livingArea = " + livingArea + ", documentConfirmsRightOwn = " + documentConfirmsRightOwn +
+                ", numberRooms = " + numberRooms + ", loggia = " + loggia + ", gasSupply = " + gasSupply +
+                ", gasMeter = " + gasMeter + ", waterSupply='" + waterSupply + ", waterMeter = " + waterMeter +
+                ", sewerage = " + sewerage + ", heatSupply = " + heatSupply + ", heatMeter = " + heatMeter +
+                ", bill = " + bill + ", additionalInformation = " + additionalInformation +
+                ", address = " + address + ", records = " + records + " }";
+    }
 }
 
 //    id

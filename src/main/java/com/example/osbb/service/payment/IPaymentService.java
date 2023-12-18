@@ -1,7 +1,7 @@
 package com.example.osbb.service.payment;
 
 import com.example.osbb.dto.DebtDetails;
-import com.example.osbb.dto.response.EntryBalanceHouse;
+import com.example.osbb.dto.EntryBalanceHouse;
 import com.example.osbb.entity.Payment;
 
 import java.time.LocalDateTime;

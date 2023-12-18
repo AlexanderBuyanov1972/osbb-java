@@ -23,6 +23,7 @@ public class AddressService implements IAddressService {
     private AddressDAO addressDAO;
     @Autowired
     private Comparators comparators;
+
     // ----------------- one -------------------------------
     @Override
     @Transactional
@@ -42,6 +43,7 @@ public class AddressService implements IAddressService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object updateAddress(Address address) {
@@ -64,6 +66,7 @@ public class AddressService implements IAddressService {
         }
 
     }
+
     @Override
     public Object getAddress(Long id) {
         String methodName = new Object() {
@@ -83,6 +86,7 @@ public class AddressService implements IAddressService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object deleteAddress(Long id) {
@@ -105,6 +109,7 @@ public class AddressService implements IAddressService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // ---------------- all ----------------
     @Override
     @Transactional
@@ -126,7 +131,7 @@ public class AddressService implements IAddressService {
             messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " адрессов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(comparators.sortedAddressById(result),List.of(messageResponse));
+            return new Response(comparators.sortedAddressById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
@@ -134,6 +139,7 @@ public class AddressService implements IAddressService {
         }
 
     }
+
     @Override
     @Transactional
     public Object updateAllAddress(List<Address> addresses) {
@@ -153,7 +159,7 @@ public class AddressService implements IAddressService {
             messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " адрессов";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(comparators.sortedAddressById(result),List.of(messageResponse));
+            return new Response(comparators.sortedAddressById(result), List.of(messageResponse));
         } catch (
                 Exception error) {
             log.error(ERROR_SERVER);
@@ -162,6 +168,7 @@ public class AddressService implements IAddressService {
         }
 
     }
+
     @Override
     public Object getAllAddress() {
         String methodName = new Object() {
@@ -172,13 +179,14 @@ public class AddressService implements IAddressService {
             List<Address> result = addressDAO.findAll();
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(comparators.sortedAddressById(result),List.of(messageResponse));
+            return new Response(comparators.sortedAddressById(result), List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     @Override
     @Transactional
     public Object deleteAllAddress() {
@@ -198,6 +206,7 @@ public class AddressService implements IAddressService {
         }
 
     }
+
     // -------- street. house and number of apartment -----------------------
     @Override
     public Object getAddress(String street, String house, String numberApartment) {
@@ -213,42 +222,33 @@ public class AddressService implements IAddressService {
             }
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return new Response(address,List.of(messageResponse));
+            return new Response(address, List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // получение общего адресса для всего дома --------------
     @Override
     public Object getAddressStart() {
+        Address address = new Address("51931", "Украина", "Днепропетровская область",
+                "Каменское", "Свободы", "51", "", "", "");
         try {
-            return Response
-                    .builder()
-                    .data(Address.builder()
-                            .zipCode("51931")
-                            .country("Украина")
-                            .region("Днепропетровская область")
-                            .city("Каменское")
-                            .street("Свободы")
-                            .house("51")
-                            .entrance("")
-                            .floor("")
-                            .apartment("")
-                            .build())
-                    .messages(List.of("Стандартный адресс получен успешно"))
-                    .build();
+            return new Response(address, List.of("Стандартный адресс получен успешно"));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
     // sorted ------------------------------
     private String messageEnter(String name) {
         return "Method " + name + " : enter";
     }
+
     private String messageExit(Object name) {
         return "Method " + name + " : exit";
     }

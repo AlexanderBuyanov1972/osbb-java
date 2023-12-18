@@ -92,24 +92,23 @@ public class RegistryService implements IRegistryService {
         log.info(messageEnter(methodName));
 
         try {
-            BuildingCharacteristics bc = BuildingCharacteristics
-                    .builder()
-                    .countOwners(ownerDAO.count())
-                    .countRooms(ownershipDAO.count())
-                    .countApartment(ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT))
-                    .countNonResidentialRoom(ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                    .summaTotalArea(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()))
-                    .summaTotalAreaApartment(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
+            BuildingCharacteristics bc = new BuildingCharacteristics(
+                    ownerDAO.count(),
+                    ownershipDAO.count(),
+                    ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT),
+                    ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM),
+                    
+                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()),
+                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                            .mapToDouble(Ownership::getTotalArea).sum()))
-                    .summaLivingAreaApartment(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
+                            .mapToDouble(Ownership::getTotalArea).sum()),
+                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                            .mapToDouble(Ownership::getLivingArea).sum()))
-                    .summaTotalAreaNonResidentialRoom(functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
+                            .mapToDouble(Ownership::getLivingArea).sum()),
+                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
                             .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                            .mapToDouble(Ownership::getTotalArea).sum()))
-                    .addressDto(AddressDto.getAddressDto())
-                    .build();
+                            .mapToDouble(Ownership::getTotalArea).sum()),
+                    AddressDto.getAddressDto());
             String messageResponse = "Характеристики здания получены успешно";
             log.info(messageResponse);
             log.info(messageExit(methodName));

@@ -6,6 +6,7 @@ import com.example.osbb.dao.RateDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.BodyDebt;
 import com.example.osbb.dto.DebtDetails;
+import com.example.osbb.dto.EntryBalanceHouse;
 import com.example.osbb.dto.HeaderDebt;
 import com.example.osbb.dto.response.*;
 import com.example.osbb.entity.Payment;
@@ -313,12 +314,7 @@ public class PaymentService implements IPaymentService {
                         - monetizationBenefits
                         - subsidyMonetization
                         - recalculationForServicesNotReceived;
-                result.add(EntryBalanceHouse
-                        .builder()
-                        .bill(bill)
-                        .apartment(apartment)
-                        .summa(formatDoubleValue(debt))
-                        .build());
+                result.add(new EntryBalanceHouse(bill, apartment, formatDoubleValue(debt)));
             });
             String messageResponse = "Сформировано " + result.size() + " записей";
             log.info(messageResponse);
@@ -432,19 +428,9 @@ public class PaymentService implements IPaymentService {
                 log.info("Сумма платежей на начальный период : " + summaPaid);
                 log.info("Долг на начальный период : " + debt);
                 log.info("Дата конечного периода : " + to);
-                BodyDebt body = BodyDebt
-                        .builder()
-                        .beginningPeriod(from)
-                        .debtAtBeginningPeriod(debtAtBeginningPeriod)
-                        .rate(rate)
-                        .accrued(summaAccrualsMonth)
-                        .recalculationForServicesNotReceived(recalculationForServicesNotReceived)
-                        .subsidyMonetization(subsidyMonetization)
-                        .monetizationBenefits(monetizationBenefits)
-                        .paid(summaPaidMonth)
-                        .debtAtFinalizingPeriod(debt)
-                        .finalizingPeriod(to)
-                        .build();
+                BodyDebt body = new BodyDebt(from, debtAtBeginningPeriod, rate, summaAccrualsMonth,
+                        recalculationForServicesNotReceived, subsidyMonetization, monetizationBenefits,
+                        summaPaidMonth, debt, to);
                 log.info(messageExit(methodName));
                 return new DebtDetails(header, List.of(body));
             }
@@ -520,25 +506,18 @@ public class PaymentService implements IPaymentService {
                 log.info("Сумма платёжек за циклический месяц = " + summaPaid);
                 Double summaAccrued = formatDoubleValue(rateDAO.findByDate(from).getValue() * totalAreaRoom);
                 log.info("Начисленная сумма за оплату услуг за месяц = " + summaAccrued);
-                Double debt = debtAtBeginningPeriod + summaAccrued
+                Double debt = formatDoubleValue(debtAtBeginningPeriod + summaAccrued
                         - summaPaid
                         - monetizationBenefits
                         - subsidyMonetization
-                        - recalculationForServicesNotReceived;
+                        - recalculationForServicesNotReceived);
+                Double rateValue = formatDoubleValue(rateDAO.findByDate(from).getValue());
                 log.info(" Месячное сально долга : " + debt);
-                BodyDebt body = BodyDebt
-                        .builder()
-                        .beginningPeriod(from)
-                        .debtAtBeginningPeriod(formatDoubleValue(debtAtBeginningPeriod))
-                        .rate(formatDoubleValue(rateDAO.findByDate(from).getValue()))
-                        .accrued(summaAccrued)
-                        .recalculationForServicesNotReceived(formatDoubleValue(recalculationForServicesNotReceived))
-                        .subsidyMonetization(formatDoubleValue(subsidyMonetization))
-                        .monetizationBenefits(formatDoubleValue(monetizationBenefits))
-                        .paid(summaPaid)
-                        .debtAtFinalizingPeriod(formatDoubleValue(debt))
-                        .finalizingPeriod(to.minusDays(1))
-                        .build();
+                BodyDebt body = new BodyDebt(from, debtAtBeginningPeriod, rateValue, summaAccrued,
+                        formatDoubleValue(recalculationForServicesNotReceived),
+                        formatDoubleValue(subsidyMonetization),
+                        formatDoubleValue(monetizationBenefits),
+                        summaPaid, formatDoubleValue(debt), to.minusDays(1));
                 log.info("Начальная дата  : " + body.getBeginningPeriod()
                         + ", начальный долг : " + body.getDebtAtBeginningPeriod()
                         + ", конечная дата : " + body.getFinalizingPeriod()
@@ -561,13 +540,7 @@ public class PaymentService implements IPaymentService {
     }
 
     private HeaderDebt createHeaderDebt(String bill, Address address, Double totalArea) {
-        return HeaderDebt
-                .builder()
-                .address(address)
-                .bill(bill)
-                .area(formatDoubleValue(totalArea))
-                .currentTime(LocalDateTime.now())
-                .build();
+        return new HeaderDebt(address, bill, formatDoubleValue(totalArea), LocalDateTime.now());
     }
 
     // получить начисленную сумму за весь период

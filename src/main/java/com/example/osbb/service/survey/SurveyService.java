@@ -119,17 +119,15 @@ public class SurveyService implements ISurveyService {
             log.info("Заполнена карта голосования личным участием успешно");
             fillMapVotedAreaFromNull(list, mapVotedArea);
             log.info("Заполнена карта голосования квадратными метрами успешно");
-            ResultSurvey rq = ResultSurvey
-                    .builder()
-                    .processingPercentageOwner(formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)))
-                    .processingPercentageArea(formatDoubleValue(areaVoted * 100 / summaArea))
-                    .ownerVoted(ownerVoted)
-                    .countOwner(countOwner)
-                    .areaVoted(formatDoubleValue(areaVoted))
-                    .summaArea(formatDoubleValue(summaArea))
-                    .mapVotedOwner(mapVotedOwner)
-                    .mapVotedArea(mapVotedArea)
-                    .build();
+            ResultSurvey rq = new ResultSurvey(
+                    formatDoubleValue(((double) ownerVoted * 100 / (double) countOwner)),
+                    ownerVoted,
+                    countOwner,
+                    mapVotedOwner,
+                    formatDoubleValue(areaVoted * 100 / summaArea),
+                    formatDoubleValue(areaVoted),
+                    formatDoubleValue(summaArea),
+                    mapVotedArea);
             log.info(messageSuccessfully);
             log.info(messageExit(methodName));
             return rq;
@@ -275,10 +273,7 @@ public class SurveyService implements ISurveyService {
         if (count != 0) {
             messages.forEach(log::info);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .messages(messages)
-                    .build();
+            return new Response(messages);
         }
         try {
             recordDAO.findAll()

@@ -287,11 +287,7 @@ public class RecordService implements IRecordService {
                     " получены успешно в количестве " + records.size() + " штук";
             log.info(messageResponse);
             log.info(messageExit(methodName));
-            return Response
-                    .builder()
-                    .data(records)
-                    .messages(List.of(messageResponse))
-                    .build();
+            return new Response(records,List.of(messageResponse));
         } catch (Exception error) {
             log.error(ERROR_SERVER);
             log.error(error.getMessage());

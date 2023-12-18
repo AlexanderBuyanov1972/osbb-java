@@ -4,8 +4,8 @@ import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
 import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
-import com.example.osbb.dto.queries.ApartmentHeatSupply;
-import com.example.osbb.dto.response.EntryBalanceHouse;
+import com.example.osbb.dto.ApartmentHeatSupply;
+import com.example.osbb.dto.EntryBalanceHouse;
 import com.example.osbb.dto.response.ErrorResponseMessages;
 import com.example.osbb.dto.response.Response;
 import com.example.osbb.entity.Record;
@@ -208,13 +208,9 @@ public class QueriesService implements IQueriesService {
     }
 
     private ApartmentBillFullNamePhoneNumber createApartmentBillFullNamePhoneNumber(Record record) {
-        return ApartmentBillFullNamePhoneNumber
-                .builder()
-                .apartment(record.getOwnership().getAddress().getApartment())
-                .bill(record.getOwnership().getBill())
-                .phoneNumber(record.getOwner().getPhoneNumber())
-                .fullName(mapOwnerToFullName(record.getOwner()))
-                .build();
+        return new ApartmentBillFullNamePhoneNumber(record.getOwnership().getAddress().getApartment(),
+                record.getOwnership().getBill(), record.getOwner().getPhoneNumber(),
+                mapOwnerToFullName(record.getOwner()));
     }
 
     // ************** help function ************************
