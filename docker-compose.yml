@@ -15,6 +15,18 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
   osbb-java:
     container_name: osbb-java
     image: osbb-java:latest
@@ -43,3 +55,11 @@ services:
 
 volumes:
   db-data:
+  pgadmin-data:
+
+#  Зайдем в браузере на http://localhost:5050 и введем username: admin@admin.com и пароль: root
+#  Host name - postgres-db
+#  Port - 5432
+#  Maintenance database - testes
+#  Username - postgres
+#  Password- root
