@@ -110,6 +110,7 @@ public class QueriesService implements IQueriesService {
 
     }
 
+    // !!! обратить внимание на не целевое мспользование
     @Override
     public Object queryReport_2023_11() {
         String methodName = new Object() {
@@ -118,15 +119,16 @@ public class QueriesService implements IQueriesService {
         try {
             String path = "D:/pdf/queries";
             checkDir(path);
-            String text = "Отчёт о деятельности ОСББ Cвободы - 51 за ноябрь 2023 года";
+            String text = "Звіт ОСББ за зимовий період 2023-2024 роки.";
             Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
             PdfFont font = createFont();
             dateTimeNow(doc, font);
             // старт -------------------------------
             createHeader(text, doc, font);
-            pdfService.createListText(TextsAndLists.report_2023_11, doc, font);
-            pdfService.appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
-            pdfService.bankAccountForPayment(doc, font);
+            pdfService.createListText(TextsAndLists.report_2023_2024_winter, doc, font);
+            pdfService.createAppealListText(TextsAndLists.appealToTheResidentsList, doc, font);
+//            pdfService.appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
+//            pdfService.bankAccountForPayment(doc, font);
             // финиш ----------------------------------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
@@ -138,6 +140,35 @@ public class QueriesService implements IQueriesService {
             return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
     }
+
+//    @Override
+//    public Object queryReport_2023_11() {
+//        String methodName = new Object() {
+//        }.getClass().getEnclosingMethod().getName();
+//        log.info(messageEnter(methodName));
+//        try {
+//            String path = "D:/pdf/queries";
+//            checkDir(path);
+//            String text = "Отчёт о деятельности ОСББ Cвободы - 51 за ноябрь 2023 года";
+//            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
+//            PdfFont font = createFont();
+//            dateTimeNow(doc, font);
+//            // старт -------------------------------
+//            createHeader(text, doc, font);
+//            pdfService.createListText(TextsAndLists.report_2023_11, doc, font);
+//            pdfService.appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
+//            pdfService.bankAccountForPayment(doc, font);
+//            // финиш ----------------------------------
+//            doc.close();
+//            log.info(PRINT_SUCCESSFULLY);
+//            log.info(messageExit(methodName));
+//            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
+//        } catch (Exception error) {
+//            log.error(ERROR_SERVER);
+//            log.error(error.getMessage());
+//            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+//        }
+//    }
 
     @Override
     public Object queryListApartmentBillFullNamePhoneNumber() {

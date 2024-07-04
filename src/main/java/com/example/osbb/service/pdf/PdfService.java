@@ -397,6 +397,12 @@ public class PdfService implements IPdfService {
         }
     }
 
+    @Override
+    public void createAppealListText(List<String> list, Document doc, PdfFont font) {
+        for (String line : list)
+            doc.add(new Paragraph().setFont(font).add(line).setBold().setFontSize(13));
+    }
+
     // *************************** вспомогательные функции ******************************
     // отдельные элементы для конструирования файла pdf
     // шапка для квитанций

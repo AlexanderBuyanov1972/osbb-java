@@ -3,6 +3,8 @@ package com.example.osbb.service.pdf;
 
 import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
 import com.example.osbb.dto.DebtDetails;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.layout.Document;
 
 import java.util.List;
 
@@ -23,4 +25,6 @@ public interface IPdfService {
     public Object printResultSurvey(String title);
 
     public void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list);
+
+    public void createAppealListText(List<String> appealToTheResidentsList, Document doc, PdfFont font);
 }
