@@ -12,8 +12,6 @@ import java.util.List;
 public interface PaymentDAO extends JpaRepository<Payment, Long> {
     List<Payment> findAllByBill(String bill);
 
-    List<Payment> findAllByDescription(String description);
-
     List<Payment> findAllByTypeBill(TypeOfBill typeBill);
 
     List<Payment> findAllPaymentByBillAndDateBetween(
@@ -22,9 +20,4 @@ public interface PaymentDAO extends JpaRepository<Payment, Long> {
             LocalDateTime to
     );
 
-    List<Payment> findAllPaymentByDescriptionAndDateBetween(
-            String description,
-            LocalDateTime from,
-            LocalDateTime to
-    );
 }

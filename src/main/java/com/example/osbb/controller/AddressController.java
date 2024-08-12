@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.ownership.Address;
 import com.example.osbb.service.address.IAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,71 +10,69 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.ADDRESS)
+@RequestMapping(value = ApiPaths.ADDRESS)
 public class AddressController {
 
     @Autowired
     private IAddressService service;
 
-    @Autowired
-    private HelpMethodsForController response;
-
     // -------------- one ----------------
 
     @PostMapping
     public ResponseEntity<?> createAddress(@RequestBody Address address) {
-        return response.returnResponse(service.createAddress(address));
+        return service.createAddress(address);
     }
 
     @PutMapping
     public ResponseEntity<?> updateAddress(@RequestBody Address address) {
-        return response.returnResponse(service.updateAddress(address));
+        return service.updateAddress(address);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getAddress(@PathVariable Long id) {
-        return response.returnResponse(service.getAddress(id));
+        return service.getAddress(id);
     }
+
     @GetMapping()
     public ResponseEntity<?> getAddressStart() {
-        return response.returnResponse(service.getAddressStart());
+        return service.getAddressStart();
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deleteAddress(@PathVariable Long id) {
-        return response.returnResponse(service.deleteAddress(id));
+        return service.deleteAddress(id);
     }
 
     // ------------------- all ---------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllAddress(@RequestBody List<Address> list) {
-        return response.returnResponse(service.createAllAddress(list));
+        return service.createAllAddress(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllAddress(@RequestBody List<Address> list) {
-        return response.returnResponse(service.updateAllAddress(list));
+        return service.updateAllAddress(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllAddress() {
-        return response.returnResponse(service.getAllAddress());
+        return service.getAllAddress();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllAddress() {
-        return response.returnResponse(service.deleteAllAddress());
+        return service.deleteAllAddress();
     }
 
     // ----------- street, house and number apartment ------------
 
-    @GetMapping(ApiConstants.PARAM_STREET + ApiConstants.PARAM_HOUSE + ApiConstants.APARTMENT)
+    @GetMapping(ApiPaths.PARAM_STREET + ApiPaths.PARAM_HOUSE + ApiPaths.APARTMENT)
     public ResponseEntity<?> getAddress(
             @PathVariable String street,
             @PathVariable String house,
             @PathVariable String apartment) {
-        return response.returnResponse(service.getAddress(street, house, apartment));
+        return service.getAddress(street, house, apartment);
     }
 
 

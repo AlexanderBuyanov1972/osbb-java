@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaRepositories
 public interface PhotoDAO extends JpaRepository<Photo, Long> {
-    boolean existsById(long id);
 }

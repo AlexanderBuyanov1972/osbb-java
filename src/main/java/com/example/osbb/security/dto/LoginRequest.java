@@ -4,15 +4,12 @@ import lombok.*;
 
 import java.util.List;
 
-@ToString
-@EqualsAndHashCode
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class LoginRequest {
-    private String email;
+    private String username;
     private String password;
 }
 

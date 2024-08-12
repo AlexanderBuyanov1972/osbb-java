@@ -19,8 +19,5 @@ public interface OwnershipDAO extends JpaRepository<Ownership, Long> {
 
     long countByTypeRoom(TypeOfRoom typeRoom);
 
-    long count();
-
-
 }
 

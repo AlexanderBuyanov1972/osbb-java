@@ -13,10 +13,6 @@ public interface RecordDAO extends JpaRepository<Record, Long> {
                                                                                               String firstName,
                                                                                               String secondName);
 
-    boolean existsByOwnershipAddressApartmentAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(String apartment,
-                                                                                                 String lastName,
-                                                                                                 String firstName,
-                                                                                                 String secondName);
 
     boolean existsByOwnershipBillAndOwnerLastNameAndOwnerFirstNameAndOwnerSecondName(String bill,
                                                                                      String lastName,

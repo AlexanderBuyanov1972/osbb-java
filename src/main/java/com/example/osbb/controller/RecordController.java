@@ -1,9 +1,8 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.Record;
 import com.example.osbb.service.record.IRecordService;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,105 +10,79 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.RECORD)
+@RequestMapping(value = ApiPaths.RECORD)
 public class RecordController {
-    private static final Logger log = Logger.getLogger(RecordController.class);
 
     @Autowired
     private IRecordService service;
-
-    @Autowired
-    private HelpMethodsForController response;
 
     // -------------- one ----------------
 
     @PostMapping
     public ResponseEntity<?> createRecord(@RequestBody Record record) {
-        log.info(messageEnter("createRecord"));
-        return response.returnResponse(service.createRecord(record));
+        return service.createRecord(record);
     }
 
     @PutMapping
     public ResponseEntity<?> updateRecord(@RequestBody Record record) {
-        log.info(messageEnter("updateRecord"));
-        return response.returnResponse(service.updateRecord(record));
+        return service.updateRecord(record);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getRecord(@PathVariable Long id) {
-        log.info(messageEnter("getRecord"));
-        return response.returnResponse(service.getRecord(id));
+        return service.getRecord(id);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deleteRecord(@PathVariable Long id) {
-        log.info(messageEnter("deleteRecord"));
-        return response.returnResponse(service.deleteRecord(id));
+        return service.deleteRecord(id);
     }
 
     // ------------------- all ---------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllRecord(@RequestBody List<Record> list) {
-        log.info(messageEnter("createAllRecord"));
-        return response.returnResponse(service.createAllRecord(list));
+        return service.createAllRecord(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllRecord(@RequestBody List<Record> list) {
-        log.info(messageEnter("updateAllRecord"));
-        return response.returnResponse(service.updateAllRecord(list));
+        return service.updateAllRecord(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllRecord() {
-        log.info(messageEnter("getAllRecord"));
-        return response.returnResponse(service.getAllRecord());
+        return service.getAllRecord();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllRecord() {
-        log.info(messageEnter("deleteAllRecord"));
-        return response.returnResponse(service.deleteAllRecord());
+        return service.deleteAllRecord();
     }
 
     // other ---------------------------
 
-    @GetMapping(ApiConstants.OWNERSHIP + ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.OWNERSHIP + ApiPaths.PARAM_ID)
     public ResponseEntity<?> getRoomAndListClientByOwnershipId(@PathVariable Long id) {
-        log.info(messageEnter("getRoomAndListClientByOwnershipId"));
-        return response.returnResponse(service.getAllRecordByOwnershipId(id));
+        return service.getAllRecordByOwnershipId(id);
     }
 
-    @GetMapping(ApiConstants.OWNER + ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.OWNER + ApiPaths.PARAM_ID)
     public ResponseEntity<?> getClientAndListRoomByOwnerId(@PathVariable Long id) {
-        log.info(messageEnter("getClientAndListRoomByOwnerId"));
-        return response.returnResponse(service.getAllRecordByOwnerId(id));
+        return service.getAllRecordByOwnerId(id);
     }
 
-    @GetMapping(ApiConstants.PARAM_APARTMENT + ApiConstants.PARAM_FULL_NAME)
+    @GetMapping(ApiPaths.PARAM_APARTMENT + ApiPaths.PARAM_FULL_NAME)
     public ResponseEntity<?> getRecordByApartmentAndFullName(
             @PathVariable String apartment,
             @PathVariable String fullName) {
-        log.info(messageEnter("getRecordByApartmentAndFullName"));
-        return response.returnResponse(service.getRecordByApartmentAndFullName(apartment, fullName));
+        return service.getRecordByApartmentAndFullName(apartment, fullName);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_OWNER_ID + ApiConstants.PARAM_OWNERSHIP_ID)
+    @DeleteMapping(ApiPaths.PARAM_OWNER_ID + ApiPaths.PARAM_OWNERSHIP_ID)
     public ResponseEntity<?> deleteRecordByOwnerIdAndOwnershipId(
             @PathVariable Long ownerId,
             @PathVariable Long ownershipId) {
-        log.info(messageEnter("deleteRecordByOwnerIdAndOwnershipId"));
-        return response.returnResponse(service.deleteRecordByOwnerIdAndOwnershipId(ownerId, ownershipId));
+        return service.deleteRecordByOwnerIdAndOwnershipId(ownerId, ownershipId);
     }
-
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
-    }
-
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
-    }
-
-
 }

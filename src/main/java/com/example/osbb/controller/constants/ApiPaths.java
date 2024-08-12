@@ -1,6 +1,6 @@
 package com.example.osbb.controller.constants;
 
-public class ApiConstants {
+public class ApiPaths {
     public static final String URL_SERVER = "http://localhost:9000";
     public static final String ACTUATOR = "/actuator";
     // authentication --------

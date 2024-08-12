@@ -1,7 +1,6 @@
 package com.example.osbb.controller.owner;
 
-import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.owner.Vehicle;
 import com.example.osbb.service.vehicle.IVehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,62 +10,59 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.VEHICLE)
+@RequestMapping(value = ApiPaths.VEHICLE)
 public class VehicleController {
     @Autowired
     private IVehicleService service;
-
-    @Autowired
-    private HelpMethodsForController response;
 
     // -------------- one ----------------
 
     @PostMapping
     public ResponseEntity<?> createVehicle(@RequestBody Vehicle vehicle) {
-        return response.returnResponse(service.createVehicle(vehicle));
+        return service.createVehicle(vehicle);
     }
 
     @PutMapping
     public ResponseEntity<?> updateVehicle(@RequestBody Vehicle vehicle) {
-        return response.returnResponse(service.updateVehicle(vehicle));
+        return service.updateVehicle(vehicle);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getVehicle(@PathVariable Long id) {
-        return response.returnResponse(service.getVehicle(id));
+        return service.getVehicle(id);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deleteVehicle(@PathVariable Long id) {
-        return response.returnResponse(service.deleteVehicle(id));
+        return service.deleteVehicle(id);
     }
 
     // ------------------- all ---------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllVehicle(@RequestBody List<Vehicle> list) {
-        return response.returnResponse(service.createAllVehicle(list));
+        return service.createAllVehicle(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllVehicle(@RequestBody List<Vehicle> list) {
-        return response.returnResponse(service.updateAllVehicle(list));
+        return service.updateAllVehicle(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllVehicle() {
-        return response.returnResponse(service.getAllVehicle());
+        return service.getAllVehicle();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllVehicle() {
-        return response.returnResponse(service.deleteAllVehicle());
+        return service.deleteAllVehicle();
     }
 
     // ----------- get Vehicle By Number Vehicle ------------
 
-    @GetMapping(ApiConstants.REGISTRATION_NUMBER + ApiConstants.PARAM_ID)
-    public ResponseEntity<?> getVehicleByNumberVehicle( @PathVariable String numberVehicle) {
-        return response.returnResponse(service.getVehicleByNumberVehicle(numberVehicle));
+    @GetMapping(ApiPaths.REGISTRATION_NUMBER + ApiPaths.PARAM_ID)
+    public ResponseEntity<?> getVehicleByNumberVehicle(@PathVariable String numberVehicle) {
+        return service.getVehicleByNumberVehicle(numberVehicle);
     }
 }

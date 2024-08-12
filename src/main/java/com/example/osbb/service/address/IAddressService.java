@@ -1,33 +1,35 @@
 package com.example.osbb.service.address;
 
 import com.example.osbb.entity.ownership.Address;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IAddressService {
 
     // ------------------- one -----------------------
-    public Object createAddress(Address address);
+    ResponseEntity<?> createAddress(Address address);
 
-    public Object updateAddress(Address address);
+    ResponseEntity<?> updateAddress(Address address);
 
-    public Object getAddress(Long id);
-    public Object getAddressStart();
+    ResponseEntity<?> getAddress(Long id);
 
-    public Object deleteAddress(Long id);
+    ResponseEntity<?> getAddressStart();
+
+    ResponseEntity<?> deleteAddress(Long id);
 
     // ------------------ all ----------------
 
-    public Object createAllAddress(List<Address> list);
+    ResponseEntity<?> createAllAddress(List<Address> list);
 
-    public Object updateAllAddress(List<Address> list);
+    ResponseEntity<?> updateAllAddress(List<Address> list);
 
-    public Object getAllAddress();
+    ResponseEntity<?> getAllAddress();
 
-    public Object deleteAllAddress();
+    ResponseEntity<?> deleteAllAddress();
 
-     //------------- street, house and apartment ----------------
+    //------------- street, house and apartment ----------------
 
-    public Object getAddress(String street, String house, String apartment);
+    ResponseEntity<?> getAddress(String street, String house, String apartment);
 
 }

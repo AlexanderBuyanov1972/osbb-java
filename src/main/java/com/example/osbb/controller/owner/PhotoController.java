@@ -1,7 +1,6 @@
 package com.example.osbb.controller.owner;
 
-import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.owner.Photo;
 import com.example.osbb.service.photo.IPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,57 +10,54 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.PHOTO)
+@RequestMapping(value = ApiPaths.PHOTO)
 public class PhotoController {
 
     @Autowired
     private IPhotoService service;
 
-    @Autowired
-    private HelpMethodsForController response;
-
     // -------------- one ----------------
 
     @PostMapping
     public ResponseEntity<?> createPhoto(@RequestBody Photo photo) {
-        return response.returnResponse(service.createPhoto(photo));
+        return service.createPhoto(photo);
     }
 
     @PutMapping
     public ResponseEntity<?> updatePhoto(@RequestBody Photo photo) {
-        return response.returnResponse(service.updatePhoto(photo));
+        return service.updatePhoto(photo);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getPhoto(@PathVariable Long id) {
-        return response.returnResponse(service.getPhoto(id));
+        return service.getPhoto(id);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deletePhoto(@PathVariable Long id) {
-        return response.returnResponse(service.deletePhoto(id));
+        return service.deletePhoto(id);
     }
 
     // ------------------- all ---------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllPhoto(@RequestBody List<Photo> list) {
-        return response.returnResponse(service.createAllPhoto(list));
+        return service.createAllPhoto(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllPhoto(@RequestBody List<Photo> list) {
-        return response.returnResponse(service.updateAllPhoto(list));
+        return service.updateAllPhoto(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllPhoto() {
-        return response.returnResponse(service.getAllPhoto());
+        return service.getAllPhoto();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllPhoto() {
-        return response.returnResponse(service.deleteAllPhoto());
+        return service.deleteAllPhoto();
     }
 
 

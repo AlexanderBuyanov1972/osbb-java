@@ -1,36 +1,37 @@
 package com.example.osbb.service.record;
 
 import com.example.osbb.entity.Record;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IRecordService {
     //  one -----------------------------
-    public Object createRecord(Record record);
+    ResponseEntity<?> createRecord(Record record);
 
-    public Object updateRecord(Record record);
+    ResponseEntity<?> updateRecord(Record record);
 
-    public Object getRecord(Long id);
+    ResponseEntity<?> getRecord(Long id);
 
-    public Object deleteRecord(Long id);
+    ResponseEntity<?> deleteRecord(Long id);
 
     // all ----------------------------
 
-    public Object createAllRecord(List<Record> records);
+    ResponseEntity<?> createAllRecord(List<Record> records);
 
-    public Object updateAllRecord(List<Record> records);
+    ResponseEntity<?> updateAllRecord(List<Record> records);
 
-    public Object getAllRecord();
+    ResponseEntity<?> getAllRecord();
 
-    public Object deleteAllRecord();
+    ResponseEntity<?> deleteAllRecord();
 
     // other ---------------------------
 
-    public Object getAllRecordByOwnershipId(Long id);
+    ResponseEntity<?> getAllRecordByOwnershipId(Long id);
 
-    public Object getAllRecordByOwnerId(Long id);
+    ResponseEntity<?> getAllRecordByOwnerId(Long id);
 
-    public Object getRecordByApartmentAndFullName(String apartment, String fullName);
+    ResponseEntity<?> getRecordByApartmentAndFullName(String apartment, String fullName);
 
-    public Object deleteRecordByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId);
+    ResponseEntity<?> deleteRecordByOwnerIdAndOwnershipId(Long ownerId, Long ownershipId);
 }

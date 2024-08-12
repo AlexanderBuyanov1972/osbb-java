@@ -1,30 +1,31 @@
 package com.example.osbb.service.vehicle;
 
 import com.example.osbb.entity.owner.Vehicle;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IVehicleService {
     // ------------------- one -----------------------
-    public Object createVehicle(Vehicle vehicle);
+    ResponseEntity<?> createVehicle(Vehicle vehicle);
 
-    public Object updateVehicle(Vehicle vehicle);
+    ResponseEntity<?> updateVehicle(Vehicle vehicle);
 
-    public Object getVehicle(Long id);
+    ResponseEntity<?> getVehicle(Long id);
 
-    public Object deleteVehicle(Long id);
+    ResponseEntity<?> deleteVehicle(Long id);
 
     // ------------------ all ----------------
 
-    public Object createAllVehicle(List<Vehicle> list);
+    ResponseEntity<?> createAllVehicle(List<Vehicle> list);
 
-    public Object updateAllVehicle(List<Vehicle> list);
+    ResponseEntity<?> updateAllVehicle(List<Vehicle> list);
 
-    public Object getAllVehicle();
+    ResponseEntity<?> getAllVehicle();
 
-    public Object deleteAllVehicle();
+    ResponseEntity<?> deleteAllVehicle();
 
     // ------------- number vehicle ----------------
 
-    public Object getVehicleByNumberVehicle(String numberVehicle);
+    ResponseEntity<?> getVehicleByNumberVehicle(String numberVehicle);
 }

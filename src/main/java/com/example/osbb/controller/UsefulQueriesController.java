@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.service.queries.IQueriesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,38 +9,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = ApiConstants.QUERIES)
+@RequestMapping(value = ApiPaths.QUERIES)
 public class UsefulQueriesController {
 
     @Autowired
-    private IQueriesService iQueriesService;
+    private IQueriesService service;
 
-    @Autowired
-    private HelpMethodsForController response;
     // печатать объявление о новых реквизитах по оплате за услуги ОСББ
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.NEW_BILL)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.NEW_BILL)
     public ResponseEntity<?> queryNewBillForPayServiceOSBB() {
-        return response.returnResponse(iQueriesService.queryNewBillForPayServiceOSBB());
+        return service.queryNewBillForPayServiceOSBB();
     }
 
-    @GetMapping(ApiConstants.APARTMENT + ApiConstants.HEAT_SUPPLY)
+    @GetMapping(ApiPaths.APARTMENT + ApiPaths.HEAT_SUPPLY)
     public ResponseEntity<?> queryListHeatSupplyForApartment() {
-        return response.returnResponse(iQueriesService.queryListHeatSupplyForApartment());
+        return service.queryListHeatSupplyForApartment();
     }
 
-    @GetMapping(ApiConstants.REPORT)
+    @GetMapping(ApiPaths.REPORT)
     public ResponseEntity<?> queryReport_2023_11() {
-        return response.returnResponse(iQueriesService.queryReport_2023_11());
+        return service.queryReport_2023_11();
     }
 
-    @GetMapping(ApiConstants.APARTMENT + ApiConstants.BILL+ ApiConstants.FULL_NAME)
+    @GetMapping(ApiPaths.APARTMENT + ApiPaths.BILL+ ApiPaths.FULL_NAME)
     public ResponseEntity<?> queryListApartmentBillFullNamePhoneNumber() {
-        return response.returnResponse(iQueriesService.queryListApartmentBillFullNamePhoneNumber());
+        return service.queryListApartmentBillFullNamePhoneNumber();
     }
 
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.BALANCE)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.DEBT + ApiPaths.BALANCE)
     public ResponseEntity<?> queryBalanceHouse() {
-        return response.returnResponse(iQueriesService.queryBalanceHouse());
+        return service.queryBalanceHouse();
     }
 
 }

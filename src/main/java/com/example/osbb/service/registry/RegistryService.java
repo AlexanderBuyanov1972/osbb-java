@@ -1,132 +1,90 @@
 package com.example.osbb.service.registry;
 
-import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
 import com.example.osbb.dto.*;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.Response;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.entity.Record;
 import com.example.osbb.enums.TypeOfRoom;
-import com.example.osbb.service.Comparators;
-import com.example.osbb.service.FunctionHelp;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
-
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RegistryService implements IRegistryService {
-    private static final Logger log = Logger.getLogger(RegistryService.class);
-    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private OwnerDAO ownerDAO;
     @Autowired
     private OwnershipDAO ownershipDAO;
     @Autowired
     private RecordDAO recordDAO;
-    @Autowired
-    private FunctionHelp functionHelp;
-    @Autowired
-    private Comparators comparators;
-
 
     @Override
-    public Object getRegistryOwners() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            Map<Long, List<Record>> map = recordDAO.findAll()
-                    .stream()
-                    .collect(Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
-                            Collectors.filtering(s -> s.getOwnership() != null,
-                                    Collectors.groupingBy(s -> s.getOwner().getId(),
-                                            Collectors.toList()))));
-            String messageResponse = "Реестр объектов недвижимости получен успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(map.values(), List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+    public ResponseEntity<?> getRegistryOwners() {
+        Map<Long, List<Record>> map = recordDAO.findAll()
+                .stream()
+                .collect(Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
+                        Collectors.filtering(s -> s.getOwnership() != null,
+                                Collectors.groupingBy(s -> s.getOwner().getId(),
+                                        Collectors.toList()))));
+        String message = "Реестр объектов недвижимости получен успешно";
+        log.info(message);
+        return ResponseEntity.ok(new Response(map.values(), List.of(message)));
     }
 
     @Override
-    public Object getRegistryOwnerships() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            Map<String, List<Record>> map = recordDAO.findAll()
-                    .stream()
-                    .collect(
-                            Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
-                                    Collectors.filtering(s -> s.getOwnership() != null,
-                                            Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
-                                                    Collectors.toList()))));
-            List<List<Record>> lists = map.values().stream().sorted(comparators.comparatorRecordByApartment()).toList();
-            String messageResponse = "Реестр собственников получен успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(lists, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+    public ResponseEntity<?> getRegistryOwnerships() {
+        Map<String, List<Record>> map = recordDAO.findAll()
+                .stream()
+                .collect(
+                        Collectors.filtering(s -> s.getOwner() != null && s.getOwner().isActive(),
+                                Collectors.filtering(s -> s.getOwnership() != null,
+                                        Collectors.groupingBy(s -> s.getOwnership().getAddress().getApartment(),
+                                                Collectors.toList()))));
+        List<List<Record>> lists = map.values().stream().sorted(comparatorRecordByApartment()).toList();
+        String message = "Реестр собственников получен успешно";
+        log.info(message);
+        return ResponseEntity.ok(new Response(lists, List.of(message)));
     }
 
     @Override
-    public Object getBuildingCharacteristics() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> getBuildingCharacteristics() {
+        BuildingCharacteristics bc = new BuildingCharacteristics(
+                ownerDAO.count(),
+                ownershipDAO.count(),
+                ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT),
+                ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM),
 
-        try {
-            BuildingCharacteristics bc = new BuildingCharacteristics(
-                    ownerDAO.count(),
-                    ownershipDAO.count(),
-                    ownershipDAO.countByTypeRoom(TypeOfRoom.APARTMENT),
-                    ownershipDAO.countByTypeRoom(TypeOfRoom.NON_RESIDENTIAL_ROOM),
-                    
-                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()),
-                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
-                            .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                            .mapToDouble(Ownership::getTotalArea).sum()),
-                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
-                            .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
-                            .mapToDouble(Ownership::getLivingArea).sum()),
-                    functionHelp.formatDoubleValue(ownershipDAO.findAll().stream()
-                            .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
-                            .mapToDouble(Ownership::getTotalArea).sum()),
-                    AddressDto.getAddressDto());
-            String messageResponse = "Характеристики здания получены успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(bc, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
-        }
+                formatDoubleValue(ownershipDAO.findAll().stream().mapToDouble(Ownership::getTotalArea).sum()),
+                formatDoubleValue(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
+                        .mapToDouble(Ownership::getTotalArea).sum()),
+                formatDoubleValue(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.APARTMENT))
+                        .mapToDouble(Ownership::getLivingArea).sum()),
+                formatDoubleValue(ownershipDAO.findAll().stream()
+                        .filter(x -> x.getTypeRoom().equals(TypeOfRoom.NON_RESIDENTIAL_ROOM))
+                        .mapToDouble(Ownership::getTotalArea).sum()),
+                AddressDto.getAddressDto());
+        String message = "Характеристики здания получены успешно";
+        log.info(message);
+        return ResponseEntity.ok(new Response(bc, List.of(message)));
     }
 
-
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
+    public Comparator<List<Record>> comparatorRecordByApartment() {
+        return (a, b) -> Integer.parseInt(a.get(0).getOwnership().getAddress().getApartment())
+                - Integer.parseInt(b.get(0).getOwnership().getAddress().getApartment());
     }
 
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
+    public Double formatDoubleValue(Double var) {
+        return Math.rint(100.0 * var) / 100.0;
     }
-
 }

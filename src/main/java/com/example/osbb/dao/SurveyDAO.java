@@ -43,5 +43,4 @@ public interface SurveyDAO extends JpaRepository<Survey, Long> {
     // --------------- three ---------------------
     List<Survey> findByTitleAndFullNameAndApartment(String title, String fullName, String apartment);
 
-    List<Survey> findByTitleAndFullNameAndDateReceiving(String title, String fullName, LocalDate dateReceiving);
-}
+    }

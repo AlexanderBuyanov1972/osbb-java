@@ -1,26 +1,27 @@
 package com.example.osbb.service.photo;
 
 import com.example.osbb.entity.owner.Photo;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IPhotoService {
     // ------------------- one -----------------------
-    public Object createPhoto(Photo photo);
+    ResponseEntity<?> createPhoto(Photo photo);
 
-    public Object updatePhoto(Photo photo);
+    ResponseEntity<?> updatePhoto(Photo photo);
 
-    public Object getPhoto(Long id);
+    ResponseEntity<?> getPhoto(Long id);
 
-    public Object deletePhoto(Long id);
+    ResponseEntity<?> deletePhoto(Long id);
 
     // ------------------ all ----------------
 
-    public Object createAllPhoto(List<Photo> photos);
+    ResponseEntity<?> createAllPhoto(List<Photo> photos);
 
-    public Object updateAllPhoto(List<Photo> photos);
+    ResponseEntity<?> updateAllPhoto(List<Photo> photos);
 
-    public Object getAllPhoto();
+    ResponseEntity<?> getAllPhoto();
 
-    public Object deleteAllPhoto();
+    ResponseEntity<?> deleteAllPhoto();
 }

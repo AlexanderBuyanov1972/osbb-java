@@ -3,63 +3,64 @@ package com.example.osbb.service.payment;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.EntryBalanceHouse;
 import com.example.osbb.entity.Payment;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IPaymentService {
     // one -----------------------
-    public Object createPayment(Payment payment);
+    ResponseEntity<?> createPayment(Payment payment);
 
-    public Object getPayment(Long id);
+    ResponseEntity<?> getPayment(Long id);
 
-    public Object deletePayment(Long id);
+    ResponseEntity<?> deletePayment(Long id);
 
     // all -----------------------
 
-    public Object createAllPayment(List<Payment> payments);
+    ResponseEntity<?> createAllPayment(List<Payment> payments);
 
-    public Object getAllPayment();
+    ResponseEntity<?> getAllPayment();
 
-    public Object deleteAllPayment();
+    ResponseEntity<?> deleteAllPayment();
 
     // select ------------------------
 
-    public Object getAllPaymentByBill(String bill);
+    ResponseEntity<?> getAllPaymentByBill(String bill);
 
 
-    public Object getAllPaymentByBillAndDateBetween(
+    ResponseEntity<?> getAllPaymentByBillAndDateBetween(
             String bill,
             LocalDateTime from,
             LocalDateTime to
     );
 
     // summa -------------------------
-    public Object getBalanceAllPayment();
+    ResponseEntity<?> getBalanceAllPayment();
 
-    public Object getBalanceHouse();
-
-
-    public Object getSummaAllPaymentByBill(String bill);
+    ResponseEntity<?> getBalanceHouse();
 
 
-    public Object getSummaAllPaymentByBillAndDateBetween(
+    ResponseEntity<?> getSummaAllPaymentByBill(String bill);
+
+
+    ResponseEntity<?> getSummaAllPaymentByBillAndDateBetween(
             String bill,
             LocalDateTime from,
             LocalDateTime to);
 
     // summa ------------------------------------
     // get invoice notification by ID --------
-    public Object getDebtById(Long id);
+    ResponseEntity<?> getDebtById(Long id);
 
     // get invoice notification by ID and last month --------
-    public Object getDetailsDebtById(Long id);
+    ResponseEntity<?> getDetailsDebtById(Long id);
 
-    public DebtDetails getDebtByBill(String bill);
+    DebtDetails getDebtByBill(String bill);
 
-    public DebtDetails getDetailsDebtByBill(String bill);
+    DebtDetails getDetailsDebtByBill(String bill);
 
-    public List<EntryBalanceHouse> getListEntryBalanceHouse();
+    List<EntryBalanceHouse> getListEntryBalanceHouse();
 
 
 }

@@ -1,27 +1,28 @@
 package com.example.osbb.service.placework;
 
 import com.example.osbb.entity.owner.PlaceWork;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IPlaceWorkService {
 
     // ----- one -----
-    Object createPlaceWork(PlaceWork placeWork);
+    ResponseEntity<?> createPlaceWork(PlaceWork placeWork);
 
-    Object updatePlaceWork(PlaceWork placeWork);
+    ResponseEntity<?> updatePlaceWork(PlaceWork placeWork);
 
-    Object getPlaceWork(Long id);
+    ResponseEntity<?> getPlaceWork(Long id);
 
-    Object deletePlaceWork(Long id);
+    ResponseEntity<?> deletePlaceWork(Long id);
 
     // ----- all -----
 
-    Object createAllPlaceWork(List<PlaceWork> list);
+    ResponseEntity<?> createAllPlaceWork(List<PlaceWork> list);
 
-    Object updateAllPlaceWork(List<PlaceWork> list);
+    ResponseEntity<?> updateAllPlaceWork(List<PlaceWork> list);
 
-    Object getAllPlaceWork();
+    ResponseEntity<?> getAllPlaceWork();
 
-    Object deleteAllPlaceWork();
+    ResponseEntity<?> deleteAllPlaceWork();
 }

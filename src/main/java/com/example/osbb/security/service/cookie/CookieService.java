@@ -1,32 +1,29 @@
-package com.example.osbb.service;
+package com.example.osbb.security.service.cookie;
 
 import jakarta.servlet.http.Cookie;
-import org.apache.log4j.Logger;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
+@Slf4j
 @Service
-public class CookieService {
-    private static final Logger log = Logger.getLogger(CookieService.class);
+public class CookieService implements ICookieService {
+
     @Value("#{T(Integer).parseInt('${age.max.cookie}')}")
     private int ageMaxCookie;
 
+    @Override
     public Cookie addCookie(String name, String value) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(messageEnter(methodName)));
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(ageMaxCookie);
-        log.info("cookie : " + cookie.toString());
-        log.info(messageExit(methodName));
+        log.info("cookie : {} ", cookie.toString());
         return cookie;
     }
 
+    @Override
     public Cookie getCookie(String name, HttpServletRequest request) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
         Cookie cookie = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -38,16 +35,8 @@ public class CookieService {
             }
         }
         assert cookie != null;
-        log.info("cookie : " + cookie.toString());
-        log.info(messageExit(methodName));
+        log.info("cookie : {} ", cookie.toString());
         return cookie;
     }
 
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
-    }
-
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
-    }
 }

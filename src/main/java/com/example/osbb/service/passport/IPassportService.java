@@ -1,33 +1,34 @@
 package com.example.osbb.service.passport;
 
 import com.example.osbb.entity.owner.Passport;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IPassportService {
 
     // ------------------- one -----------------------
-    public Object createPassport(Passport passport);
+    ResponseEntity<?> createPassport(Passport passport);
 
-    public Object updatePassport(Passport passport);
+    ResponseEntity<?> updatePassport(Passport passport);
 
-    public Object getPassport(Long id);
+    ResponseEntity<?> getPassport(Long id);
 
-    public Object deletePassport(Long id);
+    ResponseEntity<?> deletePassport(Long id);
 
     // ------------------ all ----------------
 
-    public Object createAllPassport(List<Passport> list);
+    ResponseEntity<?> createAllPassport(List<Passport> list);
 
-    public Object updateAllPassport(List<Passport> list);
+    ResponseEntity<?> updateAllPassport(List<Passport> list);
 
-    public Object getAllPassport();
+    ResponseEntity<?> getAllPassport();
 
-    public Object deleteAllPassport();
+    ResponseEntity<?> deleteAllPassport();
 
     // ------------- street, house and apartment ----------------
 
-    public Object findByRegistrationNumberCardPayerTaxes(String number);
+    ResponseEntity<?> findByRegistrationNumberCardPayerTaxes(String number);
 
 
 }

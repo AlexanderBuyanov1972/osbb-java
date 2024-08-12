@@ -1,19 +1,16 @@
 package com.example.osbb.security.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.example.osbb.enums.TypoOfRoles;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @Builder
-@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "id"),
@@ -35,14 +32,17 @@ public class User {
     private String activationLink;
     @Column(name = "activated")
     private boolean activated;
-    @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TypoOfRoles role;
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 
 }

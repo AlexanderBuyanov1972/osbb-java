@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.service.registry.IRegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,30 +10,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(ApiConstants.REGISTRY)
+@RequestMapping(ApiPaths.REGISTRY)
 public class RegistryController {
     @Autowired
-    IRegistryService iRegistryService;
+    IRegistryService service;
 
     @Autowired
     OwnershipDAO ownershipDAO;
 
-    @Autowired
-    HelpMethodsForController response;
-
-    @GetMapping(ApiConstants.OWNER)
+    @GetMapping(ApiPaths.OWNER)
     ResponseEntity<?> getRegistryOwners() {
-        return response.returnResponse(iRegistryService.getRegistryOwners());
+        return service.getRegistryOwners();
     }
 
-    @GetMapping(ApiConstants.OWNERSHIP)
+    @GetMapping(ApiPaths.OWNERSHIP)
     ResponseEntity<?> getRegistryOwnerships() {
-        return response.returnResponse(iRegistryService.getRegistryOwnerships());
+        return service.getRegistryOwnerships();
     }
 
-    @GetMapping(ApiConstants.CHARACTERISTICS)
+    @GetMapping(ApiPaths.CHARACTERISTICS)
     ResponseEntity<?> getBuildingCharacteristics() {
-        return response.returnResponse(iRegistryService.getBuildingCharacteristics());
+        return service.getBuildingCharacteristics();
     }
 
 }

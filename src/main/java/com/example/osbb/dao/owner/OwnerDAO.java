@@ -9,23 +9,11 @@ import java.time.LocalDate;
 @EnableJpaRepositories
 public interface OwnerDAO extends JpaRepository<Owner, Long> {
 
-    long count();
-
     Owner findByLastNameAndFirstNameAndSecondName(
             String lastName,
             String firstName,
             String secondName);
 
-    boolean existsByLastNameAndFirstNameAndSecondName(
-            String lastName,
-            String firstName,
-            String secondName);
-
-    Owner findByLastNameAndFirstNameAndSecondNameAndDateBirth(
-            String lastName,
-            String firstName,
-            String secondName,
-            LocalDate dateBirth);
 
     boolean existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
             String lastName,

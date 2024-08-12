@@ -1,13 +1,11 @@
 package com.example.osbb.service.queries;
 
-import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dao.RecordDAO;
 import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
 import com.example.osbb.dto.ApartmentHeatSupply;
 import com.example.osbb.dto.EntryBalanceHouse;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.Response;
 import com.example.osbb.entity.Record;
 import com.example.osbb.entity.owner.Owner;
 import com.example.osbb.service.payment.IPaymentService;
@@ -22,9 +20,10 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.property.TextAlignment;
-import org.apache.log4j.Logger;
+import com.itextpdf.layout.properties.TextAlignment;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -37,10 +36,10 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Slf4j
 @Service
 public class QueriesService implements IQueriesService {
-    private static final Logger log = Logger.getLogger(PdfService.class);
-    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
+
     private final String PRINT_SUCCESSFULLY = "Все PDF файлы напечатаны успешно, смотрите в папке D:/pdf";
     @Autowired
     private OwnershipDAO ownershipDAO;
@@ -55,11 +54,8 @@ public class QueriesService implements IQueriesService {
 
     // печатать объявление о новых реквизитах по оплате за услуги ОСББ
     @Override
-    public Object queryNewBillForPayServiceOSBB() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
+    public ResponseEntity<?> queryNewBillForPayServiceOSBB() {
         try {
-            log.info(messageEnter(methodName));
             String path = "D:/pdf/queries";
             checkDir(path);
             String text = "Платёжные реквизиты ОСББ";
@@ -70,20 +66,15 @@ public class QueriesService implements IQueriesService {
             pdfService.numberPhoneEmergencyService(doc, font);
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
+            return ResponseEntity.ok(new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
     @Override
-    public Object queryListHeatSupplyForApartment() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> queryListHeatSupplyForApartment() {
         try {
             String path = "D:/pdf/queries";
             checkDir(path);
@@ -100,22 +91,16 @@ public class QueriesService implements IQueriesService {
             // финиш ---------------------------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.ok(new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries")));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            return ResponseEntity.badRequest().body(List.of(exception.getMessage()));
         }
-
     }
 
     // !!! обратить внимание на не целевое мспользование
     @Override
-    public Object queryReport_2023_11() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> queryReport_2023_11() {
         try {
             String path = "D:/pdf/queries";
             checkDir(path);
@@ -132,70 +117,26 @@ public class QueriesService implements IQueriesService {
             // финиш ----------------------------------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
-    }
-
-//    @Override
-//    public Object queryReport_2023_11() {
-//        String methodName = new Object() {
-//        }.getClass().getEnclosingMethod().getName();
-//        log.info(messageEnter(methodName));
-//        try {
-//            String path = "D:/pdf/queries";
-//            checkDir(path);
-//            String text = "Отчёт о деятельности ОСББ Cвободы - 51 за ноябрь 2023 года";
-//            Document doc = new Document(new PdfDocument(new PdfWriter(path + "/" + text + ".pdf")));
-//            PdfFont font = createFont();
-//            dateTimeNow(doc, font);
-//            // старт -------------------------------
-//            createHeader(text, doc, font);
-//            pdfService.createListText(TextsAndLists.report_2023_11, doc, font);
-//            pdfService.appealToTheResidentsOfTheHouse(TextsAndLists.appealToTheResidents, doc, font);
-//            pdfService.bankAccountForPayment(doc, font);
-//            // финиш ----------------------------------
-//            doc.close();
-//            log.info(PRINT_SUCCESSFULLY);
-//            log.info(messageExit(methodName));
-//            return new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries"));
-//        } catch (Exception error) {
-//            log.error(ERROR_SERVER);
-//            log.error(error.getMessage());
-//            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-//        }
-//    }
-
-    @Override
-    public Object queryListApartmentBillFullNamePhoneNumber() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            List<ApartmentBillFullNamePhoneNumber> listForPrint = new ArrayList<>();
-            recordDAO.findAll().forEach(s -> listForPrint.add(createApartmentBillFullNamePhoneNumber(s)));
-            List<ApartmentBillFullNamePhoneNumber> result = listForPrint.stream().sorted(comparatorApartment()).toList();
-            result.forEach(System.out::println);
-            iPdfService.printQueryListApartmentBillFullNamePhoneNumber(result);
-            log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of("Список собственников дома", PRINT_SUCCESSFULLY + "/queries"));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.ok(new Response(List.of(text, PRINT_SUCCESSFULLY + "/queries")));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            return ResponseEntity.badRequest().body(List.of(exception.getMessage()));
         }
     }
 
     @Override
-    public Object queryBalanceHouse() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> queryListApartmentBillFullNamePhoneNumber() {
+        List<ApartmentBillFullNamePhoneNumber> listForPrint = new ArrayList<>();
+        recordDAO.findAll().forEach(s -> listForPrint.add(createApartmentBillFullNamePhoneNumber(s)));
+        List<ApartmentBillFullNamePhoneNumber> result = listForPrint.stream().sorted(comparatorApartment()).toList();
+        result.forEach(System.out::println);
+        iPdfService.printQueryListApartmentBillFullNamePhoneNumber(result);
+        log.info(PRINT_SUCCESSFULLY);
+        return ResponseEntity.ok(new Response(List.of("Список собственников дома", PRINT_SUCCESSFULLY + "/queries")));
+    }
+
+    @Override
+    public ResponseEntity<?> queryBalanceHouse() {
         try {
             List<EntryBalanceHouse> list = iPaymentService.getListEntryBalanceHouse();
 //            Double summa = formatDoubleValue(list.stream()
@@ -219,23 +160,20 @@ public class QueriesService implements IQueriesService {
             log.info("Заполняем строки таблицы");
             list.forEach(
                     el -> {
-                        for (String s : List.of(el.getApartment(), el.getBill(), el.getSumma().toString()))
-                            table.addCell(new Cell().add(s).setTextAlignment(TextAlignment.CENTER)
+                        for (String line : List.of(el.getApartment(), el.getBill(), el.getSumma().toString()))
+                            table.addCell(new Cell().add(new Paragraph(line)).setTextAlignment(TextAlignment.CENTER)
                                     .setFont(font).setFontSize(9));
                     }
             );
             doc.add(table);
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of("Задолженность по оплате за услуги ОСББ по помещениям",
-                    PRINT_SUCCESSFULLY + "/balance"));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.ok(new Response(List.of("Задолженность по оплате за услуги ОСББ по помещениям",
+                    PRINT_SUCCESSFULLY + "/balance")));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            return ResponseEntity.badRequest().body(List.of(exception.getMessage()));
         }
-
     }
 
     private ApartmentBillFullNamePhoneNumber createApartmentBillFullNamePhoneNumber(Record record) {
@@ -252,22 +190,16 @@ public class QueriesService implements IQueriesService {
     }
 
     private PdfFont createFont() {
-        String methodName = "createFont";
-        log.info(messageEnter(methodName));
         try {
-            return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251", true);
+            return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251");
         } catch (IOException error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
     }
 
     private void checkDir(String str) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
         try {
-            log.info(messageEnter(methodName));
             String[] lines = str.split("/");
             String path = lines[0];
             for (int i = 1; i < lines.length; i++) {
@@ -276,9 +208,7 @@ public class QueriesService implements IQueriesService {
                 if (!folder.exists())
                     folder.mkdir();
             }
-            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -291,7 +221,7 @@ public class QueriesService implements IQueriesService {
 
     private void createHeaderTable(List<String> list, Table table, Document doc, PdfFont font) {
         for (String line : list)
-            table.addCell(new Cell().add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            table.addCell(new Cell().add(new Paragraph(line)).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font));
     }
 
 
@@ -306,7 +236,7 @@ public class QueriesService implements IQueriesService {
         list.forEach(
                 el -> {
                     for (String line : List.of(el.getApartment(), el.getHeatSupply()))
-                        table.addCell(new Cell().add(line).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9));
+                        table.addCell(new Cell().add(new Paragraph(line)).setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9));
                 }
         );
         doc.add(table);
@@ -340,14 +270,5 @@ public class QueriesService implements IQueriesService {
     private Comparator<ApartmentBillFullNamePhoneNumber> comparatorApartment() {
         return (a, b) -> Integer.parseInt(a.getApartment()) - Integer.parseInt(b.getApartment());
 
-    }
-
-    // log services ----------------------
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
-    }
-
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
     }
 }

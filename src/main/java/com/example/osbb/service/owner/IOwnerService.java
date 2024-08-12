@@ -1,36 +1,37 @@
 package com.example.osbb.service.owner;
 
 import com.example.osbb.entity.owner.Owner;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IOwnerService {
 
     // one
-    public Object createOwner(Owner owner);
+    ResponseEntity<?> createOwner(Owner owner);
 
-    public Object updateOwner(Owner owner);
+    ResponseEntity<?> updateOwner(Owner owner);
 
 
-    public Object getOwner(Long id);
+    ResponseEntity<?> getOwner(Long id);
 
-    public Object deleteOwner(Long id);
+    ResponseEntity<?> deleteOwner(Long id);
 
     // all
 
-    public Object createAllOwner(List<Owner> owners);
+    ResponseEntity<?> createAllOwner(List<Owner> owners);
 
-    public Object updateAllOwner(List<Owner> owners);
+    ResponseEntity<?> updateAllOwner(List<Owner> owners);
 
-    public Object getAllOwner();
+    ResponseEntity<?> getAllOwner();
 
-    public Object deleteAllOwner();
+    ResponseEntity<?> deleteAllOwner();
 
     // count
-    public Object countOwners();
+    ResponseEntity<?> countOwners();
 
     // get owner by full name
-    public Object getOwnerByFullName(String fullName);
+    ResponseEntity<?> getOwnerByFullName(String fullName);
 
 
 }

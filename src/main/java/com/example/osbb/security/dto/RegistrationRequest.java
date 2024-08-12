@@ -2,16 +2,15 @@ package com.example.osbb.security.dto;
 
 import lombok.*;
 
-@ToString
-@EqualsAndHashCode
+import java.util.List;
+
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class RegistrationRequest {
     private String username;
     private String email;
     private String password;
-    private String role;
+    private List<String> roles;
 }

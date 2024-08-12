@@ -1,35 +1,37 @@
 package com.example.osbb.service.survey;
 
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDate;
 
 public interface ISelectSurveyService {
     // ------------- selects ------------
-    public Object selectAllSurveyByTitle(String title);
-    public Object selectAllTitles();
+    ResponseEntity<?> selectAllSurveyByTitle(String title);
+    ResponseEntity<?> selectAllTitles();
 
-    public Object selectAllSurveyByQuestion(String question);
+    ResponseEntity<?> selectAllSurveyByQuestion(String question);
 
-    public Object selectAllSurveyByFullName(String fullName);
+    ResponseEntity<?> selectAllSurveyByFullName(String fullName);
 
-    public Object selectAllSurveyByApartment(String apartment);
+    ResponseEntity<?> selectAllSurveyByApartment(String apartment);
 
-    public Object selectAllSurveyByTitleAndQuestion(String title, String question);
+    ResponseEntity<?> selectAllSurveyByTitleAndQuestion(String title, String question);
 
-    public Object selectAllSurveyByTitleAndId(String title, Long id);
+    ResponseEntity<?> selectAllSurveyByTitleAndId(String title, Long id);
 
-    public Object selectAllSurveyByTitleAndFullName(String title, String fullName);
+    ResponseEntity<?> selectAllSurveyByTitleAndFullName(String title, String fullName);
 
-    public Object selectAllSurveyByTitleAndFullNameAndApartment(String title, String fullName, String apartment);
+    ResponseEntity<?> selectAllSurveyByTitleAndFullNameAndApartment(String title, String fullName, String apartment);
 
-    public Object selectAllSurveyByFullNameAndApartment(String fullName, String apartment);
+    ResponseEntity<?> selectAllSurveyByFullNameAndApartment(String fullName, String apartment);
 
-    public Object selectAllSurveyByDateDispatch(LocalDate dateDispatch);
+    ResponseEntity<?> selectAllSurveyByDateDispatch(LocalDate dateDispatch);
 
-    public Object selectAllSurveyByDateReceiving(LocalDate dateReceiving);
+    ResponseEntity<?> selectAllSurveyByDateReceiving(LocalDate dateReceiving);
 
-    public Object selectAllSurveyByTitleAndDateDispatch(String title, LocalDate dateDispatch);
+    ResponseEntity<?> selectAllSurveyByTitleAndDateDispatch(String title, LocalDate dateDispatch);
 
-    public Object selectAllSurveyByTitleAndDateReceiving(String title, LocalDate dateReceiving);
+    ResponseEntity<?> selectAllSurveyByTitleAndDateReceiving(String title, LocalDate dateReceiving);
 
 
 

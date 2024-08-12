@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.Rate;
 import com.example.osbb.service.rate.IRateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,57 +10,54 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.RATE)
+@RequestMapping(value = ApiPaths.RATE)
 public class RateController {
 
     @Autowired
     private IRateService service;
 
-    @Autowired
-    private HelpMethodsForController response;
-
     // one -----------------------------------------------
 
     @PostMapping
     public ResponseEntity<?> createRate(@RequestBody Rate rate) {
-        return response.returnResponse(service.createRate(rate));
+        return service.createRate(rate);
     }
 
     @PutMapping
     public ResponseEntity<?> updateRate(@RequestBody Rate rate) {
-        return response.returnResponse(service.updateRate(rate));
+        return service.updateRate(rate);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getRate(@PathVariable Long id) {
-        return response.returnResponse(service.getRate(id));
+        return service.getRate(id);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deleteRate(@PathVariable Long id) {
-        return response.returnResponse(service.deleteRate(id));
+        return service.deleteRate(id);
     }
 
     // all -----------------------------------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllRate(@RequestBody List<Rate> list) {
-        return response.returnResponse(service.createAllRate(list));
+        return service.createAllRate(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllRate(@RequestBody List<Rate> list) {
-        return response.returnResponse(service.updateAllRate(list));
+        return service.updateAllRate(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllRate() {
-        return response.returnResponse(service.getAllRate());
+        return service.getAllRate();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllRate() {
-        return response.returnResponse(service.deleteAllRate());
+        return service.deleteAllRate();
     }
 
 }

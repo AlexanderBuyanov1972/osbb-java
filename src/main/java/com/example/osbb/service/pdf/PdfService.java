@@ -1,28 +1,27 @@
 package com.example.osbb.service.pdf;
 
-import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.OwnershipDAO;
 import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.dto.HeaderDebt;
 import com.example.osbb.dto.ResultSurvey;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.Response;
 import com.example.osbb.entity.ownership.Ownership;
 import com.example.osbb.enums.TypeOfAnswer;
 import com.example.osbb.service.payment.IPaymentService;
 import com.example.osbb.service.survey.ISurveyService;
-import com.itextpdf.kernel.color.Color;
-import com.itextpdf.kernel.color.DeviceRgb;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
-import com.itextpdf.layout.property.TextAlignment;
-import org.apache.log4j.Logger;
+import com.itextpdf.layout.properties.TextAlignment;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -32,12 +31,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
+@Slf4j
 @Service
 public class PdfService implements IPdfService {
-    private static final Logger log = Logger.getLogger(PdfService.class);
-    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
+
     private final String PRINT_SUCCESSFULLY = "Все PDF файлы напечатаны успешно, смотрите в папке D:/pdf";
     @Autowired
     IPaymentService iPaymentService;
@@ -48,37 +46,21 @@ public class PdfService implements IPdfService {
 
     // debt -----------------------------------------------------------------------------------------------
     // печатать задолженность за последний календарный месяц по номеру помещения в pdf файл
-//    @Override
-//    public Object printDebt(DebtDetails in) {
-//        String methodName = new Object() {
-//        }.getClass().getEnclosingMethod().getName();
-//        log.info(messageEnter(methodName));
-//        try {
-//            printPdfFile(in);
-//            log.info(PRINT_SUCCESSFULLY);
-//            log.info(messageExit(methodName));
-//            return new Response(List.of(PRINT_SUCCESSFULLY + "/payments"));
-//        } catch (Exception error) {
-//            log.error(ERROR_SERVER);
-//            log.error(error.getMessage());
-//            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-//        }
-//    }
     @Override
-    public Object printDebt(DebtDetails in) {
+    public ResponseEntity<?> printDebt(DebtDetails in) {
         try {
             printPdfFile(in);
-            return new Response(List.of(PRINT_SUCCESSFULLY + "/payments"));
-        } catch (Exception error) {
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.ok(new Response(List.of(PRINT_SUCCESSFULLY + "/payments")));
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            return ResponseEntity.badRequest().body(List.of(exception.getMessage()));
         }
+
     }
+
     // формирование объекта задолженности
     private void writeOnePdfObject(DebtDetails in, Document doc) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
         try {
-            log.info(messageEnter(methodName));
             PdfFont font = createFont();
             // заголовок -----------------------
             createHeader("Счёт-уведомление по оплате за услуги по управлению ОСББ", doc, font);
@@ -104,12 +86,10 @@ public class PdfService implements IPdfService {
             );
 
             for (String line : listCellTwo)
-                table.addCell(new Cell().add(line).setTextAlignment(TextAlignment.CENTER).setFont(font));
+                table.addCell(new Cell().add(new Paragraph(line)).setTextAlignment(TextAlignment.CENTER).setFont(font));
 
             doc.add(table);
-            log.info(messageExit(methodName));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -118,22 +98,17 @@ public class PdfService implements IPdfService {
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в pdf файл каждый отдельно
     @Override
-    public Object printAllDebt() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> printAllDebt() {
         try {
             ownershipDAO.findAll()
                     .stream()
                     .map(el -> iPaymentService.getDebtByBill(
                             el.getBill()))
                     .forEach(this::printPdfFile);
-            log.info(messageExit(methodName));
-            return new Response(List.of(PRINT_SUCCESSFULLY + "/payments"));
+            return ResponseEntity.ok(new Response(List.of(PRINT_SUCCESSFULLY + "/payments")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
@@ -146,7 +121,6 @@ public class PdfService implements IPdfService {
             writeOnePdfObject(in, doc);
             doc.close();
         } catch (FileNotFoundException error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -154,10 +128,7 @@ public class PdfService implements IPdfService {
 
     // печатать задолженности за последний календарный месяц по всем номерам помещений в один pdf файл
     @Override
-    public Object printAllInOneDebtAllApartment() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> printAllInOneDebtAllApartment() {
         try {
             String path = "D:/pdf/allInOne";
             checkDir(path);
@@ -175,66 +146,50 @@ public class PdfService implements IPdfService {
                     });
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(PRINT_SUCCESSFULLY + "/allInOne"));
+            return ResponseEntity.ok(new Response(List.of(PRINT_SUCCESSFULLY + "/allInOne")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
     // debt details -------------------------------------------------------------------------------------------
     // печатать по номеру помещения детализированный долг от начальной точки до текущего месяца один pdf файл
     @Override
-    public Object printDebtDetails(Long id) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> printDebtDetails(Long id) {
         try {
             Ownership ownership = ownershipDAO.findById(id).orElse(null);
             if (ownership == null) {
-                String messageResponse = "Помещение с ID : " + id + " не найдено," +
+                String message = "Помещение с ID : " + id + " не найдено," +
                         " распечатать детализированный долг не представляется возможным";
-                log.info(messageResponse);
-                log.info(messageExit(methodName));
-                return new Response(List.of(messageResponse));
+                log.info(message);
+                return ResponseEntity.badRequest().body(new Response(List.of(message)));
             }
             DebtDetails dd = iPaymentService.getDetailsDebtByBill(ownership.getBill());
             printDetailsFile(dd);
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(PRINT_SUCCESSFULLY + "/payments_details"));
+            return ResponseEntity.ok(new Response(List.of(PRINT_SUCCESSFULLY + "/payments_details")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
     // печатать детализированный долг от начальной точки до текущего месяца по каждому помещению в отдельный файл
     @Override
-    public Object printAllDebtDetails() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> printAllDebtDetails() {
         try {
             ownershipDAO.findAll().stream().map(el -> iPaymentService.getDetailsDebtByBill(
                     el.getBill())).forEach(this::printDetailsFile);
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(PRINT_SUCCESSFULLY + "/payments_details"));
+            return ResponseEntity.ok(new Response(List.of(PRINT_SUCCESSFULLY + "/payments_details")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
     private void printDetailsFile(DebtDetails details) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
         try {
             String path = "D:/pdf/payments_details";
             checkDir(path);
@@ -244,9 +199,7 @@ public class PdfService implements IPdfService {
             writeOnePdfObjectDetails(details, doc);
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
         } catch (IOException error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
@@ -255,10 +208,7 @@ public class PdfService implements IPdfService {
     // опросы ------------------------------------------------------------------------------------------
     // печатать результаты опросов по теме -------------------
     @Override
-    public Object printResultSurvey(String title) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
+    public ResponseEntity<?> printResultSurvey(String title) {
         try {
             ResultSurvey result = iSurveyService.getResultSurveyByTitleForPrint(title);
             String path = "D:/pdf/survey_result";
@@ -311,12 +261,10 @@ public class PdfService implements IPdfService {
             // finish -----------------
             doc.close();
             log.info(PRINT_SUCCESSFULLY);
-            log.info(messageExit(methodName));
-            return new Response(List.of(title, PRINT_SUCCESSFULLY + "/survey_result"));
+            return ResponseEntity.ok(new Response(List.of(title, PRINT_SUCCESSFULLY + "/survey_result")));
         } catch (Exception error) {
-            log.error(ERROR_SERVER);
             log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+            return ResponseEntity.badRequest().body(new Response(List.of(error.getMessage())));
         }
     }
 
@@ -345,7 +293,7 @@ public class PdfService implements IPdfService {
                             el.getFinalizingPeriod().toString()
                     );
                     for (String line : listCellTwo)
-                        table.addCell(new Cell().add(line)
+                        table.addCell(new Cell().add(new Paragraph(line))
                                 .setTextAlignment(TextAlignment.CENTER).setFont(font).setFontSize(9));
                 }
         );
@@ -354,9 +302,6 @@ public class PdfService implements IPdfService {
 
     @Override
     public void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
         try {
             String path = "D:/pdf/queries";
             checkDir(path);
@@ -372,12 +317,12 @@ public class PdfService implements IPdfService {
             table.setMarginTop(10).setMarginBottom(10);
             log.info("Заполняем заголовки таблицы");
             for (String line : List.of("Помещение №", "Лицевой счёт", "Ф.И.О.", "Номер телефона"))
-                table.addCell(new Cell().add(line).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font));
+                table.addCell(new Cell().add(new Paragraph(line)).setFontSize(9).setTextAlignment(TextAlignment.CENTER).setFont(font));
             log.info("Заполняем строки таблицы");
             list.forEach(
                     el -> {
-                        for (String str : List.of(el.getApartment(), el.getBill(), el.getFullName(), el.getPhoneNumber()))
-                            table.addCell(new Cell().add(str)
+                        for (String line : List.of(el.getApartment(), el.getBill(), el.getFullName(), el.getPhoneNumber()))
+                            table.addCell(new Cell().add(new Paragraph(line))
                                     .setTextAlignment(TextAlignment.CENTER)
                                     .setFont(font)
                                     .setFontSize(9));
@@ -387,12 +332,11 @@ public class PdfService implements IPdfService {
             doc.add(table);
             log.info("После сохранения таблицы в DOC");
             doc.close();
-            log.info(messageExit(methodName));
-        } catch (FileNotFoundException error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            throw new RuntimeException(error.getMessage());
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -429,7 +373,7 @@ public class PdfService implements IPdfService {
                 "Оплачено, грн", "Долг на \n" + finalDate + " составляет, грн"
         );
         for (String line : list)
-            table.addCell(new Cell().add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            table.addCell(new Cell().add(new Paragraph(line)).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font));
     }
 
     private void createHeaderColor(Color blueViolet, String text, Document doc, PdfFont font) {
@@ -470,7 +414,7 @@ public class PdfService implements IPdfService {
 
     // font -----------------------------------
     private PdfFont createFont() throws IOException {
-        return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251", true);
+        return PdfFontFactory.createFont("C:\\Windows\\Fonts\\Arial.ttf", "CP1251");
     }
 
     // расчётный счёт для оплаты за услуги ОСББ ------------------
@@ -525,7 +469,7 @@ public class PdfService implements IPdfService {
     // заголовки в таблице debt details --------------------------
     private void fillListCellFirstRowDebtDetails(Table table, PdfFont font) {
         for (String line : TextsAndLists.forTableDebtDetails)
-            table.addCell(new Cell().add(line).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            table.addCell(new Cell().add(new Paragraph(line)).setFontSize(10).setTextAlignment(TextAlignment.CENTER).setFont(font));
     }
 
     // sorted ----------

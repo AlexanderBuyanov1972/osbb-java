@@ -1,6 +1,7 @@
 package com.example.osbb.service.ownership;
 
 import com.example.osbb.entity.ownership.Ownership;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -8,62 +9,62 @@ public interface IOwnershipService {
 
     // ------------ one -----------------------------
 
-    public Object createOwnership(Ownership one);
+    ResponseEntity<?> createOwnership(Ownership one);
 
-    public Object updateOwnership(Ownership one);
+    ResponseEntity<?> updateOwnership(Ownership one);
 
-    public Object getOwnership(Long id);
+    ResponseEntity<?> getOwnership(Long id);
 
-    public Object deleteOwnership(Long id);
+    ResponseEntity<?> deleteOwnership(Long id);
 
     // -------------- all -------------------
 
-    public Object createAllOwnership(List<Ownership> list);
+    ResponseEntity<?> createAllOwnership(List<Ownership> list);
 
-    public Object updateAllOwnership(List<Ownership> list);
+    ResponseEntity<?> updateAllOwnership(List<Ownership> list);
 
-    public Object getAllOwnership();
+    ResponseEntity<?> getAllOwnership();
 
-    public Object deleteAllOwnership();
+    ResponseEntity<?> deleteAllOwnership();
 
     // summa area --------------------------------
 
     // Общая площадь жилых и нежилых помещений
-    public Object summaAreaRooms();
+    ResponseEntity<?> summaAreaRooms();
 
     // Площадь квартир
-    public Object summaAreaApartment();
+    ResponseEntity<?> summaAreaApartment();
 
     // Площадь жилая квартир
-    public Object summaAreaLivingApartment();
+    ResponseEntity<?> summaAreaLivingApartment();
 
     // Площадь нежилых помещений
-    public Object summaAreaNonResidentialRoom();
+    ResponseEntity<?> summaAreaNonResidentialRoom();
 
     // count rooms ------------------------------------
 
-    public Object countRooms();
+    ResponseEntity<?> countRooms();
 
     // Количество квартир
-    public Object countApartment();
+    ResponseEntity<?> countApartment();
 
     // Количество нежилых помещений
-    public Object countNonResidentialRoom();
+    ResponseEntity<?> countNonResidentialRoom();
 
     // разное -----------------------------
     // получить все объекты собственности по номеру помещения (квартиры)
-    public Object getAllOwnershipByApartment(String apartment);
+    ResponseEntity<?> getAllOwnershipByApartment(String apartment);
 
     // получить все лицевые счета по номеру помещения (квартиры)
-    public Object getAllBillByApartment(String apartment);
+    ResponseEntity<?> getAllBillByApartment(String apartment);
 
     // получить все номера квартир по ФИО -------------
-    public Object getAllApartmentByFullName(String fullName);
+    ResponseEntity<?> getAllApartmentByFullName(String fullName);
 
     // получить помещение по лицевому счёту -------------
-    public Object getOwnershipByBill(String bill);
+    ResponseEntity<?> getOwnershipByBill(String bill);
 
-    public Object getMapApartmentListIdAndBill();
+    ResponseEntity<?> getMapApartmentListIdAndBill();
 
 
 }

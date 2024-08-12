@@ -2,6 +2,7 @@ package com.example.osbb.service.rate;
 
 import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -9,24 +10,24 @@ public interface IRateService {
 
     // ----- one -----
     @Transactional
-    Object createRate(Rate rate);
+    ResponseEntity<?> createRate(Rate rate);
 
     @Transactional
-    Object updateRate(Rate rate);
+    ResponseEntity<?> updateRate(Rate rate);
 
-    Object getRate(Long id);
+    ResponseEntity<?> getRate(Long id);
 
-    Object deleteRate(Long id);
+    ResponseEntity<?> deleteRate(Long id);
 
     // ----- all -----
 
-    Object createAllRate(List<Rate> list);
+    ResponseEntity<?> createAllRate(List<Rate> list);
 
-    Object updateAllRate(List<Rate> list);
+    ResponseEntity<?> updateAllRate(List<Rate> list);
 
-    Object getAllRate();
+    ResponseEntity<?> getAllRate();
 
-    Object deleteAllRate();
+    ResponseEntity<?> deleteAllRate();
 
 
 }

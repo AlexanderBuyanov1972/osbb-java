@@ -1,6 +1,6 @@
 package com.example.osbb.controller;
 
-import com.example.osbb.controller.constants.ApiConstants;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.dto.DebtDetails;
 import com.example.osbb.service.pdf.IPdfService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,48 +8,47 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = ApiConstants.PRINT)
+@RequestMapping(value = ApiPaths.PRINT)
 public class PrintController {
     @Autowired
     IPdfService service;
-    @Autowired
-    private HelpMethodsForController response;
 
     // print survey result --------------------------------
-    @GetMapping(ApiConstants.SURVEYS + ApiConstants.RESULT + ApiConstants.PARAM_TITLE)
+    @GetMapping(ApiPaths.SURVEYS + ApiPaths.RESULT + ApiPaths.PARAM_TITLE)
     public ResponseEntity<?> printResultSurvey(@PathVariable String title) {
-        return response.returnResponse(service.printResultSurvey(title));
+        return service.printResultSurvey(title);
     }
+
     // debt --------------
     // печатать одну квитанцию по конкретному помещению за последний месяц
-    @PostMapping(ApiConstants.PAYMENT + ApiConstants.DEBT)
+    @PostMapping(ApiPaths.PAYMENT + ApiPaths.DEBT)
     public ResponseEntity<?> printDebt(@RequestBody DebtDetails debt) {
-        return response.returnResponse(service.printDebt(debt));
+        return service.printDebt(debt);
     }
 
     // печатать квитанции для всех помещений за послений месяц
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.ALL)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.DEBT + ApiPaths.ALL)
     public ResponseEntity<?> printAllDebt() {
-        return response.returnResponse(service.printAllDebt());
+        return service.printAllDebt();
     }
 
     // печатать квитанции для всех помещений за послений месяц в одном файле (для разноски по квартирам)
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.ALL_IN_ONE)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.DEBT + ApiPaths.ALL_IN_ONE)
     public ResponseEntity<?> printAllToOnePdfDebtAllApartment() {
-        return response.returnResponse(service.printAllInOneDebtAllApartment());
+        return service.printAllInOneDebtAllApartment();
     }
 
     // debt details --------------------
     // печатать одну детализированную распечатку долга по конкретной квартире за всё время
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.DETAILS + ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.DEBT + ApiPaths.DETAILS + ApiPaths.PARAM_ID)
     public ResponseEntity<?> printDebtDetails(@PathVariable Long id) {
-        return response.returnResponse(service.printDebtDetails(id));
+        return service.printDebtDetails(id);
     }
 
     // печатать детализированную распечатку долга за всё время для всех квартир на разных файлах
-    @GetMapping(ApiConstants.PAYMENT + ApiConstants.DEBT + ApiConstants.DETAILS)
+    @GetMapping(ApiPaths.PAYMENT + ApiPaths.DEBT + ApiPaths.DETAILS)
     public ResponseEntity<?> printAllDebtDetails() {
-        return response.returnResponse(service.printAllDebtDetails());
+        return service.printAllDebtDetails();
     }
 
 

@@ -1,212 +1,137 @@
 package com.example.osbb.service.rate;
 
-import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.RateDAO;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.Response;
 import com.example.osbb.entity.Rate;
 import jakarta.transaction.Transactional;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RateService implements IRateService {
-    private static final Logger log = Logger.getLogger(RateService.class);
-    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
+
     @Autowired
     private RateDAO rateDAO;
 
     // ---------------- one -----------------
     @Override
-    public Object createRate(Rate rate) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        String messageResponse = "Тариф с датой : " + rate.getDate() + " уже существует.";
-        try {
-            if (!rateDAO.existsByDate(rate.getDate())) {
-                rate = rateDAO.save(rate);
-                messageResponse = "Тариф с ID : " + rate.getId() + " создан успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(rate, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> createRate(Rate rate) {
+        String message = "Тариф с датой : " + rate.getDate() + " уже существует.";
+        if (!rateDAO.existsByDate(rate.getDate())) {
+            rate = rateDAO.save(rate);
+            message = "Тариф с ID : " + rate.getId() + " создан успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(rate, List.of(message)));
         }
-
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     @Override
-    public Object updateRate(Rate rate) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Тариф с ID : " + rate.getId() + " не существует";
-        try {
-            if (rateDAO.existsById(rate.getId())) {
-                rateDAO.delete(rate);
-                rate = rateDAO.save(rate);
-                messageResponse = "Тариф с ID : " + rate.getId() + " обновлён успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(rate, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> updateRate(Rate rate) {
+        String message = "Тариф с ID : " + rate.getId() + " не существует";
+        if (rateDAO.existsById(rate.getId())) {
+            rateDAO.delete(rate);
+            rate = rateDAO.save(rate);
+            message = "Тариф с ID : " + rate.getId() + " обновлён успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(rate, List.of(message)));
         }
-
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     @Override
-    public Object getRate(Long id) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        String messageResponse = "Тариф с ID : " + id + " не существует.";
-        try {
-            Rate rate = rateDAO.findById(id).orElse(null);
-            if (rate != null)
-                messageResponse = "Тариф с ID : " + id + " получен успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(rate, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> getRate(Long id) {
+        String message = "Тариф с ID : " + id + " не существует.";
+        Rate rate = rateDAO.findById(id).orElse(null);
+        if (rate == null) {
+            log.info(message);
+            return ResponseEntity.badRequest().body(new Response(List.of(message)));
         }
-
+        message = "Тариф с ID : " + id + " получен успешно";
+        log.info(message);
+        return ResponseEntity.ok(new Response(rate, List.of(message)));
     }
 
     @Override
-    public Object deleteRate(Long id) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Тариф с ID : " + id + " не существует";
-        log.info(messageEnter(methodName));
-        try {
-            if (rateDAO.existsById(id)) {
-                rateDAO.deleteById(id);
-                messageResponse = "Тариф с ID : " + id + " удалён успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(id, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> deleteRate(Long id) {
+        String message = "Тариф с ID : " + id + " не существует";
+        if (rateDAO.existsById(id)) {
+            rateDAO.deleteById(id);
+            message = "Тариф с ID : " + id + " удалён успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(id, List.of(message)));
         }
-
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     // ------------------ all -----------------------
     @Override
-    public Object createAllRate(List<Rate> rates) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Ни один из тарифов создан не был";
-        log.info(messageEnter(methodName));
-        try {
-            List<Rate> result = new ArrayList<>();
-            for (Rate rate : rates) {
-                if (!rateDAO.existsById(rate.getId()) &&
-                        !rateDAO.existsByDate(rate.getDate())) {
-                    rate = rateDAO.save(rate);
-                    log.info("Тариф с ID : " + rate.getId() + " создан успешно");
-                    result.add(rate);
-                }
+    public ResponseEntity<?> createAllRate(List<Rate> rates) {
+        String message = "Ни один из тарифов создан не был";
+        List<Rate> result = new ArrayList<>();
+        for (Rate rate : rates) {
+            if (!rateDAO.existsById(rate.getId()) &&
+                    !rateDAO.existsByDate(rate.getDate())) {
+                rate = rateDAO.save(rate);
+                log.info("Тариф с ID : {} создан успешно", rate.getId());
+                result.add(rate);
             }
-            messageResponse = result.isEmpty() ? messageResponse :
-                    "Успешно создано " + result.size() + " тарифов из " + rates.size();
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(sortedByLocalDate(result), List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-
+        if (result.isEmpty()) {
+            log.info(message);
+            return ResponseEntity.badRequest().body(new Response(List.of(message)));
+        }
+        message = "Успешно создано " + result.size() + " тарифов из " + rates.size();
+        log.info(message);
+        return ResponseEntity.ok(new Response(sortedByLocalDate(result), List.of(message)));
     }
 
     @Override
     @Transactional
-    public Object updateAllRate(List<Rate> rates) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        String messageResponse = "Не обновлён ни один тариф";
-        try {
-            List<Rate> result = new ArrayList<>();
-            for (Rate rate : rates) {
-                if (rateDAO.existsById(rate.getId())) {
-                    rate = rateDAO.save(rate);
-                    log.info("Тариф с ID : " + rate.getId() + " обновлён успешно");
-                    result.add(rate);
-                }
+    public ResponseEntity<?> updateAllRate(List<Rate> rates) {
+        String message = "Не обновлён ни один тариф";
+        List<Rate> result = new ArrayList<>();
+        for (Rate rate : rates) {
+            if (rateDAO.existsById(rate.getId())) {
+                rate = rateDAO.save(rate);
+                log.info("Тариф с ID : {} обновлён успешно", rate.getId());
+                result.add(rate);
             }
-            messageResponse = result.isEmpty() ? messageResponse :
-                    "Успешно обновлено " + result.size() + " тарифов из " + rates.size();
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(sortedByLocalDate(result), List.of(messageResponse));
-        } catch (
-                Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
-
+        if (result.isEmpty()) {
+            log.info(message);
+            return ResponseEntity.badRequest().body(new Response(List.of(message)));
+        }
+        message = "Успешно обновлено " + result.size() + " тарифов из " + rates.size();
+        log.info(message);
+        return ResponseEntity.ok(new Response(sortedByLocalDate(result), List.of(message)));
     }
 
     @Override
-    public Object getAllRate() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            List<Rate> result = rateDAO.findAll();
-            String messageResponse = "Tарифы получены успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(sortedByLocalDate(result), List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
-
+    public ResponseEntity<?> getAllRate() {
+        List<Rate> result = rateDAO.findAll();
+        String message = "Tарифы получены успешно";
+        log.info(message);
+        return ResponseEntity.ok(new Response(sortedByLocalDate(result), List.of(message)));
     }
 
     @Override
     @Transactional
-    public Object deleteAllRate() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            rateDAO.deleteAll();
-            String messageResponse = "Все тарифы успешно удалены";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
-
+    public ResponseEntity<?> deleteAllRate() {
+        rateDAO.deleteAll();
+        String message = "Все тарифы успешно удалены";
+        log.info(message);
+        return ResponseEntity.ok(new Response(List.of(message)));
     }
 
     private List<Rate> sortedById(List<Rate> list) {
@@ -215,13 +140,5 @@ public class RateService implements IRateService {
 
     private List<Rate> sortedByLocalDate(List<Rate> list) {
         return list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).collect(Collectors.toList());
-    }
-
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
-    }
-
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
     }
 }

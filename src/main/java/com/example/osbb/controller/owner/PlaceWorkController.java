@@ -1,7 +1,6 @@
 package com.example.osbb.controller.owner;
 
-import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.controller.HelpMethodsForController;
+import com.example.osbb.controller.constants.ApiPaths;
 import com.example.osbb.entity.owner.PlaceWork;
 import com.example.osbb.service.placework.IPlaceWorkService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,57 +10,54 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = ApiConstants.PLACE_WORK)
+@RequestMapping(value = ApiPaths.PLACE_WORK)
 public class PlaceWorkController {
 
     @Autowired
     private IPlaceWorkService service;
 
-    @Autowired
-    private HelpMethodsForController response;
-
     // -------------- one ----------------
 
     @PostMapping
     public ResponseEntity<?> createPlaceWork(@RequestBody PlaceWork placeWork) {
-        return response.returnResponse(service.createPlaceWork(placeWork));
+        return service.createPlaceWork(placeWork);
     }
 
     @PutMapping
     public ResponseEntity<?> updatePlaceWork(@RequestBody PlaceWork placeWork) {
-        return response.returnResponse(service.updatePlaceWork(placeWork));
+        return service.updatePlaceWork(placeWork);
     }
 
-    @GetMapping(ApiConstants.PARAM_ID)
+    @GetMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> getPlaceWork(@PathVariable Long id) {
-        return response.returnResponse(service.getPlaceWork(id));
+        return service.getPlaceWork(id);
     }
 
-    @DeleteMapping(ApiConstants.PARAM_ID)
+    @DeleteMapping(ApiPaths.PARAM_ID)
     public ResponseEntity<?> deletePlaceWork(@PathVariable Long id) {
-        return response.returnResponse(service.deletePlaceWork(id));
+        return service.deletePlaceWork(id);
     }
 
     // ---------------------- all ----------------------
 
-    @PostMapping(ApiConstants.ALL)
+    @PostMapping(ApiPaths.ALL)
     public ResponseEntity<?> createAllPlaceWork(@RequestBody List<PlaceWork> list) {
-        return response.returnResponse(service.createAllPlaceWork(list));
+        return service.createAllPlaceWork(list);
     }
 
-    @PutMapping(ApiConstants.ALL)
+    @PutMapping(ApiPaths.ALL)
     public ResponseEntity<?> updateAllPlaceWork(@RequestBody List<PlaceWork> list) {
-        return response.returnResponse(service.updateAllPlaceWork(list));
+        return service.updateAllPlaceWork(list);
     }
 
-    @GetMapping(ApiConstants.ALL)
+    @GetMapping(ApiPaths.ALL)
     public ResponseEntity<?> getAllPlaceWork() {
-        return response.returnResponse(service.getAllPlaceWork());
+        return service.getAllPlaceWork();
     }
 
-    @DeleteMapping(ApiConstants.ALL)
+    @DeleteMapping(ApiPaths.ALL)
     public ResponseEntity<?> deleteAllPlaceWork() {
-        return response.returnResponse(service.deleteAllPlaceWork());
+        return service.deleteAllPlaceWork();
     }
 
 }

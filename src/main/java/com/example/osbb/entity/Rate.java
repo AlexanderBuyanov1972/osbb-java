@@ -1,9 +1,17 @@
 package com.example.osbb.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "rates")
 public class Rate {
@@ -15,44 +23,4 @@ public class Rate {
     @Column(name = "value")
     private Double value;
 
-    public Rate() {
-    }
-
-    public Rate(Long id, LocalDate date, Double value) {
-        this.id = id;
-        this.date = date;
-        this.value = value;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public Double getValue() {
-        return value;
-    }
-
-    public Rate setId(Long id) {
-        this.id = id;
-        return this;
-    }
-
-    public Rate setDate(LocalDate date) {
-        this.date = date;
-        return this;
-    }
-
-    public Rate setValue(Double value) {
-        this.value = value;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Rate = { id = " + id + ", date = " + date + ", value = " + value + " }";
-    }
 }

@@ -1,66 +1,56 @@
 package com.example.osbb.security.controller;
 
-import com.example.osbb.controller.HelpMethodsForController;
-import com.example.osbb.controller.constants.ApiConstants;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.service.AuthService;
+import com.example.osbb.controller.constants.ApiPaths;
+import com.example.osbb.security.dto.LoginRequest;
+import com.example.osbb.security.dto.RegistrationRequest;
+import com.example.osbb.security.service.auth.AuthService;
+import com.example.osbb.security.service.auth.IAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(ApiConstants.AUTH)
+@RequestMapping(ApiPaths.AUTH)
 public class AuthController {
     @Autowired
-    private AuthService authService;
-    @Autowired
-    private HelpMethodsForController response;
+    private IAuthService iAuthService;
 
-    @PostMapping(value = ApiConstants.REGISTRATION)
+    @PostMapping(value = ApiPaths.REGISTRATION)
     @ResponseBody
-    public ResponseEntity<?> registration(HttpServletRequest request) {
-        return response.returnResponse(authService.registration(request));
+    public ResponseEntity<?> registration(@RequestBody RegistrationRequest registrationRequest) {
+        return iAuthService.registration(registrationRequest);
     }
 
-    @PostMapping(value = ApiConstants.LOGIN)
+    @PostMapping(value = ApiPaths.LOGIN)
     @ResponseBody
-    public ResponseEntity<?> login(HttpServletRequest request) {
-        return response.returnResponse(authService.login(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        return iAuthService.login(loginRequest);
     }
 
-    @GetMapping(value = ApiConstants.LOGOUT)
+    @GetMapping(value = ApiPaths.LOGOUT)
     @ResponseBody
-    public  ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        Object object = authService.logout(request, response);
-        return object.getClass().equals(ErrorResponseMessages.class) ?
-                ResponseEntity.badRequest()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(object)
-                :
-                ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(object);
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        return iAuthService.logout(request, response);
     }
 
-    @GetMapping(value = ApiConstants.ACTIVATE + ApiConstants.LINK)
+    @GetMapping(value = ApiPaths.ACTIVATE + ApiPaths.LINK)
     @ResponseBody
     public ResponseEntity<?> activate(HttpServletRequest request) {
-        return response.returnResponse(authService.activate(request));
+        return iAuthService.activate(request);
     }
 
-    @GetMapping(value = ApiConstants.REFRESH)
+    @GetMapping(value = ApiPaths.REFRESH)
     @ResponseBody
     public ResponseEntity<?> refresh(HttpServletRequest request) {
-        return response.returnResponse(authService.refresh(request));
+        return iAuthService.refresh(request);
     }
 
-    @GetMapping(value = ApiConstants.CHECK + ApiConstants.LINK)
+    @GetMapping(value = ApiPaths.CHECK + ApiPaths.LINK)
     @ResponseBody
     public ResponseEntity<?> check(HttpServletRequest request) {
-        return response.returnResponse(authService.check(request));
+        return iAuthService.check(request);
     }
 }

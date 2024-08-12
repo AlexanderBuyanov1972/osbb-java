@@ -9,15 +9,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 @EnableJpaRepositories
 public interface UserDAO extends JpaRepository<User, Long> {
-    boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
 
-    boolean existsByActivationLink(String activationLink);
-
-    User findByEmail(String email);
-
     User findByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByActivationLink(String activationLink);
 
     User findByActivationLink(String activationLink);
 

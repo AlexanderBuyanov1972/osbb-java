@@ -5,26 +5,27 @@ import com.example.osbb.dto.ApartmentBillFullNamePhoneNumber;
 import com.example.osbb.dto.DebtDetails;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.layout.Document;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface IPdfService {
     // debt ---------------------------
-    public Object printDebt(DebtDetails debt);
+    ResponseEntity<?> printDebt(DebtDetails debt);
 
-    public Object printAllDebt();
+    ResponseEntity<?> printAllDebt();
 
-    public Object printAllInOneDebtAllApartment();
+    ResponseEntity<?> printAllInOneDebtAllApartment();
 
     // debt details -----------------------
-    public Object printDebtDetails(Long id);
+    ResponseEntity<?> printDebtDetails(Long id);
 
-    public Object printAllDebtDetails();
+    ResponseEntity<?> printAllDebtDetails();
 
-     // result survey -------------
-    public Object printResultSurvey(String title);
+    // result survey -------------
+    ResponseEntity<?> printResultSurvey(String title);
 
-    public void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list);
+    void printQueryListApartmentBillFullNamePhoneNumber(List<ApartmentBillFullNamePhoneNumber> list);
 
-    public void createAppealListText(List<String> appealToTheResidentsList, Document doc, PdfFont font);
+    void createAppealListText(List<String> appealToTheResidentsList, Document doc, PdfFont font);
 }

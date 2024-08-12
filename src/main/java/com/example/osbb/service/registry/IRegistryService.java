@@ -1,10 +1,12 @@
 package com.example.osbb.service.registry;
 
+import org.springframework.http.ResponseEntity;
+
 public interface IRegistryService {
-    Object getRegistryOwners();
+    ResponseEntity<?> getRegistryOwners();
 
-    Object getRegistryOwnerships();
+    ResponseEntity<?> getRegistryOwnerships();
 
-    Object getBuildingCharacteristics();
+    ResponseEntity<?> getBuildingCharacteristics();
 
 }

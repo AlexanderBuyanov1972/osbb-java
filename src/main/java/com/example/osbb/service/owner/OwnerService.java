@@ -1,15 +1,12 @@
 package com.example.osbb.service.owner;
 
-import com.example.osbb.controller.constants.MessageConstants;
 import com.example.osbb.dao.owner.OwnerDAO;
-import com.example.osbb.dto.response.ErrorResponseMessages;
-import com.example.osbb.dto.response.Response;
+import com.example.osbb.dto.Response;
 import com.example.osbb.entity.owner.Owner;
-import com.example.osbb.service.Comparators;
-import com.example.osbb.service.FunctionHelp;
 import jakarta.transaction.Transactional;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,247 +14,170 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class OwnerService implements IOwnerService {
-    private static final Logger log = Logger.getLogger(IOwnerService.class);
-    private final String ERROR_SERVER = MessageConstants.ERROR_SERVER;
     @Autowired
     private OwnerDAO ownerDAO;
-    @Autowired
-    private FunctionHelp functionHelp;
-    @Autowired
-    private Comparators comparators;
 
     // one --------------------------------
     @Override
     @Transactional
-    public Object createOwner(Owner owner) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственник с таким Ф.И.О. и датой рождения уже существует";
-        log.info(messageEnter(methodName));
-        try {
-            if (!ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
-                    owner.getLastName(),
-                    owner.getFirstName(),
-                    owner.getSecondName(),
-                    owner.getDateBirth())) {
-                owner.setActive(false);
-                owner = ownerDAO.save(owner);
-                messageResponse = "Создание собственника c ID : " + owner.getId() + " прошло успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(owner, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> createOwner(Owner owner) {
+        String message = "Собственник с таким Ф.И.О. и датой рождения уже существует";
+        if (!ownerDAO.existsByLastNameAndFirstNameAndSecondNameAndDateBirth(
+                owner.getLastName(),
+                owner.getFirstName(),
+                owner.getSecondName(),
+                owner.getDateBirth())) {
+            owner.setActive(false);
+            owner = ownerDAO.save(owner);
+            message = "Создание собственника c ID : " + owner.getId() + " прошло успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(owner, List.of(message)));
         }
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
+
     }
 
     @Override
     @Transactional
-    public Object updateOwner(Owner owner) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственник с ID : " + owner.getId() + " не существует";
-        log.info(messageEnter(methodName));
-        try {
-            if (ownerDAO.existsById(owner.getId())) {
-                owner = ownerDAO.save(owner);
-                messageResponse = "Обновление собственника с ID : " + owner.getId() + " прошло успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(owner, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> updateOwner(Owner owner) {
+        String message = "Собственник с ID : " + owner.getId() + " не существует";
+        if (ownerDAO.existsById(owner.getId())) {
+            owner = ownerDAO.save(owner);
+            message = "Обновление собственника с ID : " + owner.getId() + " прошло успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(owner, List.of(message)));
         }
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     @Override
-    public Object getOwner(Long id) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственник с ID : " + id + " не существует";
-        log.info(messageEnter(methodName));
-        try {
-            Owner owner = ownerDAO.findById(id).orElse(null);
-            messageResponse = owner == null ? messageResponse :
-                    "Собственник " + functionHelp.mapOwnerToFullName(owner) + " получен успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(owner, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> getOwner(Long id) {
+        String message = "Собственник с ID : " + id + " не существует";
+        Owner owner = ownerDAO.findById(id).orElse(null);
+        if (owner != null) {
+            message = "Собственник " + mapOwnerToFullName(owner) + " получен успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(owner, List.of(message)));
         }
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     @Override
-    public Object getOwnerByFullName(String fullName) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственник с ФИО : " + fullName + " не существует";
-        log.info(messageEnter(methodName));
-        try {
-            String[] fios = fullName.split(" ");
-            Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
-            messageResponse = owner == null ? messageResponse : "Получение собственника с ФИО : " + fullName + " прошло успешно";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(owner, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> getOwnerByFullName(String fullName) {
+        String message = "Собственник с ФИО : " + fullName + " не существует";
+        String[] fios = fullName.split(" ");
+        Owner owner = ownerDAO.findByLastNameAndFirstNameAndSecondName(fios[0], fios[1], fios[2]);
+        if (owner != null) {
+            message = "Получение собственника с ФИО : " + fullName + " прошло успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(owner, List.of(message)));
         }
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(List.of(message)));
     }
 
     @Override
     @Transactional
-    public Object deleteOwner(Long id) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственник с ID : " + id + " не существует";
-        log.info(messageEnter(methodName));
-        try {
-            if (ownerDAO.existsById(id)) {
-                ownerDAO.deleteById(id);
-                messageResponse = "Удаление собственника с ID : " + id + " прошло успешно";
-            }
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(id, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
+    public ResponseEntity<?> deleteOwner(Long id) {
+        String message = "Собственник с ID : " + id + " не существует";
+        if (ownerDAO.existsById(id)) {
+            ownerDAO.deleteById(id);
+            message = "Удаление собственника с ID : " + id + " прошло успешно";
+            log.info(message);
+            return ResponseEntity.ok(new Response(id, List.of(message)));
         }
+        log.info(message);
+        return ResponseEntity.badRequest().body(new Response(id, List.of(message)));
+
     }
 
     // all -----------------------
     @Override
     @Transactional
-    public Object createAllOwner(List<Owner> owners) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Ни один из собственников не создан";
-        log.info(messageEnter(methodName));
-        try {
-            List<Owner> result = new ArrayList<>();
-            for (Owner one : owners) {
-                if (!ownerDAO.existsById(one.getId())) {
-                    one.setActive(true);
-                    one = ownerDAO.save(one);
-                    log.info("Собственник с ID : " + one.getId() + " успешно создан");
-                    result.add(one);
-                }
+    public ResponseEntity<?> createAllOwner(List<Owner> owners) {
+        String message = "Ни один из собственников не создан";
+        List<Owner> result = new ArrayList<>();
+        for (Owner one : owners) {
+            if (!ownerDAO.existsById(one.getId())) {
+                one.setActive(true);
+                one = ownerDAO.save(one);
+                log.info("Собственник с ID : {} успешно создан", one.getId());
+                result.add(one);
             }
-            messageResponse = result.isEmpty() ? messageResponse : "Создано " + result.size() + " собственников";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(comparators.sortedByLastName(result), List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
+        if (result.isEmpty()) {
+            log.info(message);
+            return ResponseEntity.badRequest().body(new Response(List.of(message)));
+        }
+        message = "Создано " + result.size() + " собственников";
+        log.info(message);
+        return ResponseEntity.ok(new Response(sortedByLastName(result), List.of(message)));
 
     }
 
     @Override
     @Transactional
-    public Object updateAllOwner(List<Owner> owners) {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Ни один из собственников не обновлён";
-        log.info(messageEnter(methodName));
-        try {
-            List<Owner> result = new ArrayList<>();
-            for (Owner one : owners) {
-                if (ownerDAO.existsById(one.getId())) {
-                    one = ownerDAO.save(one);
-                    log.info("Собственник с ID : " + one.getId() + " успешно обновлён");
-                    result.add(one);
-                }
+    public ResponseEntity<?> updateAllOwner(List<Owner> owners) {
+        String message = "Ни один из собственников не обновлён";
+        List<Owner> result = new ArrayList<>();
+        for (Owner one : owners) {
+            if (ownerDAO.existsById(one.getId())) {
+                one = ownerDAO.save(one);
+                log.info("Собственник с ID : " + one.getId() + " успешно обновлён");
+                result.add(one);
             }
-            messageResponse = result.isEmpty() ? messageResponse : "Обновлено " + result.size() + " собственников";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(comparators.sortedByLastName(result), List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
         }
+        if (result.isEmpty()) {
+            log.info(message);
+            return ResponseEntity.badRequest().body(new Response(List.of(message)));
+        }
+        message = "Обновлено " + result.size() + " собственников";
+        log.info(message);
+        return ResponseEntity.ok(new Response(sortedByLastName(result), List.of(message)));
     }
 
     @Override
-    public Object getAllOwner() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            List<Owner> result = ownerDAO.findAll().stream().sorted(comparators.comparatorByLastName()).toList();
-            String messageResponse = "Получено " + result.size() + " собственников";
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(result, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+    public ResponseEntity<?> getAllOwner() {
+        List<Owner> result = ownerDAO.findAll().stream().sorted(comparatorByLastName()).toList();
+        String message = "Получено " + result.size() + " собственников";
+        log.info(message);
+        return ResponseEntity.ok(new Response(result, List.of(message)));
     }
 
     @Override
     @Transactional
-    public Object deleteAllOwner() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        String messageResponse = "Собственники удалены успешно";
-        log.info(messageEnter(methodName));
-        try {
-            ownerDAO.deleteAll();
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+    public ResponseEntity<?> deleteAllOwner() {
+        String message = "Собственники удалены успешно";
+        ownerDAO.deleteAll();
+        log.info(message);
+        return ResponseEntity.ok(new Response(List.of(message)));
     }
 
     // count ------------------------------
     @Override
-    public Object countOwners() {
-        String methodName = new Object() {
-        }.getClass().getEnclosingMethod().getName();
-        log.info(messageEnter(methodName));
-        try {
-            long count = ownerDAO.count();
-            String messageResponse = "Количество собственников составляет : " + count;
-            log.info(messageResponse);
-            log.info(messageExit(methodName));
-            return new Response(count, List.of(messageResponse));
-        } catch (Exception error) {
-            log.error(ERROR_SERVER);
-            log.error(error.getMessage());
-            return new ErrorResponseMessages(List.of(ERROR_SERVER, error.getMessage()));
-        }
+    public ResponseEntity<?> countOwners() {
+        long count = ownerDAO.count();
+        String message = "Количество собственников составляет : " + count;
+        log.info(message);
+        return ResponseEntity.ok(new Response(count, List.of(message)));
     }
 
-    private String messageEnter(String name) {
-        return "Method " + name + " : enter";
+    public String mapOwnerToFullName(Owner o) {
+        return o.getLastName() + " " + o.getFirstName() + " " + o.getSecondName();
     }
 
-    private String messageExit(Object name) {
-        return "Method " + name + " : exit";
+    public List<Owner> sortedByLastName(List<Owner> list) {
+        return list.stream().sorted((a, b) -> a.getLastName().compareTo(b.getLastName())).collect(Collectors.toList());
     }
+
+    public Comparator<Owner> comparatorByLastName() {
+        return (a, b) -> a.getLastName().compareTo(b.getLastName());
+    }
+
 }
