@@ -20,10 +20,12 @@ public class AuthController {
 
     @PostMapping(value = ApiPaths.REGISTRATION)
     @ResponseBody
+//    При успешной регистрации возвращаем объект класса UserDto
     public ResponseEntity<?> registration(@RequestBody RegistrationRequest registrationRequest) {
         return iAuthService.registration(registrationRequest);
     }
 
+    // При умпешном входе в систему возвращаем объект класса TokensDto
     @PostMapping(value = ApiPaths.LOGIN)
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {

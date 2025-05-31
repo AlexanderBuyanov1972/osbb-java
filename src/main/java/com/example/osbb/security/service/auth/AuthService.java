@@ -12,6 +12,7 @@ import com.example.osbb.security.entity.User;
 import com.example.osbb.security.service.token.ITokenService;
 import com.example.osbb.security.service.user.IUserService;
 import com.example.osbb.service.mail.MailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -69,6 +70,7 @@ public class AuthService implements IAuthService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> login(LoginRequest loginRequestest) {
         try {
             String message = "Авторизация прошла успешно";
